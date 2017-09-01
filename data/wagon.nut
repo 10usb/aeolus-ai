@@ -11,8 +11,8 @@ function Wagon::GetFor(cargo_id, rail_type){
 	wagons.KeepValue(1);
 	wagons.Valuate(AIEngine.GetCargoType);
 	wagons.KeepValue(cargo_id);
-	wagons.Valuate(AIEngine.GetRailType);
-	wagons.KeepValue(rail_type);
+	wagons.Valuate(AIEngine.CanRunOnRail, rail_type);
+	wagons.KeepValue(1);
 	return wagons.Begin();
 }
 

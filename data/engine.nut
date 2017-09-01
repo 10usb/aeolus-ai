@@ -23,15 +23,21 @@ function Engine::GetForCargo(vehicle_type, cargo_id){
 
 	local temp = AIList();
 	temp.AddList(engines);
-	temp.Valuate(AIEngine.CanRefitCargo, cargo_id);
+	temp.Valuate(AIEngine.CanPullCargo, cargo_id);
 	temp.KeepValue(1);
 	possibilities.AddList(temp);
 
 	local temp = AIList();
 	temp.AddList(engines);
-	temp.Valuate(AIEngine.CanPullCargo, cargo_id);
+	temp.Valuate(AIEngine.CanRefitCargo, cargo_id);
 	temp.KeepValue(1);
-	possibilities.AddList(temp);
+
+	if(vehicle_type == AIVehicle.VT_RAIL && AICargo.IsFreight(cargo_id)){
+		possibilities.RemoveList(temp);
+	}else{
+		possibilities.AddList(temp);
+	}
+
 
 	possibilities.Sort(AIList.SORT_BY_ITEM, true);
 
@@ -59,4 +65,37 @@ function Engine::GetWagonLength(engine_id, cargo_id, max_distance = 0){
 	}
 
 	return length;
+}
+
+function Engine::GetEstimatedDistance(engine_id, days, efficiency = 0.45){
+	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 44.3).tointeger();
+}
+
+function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){
+	local capacity = 0;
+	if(AIEngine.CanRefitCargo(engine_id, cargo_id)){
+		capacity+= AIEngine.GetCapacity(engine_id);
+	}
+	if(AIEngine.CanPullCargo(engine_id, cargo_id)){
+		if(wagon_id < 0){
+			wagon_id = Wagon.GetFor(cargo_id, AIEngine.GetRailType(engine_id));
+			if(wagon_id < 0){
+				AILog.Error("No wagon selected");
+			}
+		}
+
+		if(length <= 0){
+			length = Engine.GetWagonLength(engine_id, cargo_id);
+		}
+		capacity+= AIEngine.GetCapacity(wagon_id) * length;
+	}
+
+	return capacity;
+}
+
+function Engine::GetEstimatedIncome(engine_id, cargo_id, days, length = 0, wagon_id = -1, efficiency = 0.4){
+	local capacity		= Engine.GetCapacity(engine_id, cargo_id, length, wagon_id);
+	local cargoPrice	= AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, days, efficiency), days);
+	local cost = AIEngine.GetRunningCost(engine_id) / 365.0 * days;
+	return ((capacity * cargoPrice) - cost).tointeger();
 }

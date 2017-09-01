@@ -59,7 +59,6 @@ function Company::DecreaseCargoFavor(cargo_id){
 	Company.global.cargo.favor.Sort(AIList.SORT_BY_VALUE, false);
 
 	AILog.Info("Decreasing favor for " + AICargo.GetCargoLabel(cargo_id));
-	Aeolus.Sleep(10);
 }
 
 function Company::GetFavoredVehicleType(){

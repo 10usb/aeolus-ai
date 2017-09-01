@@ -36,39 +36,24 @@ function FindDestination::ProcessIndustry(opportunity){
 	AILog.Info("Cargo: " + AICargo.GetCargoLabel(opportunity.cargo_id));
 
 	local engines = Engine.GetForCargo(AIVehicle.VT_RAIL, opportunity.cargo_id);
-	engines.Valuate(Engine.GetWagonLength, opportunity.cargo_id);
+	engines.Valuate(Engine.GetEstimatedIncome, opportunity.cargo_id, 100);
+	engines.Sort(AIList.SORT_BY_VALUE, false);
 
-	foreach(engine_id, length in engines){
-		AILog.Info(AIEngine.GetName(engine_id) + " (" + length + ")");
-	}
+	local engine_id = engines.Begin();
+	//engines.Valuate(Engine.GetEstimatedDistance);
 
-	Aeolus.Sleep(50);
+	AILog.Info(AIEngine.GetName(engine_id));
+	AILog.Info("min: " + Engine.GetEstimatedDistance(engine_id, 80));
+	AILog.Info("max: " + Engine.GetEstimatedDistance(engine_id, 120));
 
-	local cargos = AICargoList_IndustryProducing(opportunity.source.industry_id);
-
-	local industries = AIIndustryList_CargoAccepting(opportunity.cargo_id)
-
-	industries.Valuate(Opportunity.GetIndustryProfit, opportunity.source.industry_id, opportunity.vehicle_type);
-	industries.Sort(AIList.SORT_BY_VALUE, false);
-	if(industries.Count() > 0){
-		industries.KeepAboveValue(industries.GetValue(industries.Begin()) / 3);
-	}
+	local industries = AIIndustryList_CargoAccepting(opportunity.cargo_id);
+	industries.Valuate(AIIndustry.GetDistanceSquareToTile, AIIndustry.GetLocation(opportunity.source.industry_id));
+	industries.KeepBetweenValue(pow(Engine.GetEstimatedDistance(engine_id, 80), 2).tointeger(), pow(Engine.GetEstimatedDistance(engine_id, 120), 2).tointeger());
 
 	foreach(industry_id, value in industries){
-		//AILog.Info("  " + value + " = " + AIIndustry.GetName(industry_id));
+		AILog.Info("  " + sqrt(value).tointeger() + " = " + AIIndustry.GetName(industry_id));
 	}
 
-	local destination_industry_id = List.RandPriority(industries);
-	AILog.Info("    " + AIIndustry.GetName(destination_industry_id));
-	cargos.KeepList(AICargoList_IndustryAccepting(destination_industry_id));
-
-	local distance	= AIMap.DistanceManhattan(AIIndustry.GetLocation(opportunity.source.industry_id), AIIndustry.GetLocation(destination_industry_id));
-	local profit	= 0;
-	foreach(cargo_id, dummy in cargos){
-		local production = AIIndustry.GetLastMonthProduction(opportunity.source.industry_id, cargo_id) - AIIndustry.GetLastMonthTransported(opportunity.source.industry_id, cargo_id);
-
-		local engines = Opportunity.GetMonthlyEngineProfit(cargo_id, distance, production, opportunity.vehicle_type);
-		AILog.Info("    " + AIEngine.GetName(engines.Begin()) + " transporting " + AICargo.GetCargoLabel(cargo_id));
-	}
+	//Aeolus.Sleep(50);
 	return false;
 }
