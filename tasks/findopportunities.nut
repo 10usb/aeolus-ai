@@ -9,7 +9,7 @@ function FindOpportunities::Run(){
 
 	if(Opportunity.Count() > 10) return this.Sleep(500);
 
-	if(AICargo.IsFreight(cargo_id)){
+	if(AICargo.GetTownEffect(cargo_id) == AICargo.TE_NONE){
 		local industries = AIIndustryList_CargoProducing(cargo_id);
 
 		industries.RemoveList(Opportunity.industries);
@@ -31,8 +31,11 @@ function FindOpportunities::Run(){
 		}else{
 			Company.DecreaseCargoFavor(cargo_id);
 		}
+	}else if(AICargo.IsFreight(cargo_id)){
+		AILog.Warning("Industry <==> Town opportunities not yet supported (" + AICargo.GetCargoLabel(cargo_id) + ")");
+		Company.DecreaseCargoFavor(cargo_id);
 	}else{
-		AILog.Warning("Town opportunities not yet supported (" + AICargo.GetCargoLabel(cargo_id) + ")");
+		AILog.Warning("Town <==> Town opportunities not yet supported (" + AICargo.GetCargoLabel(cargo_id) + ")");
 		Company.DecreaseCargoFavor(cargo_id);
 	}
 

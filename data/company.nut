@@ -13,7 +13,7 @@ function Company::Init(){
 						"Phanes", "Pontus", "Tartarus", "Thalassa", "Hyperion", "Iapetus", "Coeus", "Crius", "Cronus", "Mnemosyne", "Oceanus", "Phoebe",
 						"Rhea", "Tethys", "Theia", "Themis", "Asteria", "Astraeus", "Atlas", "Aura", "Dione", "Eos", "Epimetheus", "Eurybia", "Eurynome",
 						"Helios", "Clymene", "Lelantos", "Leto", "Menoetius", "Metis", "Ophion", "Pallas", "Perses", "Prometheus", "Selene", "Styx" ];
-	local postfixes	= [ "", "", "", "", "", "", " Ltd.", " Corp.", " Inc.", " Ltd. Co.", " GmbH", " & Co", "V.O.F.", "B.V." ]
+	local postfixes	= [ "", "", "", "", "", "", " Ltd.", " Corp.", " Inc.", " Ltd. Co.", " GmbH", " & Co", " V.O.F.", " B.V." ]
 	local name		= "Unknown";
 	do {
 		name = names[AIBase.RandRange(names.len())];
@@ -24,7 +24,7 @@ function Company::Init(){
 
 	Company.global.cargo = Preference(AICargoList());
 
-	AILog.Info("Supply me " + AICargo.GetCargoLabel(Company.global.cargo.GetFavored()) + "!!! I would like that, please");
+	AILog.Info("Supply me " + AICargo.GetCargoLabel(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
 
 	local vehicle_types = AIList();
 	vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
@@ -34,11 +34,12 @@ function Company::Init(){
 
 	Company.global.vehicle = Preference(vehicle_types);
 
+	AILog.Info("Tuning in on some great music while running my company");
 	switch(Company.global.vehicle.GetFavored()){
-		case AIVehicle.VT_RAIL: AILog.Info("Great Train Robbery by Black Uhuru"); break;
-		case AIVehicle.VT_ROAD: AILog.Info("Road Tripin' by Red Hot Chili Peppers"); break;
-		case AIVehicle.VT_WATER: AILog.Info("I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
-		case AIVehicle.VT_AIR: AILog.Info("Flying High by Captain Hollywood Project"); break;
+		case AIVehicle.VT_RAIL: AILog.Info(" - Great Train Robbery by Black Uhuru"); break;
+		case AIVehicle.VT_ROAD: AILog.Info(" - Road Tripin' by Red Hot Chili Peppers"); break;
+		case AIVehicle.VT_WATER: AILog.Info(" - I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
+		case AIVehicle.VT_AIR: AILog.Info(" - Flying High by Captain Hollywood Project"); break;
 	}
 }
 
