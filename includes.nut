@@ -2,6 +2,7 @@ require("utils/math.nut");
 require("utils/list.nut");
 require("utils/signs.nut");
 require("utils/thread.nut");
+require("utils/preference.nut");
 
 require("map/tile.nut");
 require("map/box.nut");
