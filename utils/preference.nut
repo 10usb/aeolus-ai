@@ -11,8 +11,8 @@ class Preference {
 		preference.Valuate(List.RandRangeItem, 1, 1000);
 		preference.Sort(AIList.SORT_BY_VALUE, false);
 
-		preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 10000);
-		preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + 10000 - List.GetSum(preference));
+		preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 1000 * preference.Count());
+		preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - List.GetSum(preference));
 
 		rating = AIList();
 		rating.AddList(preference);

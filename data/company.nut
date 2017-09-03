@@ -65,5 +65,4 @@ function Company::DecreaseVehicleTypeFavor(vehicle_type){
 		case AIVehicle.VT_AIR: AILog.Info("Decreasing favor for Flying High by Captain Hollywood Project"); break;
 	}
 	return Company.global.vehicle.DecreaseFavor(vehicle_type);
-
 }
