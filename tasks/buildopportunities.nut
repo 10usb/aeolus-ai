@@ -10,9 +10,9 @@ function BuildOpportunities::Run(){
 	AILog.Info("Building....");
 
 
-	local types = AirPort.GetTypes();
+	local types = Airport.GetList();
 	foreach (idx, value in types) {
-	    AILog.Info(" - " + AirPort.GetTypeName(idx) + ": " + AIAirport.GetMaintenanceCostFactor(idx));
+	    AILog.Info(" - " + Airport.GetName(idx) + ": " + Airport.GetMaintenanceCostFactor(idx));
 	}
 
 

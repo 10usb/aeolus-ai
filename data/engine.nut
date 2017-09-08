@@ -1,4 +1,4 @@
-class Engine {
+class Engine extends AIEngine {
 	constructor(){
 	}
 }
@@ -68,7 +68,11 @@ function Engine::GetWagonLength(engine_id, cargo_id, max_distance = 0){
 }
 
 function Engine::GetEstimatedDistance(engine_id, days, efficiency = 0.45){
-	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 44.3).tointeger();
+	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 40.0).tointeger();
+}
+
+function Engine::GetEstimatedDays(engine_id, distance, efficiency = 0.45){
+	return (distance * 40.0 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
 }
 
 function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){
@@ -93,9 +97,17 @@ function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){
 	return capacity;
 }
 
-function Engine::GetEstimatedIncome(engine_id, cargo_id, days, length = 0, wagon_id = -1, efficiency = 0.4){
+function Engine::GetEstimatedIncomeByDays(engine_id, cargo_id, days, length = 0, wagon_id = -1, efficiency = 0.4){
 	local capacity		= Engine.GetCapacity(engine_id, cargo_id, length, wagon_id);
 	local cargoPrice	= AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, days, efficiency), days);
-	local cost = AIEngine.GetRunningCost(engine_id) / 365.0 * days;
+	local cost			= AIEngine.GetRunningCost(engine_id) / 365.0 * days;
+	return ((capacity * cargoPrice) - cost).tointeger();
+}
+
+function Engine::GetEstimatedIncomeByDistance(engine_id, cargo_id, distance, length = 0, wagon_id = -1, efficiency = 0.4){
+	local days			= Engine.GetEstimatedDays(engine_id, distance, efficiency);
+	local capacity		= Engine.GetCapacity(engine_id, cargo_id, length, wagon_id);
+	local cargoPrice	= AICargo.GetCargoIncome(cargo_id, distance, days);
+	local cost			= AIEngine.GetRunningCost(engine_id) / 365.0 * days;
 	return ((capacity * cargoPrice) - cost).tointeger();
 }

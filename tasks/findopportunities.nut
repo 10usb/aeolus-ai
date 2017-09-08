@@ -50,7 +50,7 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	if(Company.GetFavoredVehicleType() == AIVehicle.VT_AIR) return false;
 
 	if(Company.GetFavoredVehicleType() != AIVehicle.VT_RAIL){
-		AILog.Warning("Industry <==> Industry opportunities other then VT_RAIL are not yet supported (" + AICargo.GetCargoLabel(cargo_id) + ")");
+		AILog.Warning("Industry <==> Industry opportunities other then VT_RAIL are not yet supported (" + Cargo.GetName(cargo_id) + ")");
 		return false;
 	}
 
@@ -67,7 +67,7 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	if(industries.Count() <= 0) return false;
 	local industry_id = List.RandPriority(industries);
 
-	AILog.Info("Found opportunity at " + AIIndustry.GetName(industry_id) + " with " + Industry.GetAvailableCargo(industry_id, cargo_id) + " " + AICargo.GetCargoLabel(cargo_id));
+	AILog.Info("Found opportunity at " + AIIndustry.GetName(industry_id) + " with " + Industry.GetAvailableCargo(industry_id, cargo_id) + " " + Cargo.GetName(cargo_id));
 	local opportunity_id = Opportunity.CreateIndustry(industry_id, cargo_id);
 	if(opportunity_id <= 0) return false;
 
@@ -77,12 +77,12 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 
 function FindOpportunities::FindTownToTown(cargo_id){
 	if(Company.GetFavoredVehicleType() != AIVehicle.VT_AIR){
-		AILog.Warning("Town <==> Town opportunities other then VT_AIR are not yet supported (" + AICargo.GetCargoLabel(cargo_id) + ")");
+		AILog.Warning("Town <==> Town opportunities other then VT_AIR are not yet supported (" + Cargo.GetName(cargo_id) + ")");
 		return false;
 	}
 
 	local engines = Engine.GetForCargo(Company.GetFavoredVehicleType(), cargo_id);
-	engines.Valuate(Engine.GetEstimatedIncome, cargo_id, 100);
+	engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
 	if(engines.Count() <= 0) return false;
 	local engine_id = engines.Begin();
@@ -90,13 +90,11 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	local towns = AITownList();
 	towns.RemoveList(Opportunity.towns);
 
-	if(Company.GetFavoredVehicleType() == AIVehicle.VT_AIR){
-		towns.Valuate(Town.CanBuildAirport);
-		towns.KeepAboveValue(0);
+	towns.Valuate(Town.CanBuildAirport);
+	towns.KeepAboveValue(0);
 
-		towns.Valuate(Town.GetAirportCount);
-		towns.KeepValue(0);
-	}
+	towns.Valuate(Town.GetAirportCount);
+	towns.KeepValue(0);
 
 	towns.Valuate(AITown.GetPopulation);
 	towns.Sort(AIList.SORT_BY_VALUE, false);
@@ -104,26 +102,24 @@ function FindOpportunities::FindTownToTown(cargo_id){
 
 	towns.Valuate(Town.GetAvailableCargo, cargo_id);
 
-	if(Company.GetFavoredVehicleType() == AIVehicle.VT_AIR){
-		local cost = AIAirport.GetMaintenanceCostFactor(AIAirport.AT_SMALL) * 500;
-		local capacity = (cost / AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
-		capacity = Math.max(capacity, Engine.GetCapacity(engine_id, cargo_id));
-		cost += (AIEngine.GetRunningCost(engine_id) / 24) * Math.max(1, capacity / Engine.GetCapacity(engine_id, cargo_id));
-		capacity = (cost / AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
-		capacity = Math.max(capacity, Engine.GetCapacity(engine_id, cargo_id));
-		towns.KeepAboveValue(capacity);
-	}else{
-		towns.KeepAboveValue(Engine.GetCapacity(engine_id, cargo_id));
-	}
+	local cost = Airport.GetMaintenanceCost(AIAirport.AT_SMALL);
+
+	local capacity = (cost / AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
+	capacity = Math.max(capacity, Engine.GetCapacity(engine_id, cargo_id));
+	cost += (AIEngine.GetRunningCost(engine_id) / 24) * Math.max(1, capacity / Engine.GetCapacity(engine_id, cargo_id));
+	capacity = (cost / AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
+	capacity = Math.max(capacity, Engine.GetCapacity(engine_id, cargo_id));
+	towns.KeepAboveValue(capacity);
+
 	if(towns.Count() <= 0) return false;
 
 	local town_id = List.RandPriority(towns);
 
-	AILog.Info("Found opportunity at " + AITown.GetName(town_id) + " with " + Town.GetAvailableCargo(town_id, cargo_id) + " " + AICargo.GetCargoLabel(cargo_id));
+	AILog.Info("Found opportunity at " + AITown.GetName(town_id) + " with " + Town.GetAvailableCargo(town_id, cargo_id) + " " + Cargo.GetName(cargo_id));
 	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id);
 	if(opportunity_id <= 0) return false;
 
-	Aeolus.AddThread(FindDestination(opportunity_id));
+	Aeolus.AddThread(AirFindDestination(opportunity_id));
 	return true;
 }
 

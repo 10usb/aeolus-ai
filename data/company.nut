@@ -1,4 +1,4 @@
-class Company {
+class Company extends AICompany {
 	static global = {
 		cargo = null
 		vehicle = null
@@ -24,7 +24,7 @@ function Company::Init(){
 
 	Company.global.cargo = Preference(AICargoList());
 
-	AILog.Info("Supply me " + AICargo.GetCargoLabel(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
+	AILog.Info("Supply me " + Cargo.GetName(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
 
 	local vehicle_types = AIList();
 	//vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
@@ -48,7 +48,7 @@ function Company::GetFavoredCargo(){
 }
 
 function Company::DecreaseCargoFavor(cargo_id){
-	AILog.Info("Decreasing favor for " + AICargo.GetCargoLabel(cargo_id));
+	AILog.Info("Decreasing favor for " + Cargo.GetName(cargo_id));
 	return Company.global.cargo.DecreaseFavor(cargo_id);
 
 }
