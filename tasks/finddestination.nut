@@ -63,6 +63,7 @@ function FindDestination::ProcessTown(opportunity){
 	local engines = Engine.GetForCargo(opportunity.vehicle_type, opportunity.cargo_id);
 	engines.Valuate(Engine.GetEstimatedIncome, opportunity.cargo_id, 100);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
+	if(engines.Count() <= 0) return false;
 
 	local engine_id = engines.Begin();
 
@@ -82,7 +83,7 @@ function FindDestination::ProcessTown(opportunity){
 
 	local efficiency = 0.4;
 	if(opportunity.vehicle_type == AIVehicle.VT_AIR){
-		efficiency = 0.7;
+		efficiency = 0.9;
 	}
 	towns.KeepBetweenValue(pow(Engine.GetEstimatedDistance(engine_id, 80, efficiency), 2).tointeger(), pow(Engine.GetEstimatedDistance(engine_id, 120, efficiency), 2).tointeger());
 
@@ -109,6 +110,7 @@ function FindDestination::ProcessTown(opportunity){
 	AILog.Info("" + AITown.GetName(opportunity.source.town_id) + " <==> " + AITown.GetName(town_id) + " with " + AICargo.GetCargoLabel(opportunity.cargo_id));
 
 	opportunity.destination = {
+		type = Opportunity.LT_TOWN,
 		town_id = town_id
 	};
 

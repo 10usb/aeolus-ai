@@ -84,7 +84,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	local engines = Engine.GetForCargo(Company.GetFavoredVehicleType(), cargo_id);
 	engines.Valuate(Engine.GetEstimatedIncome, cargo_id, 100);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
-
+	if(engines.Count() <= 0) return false;
 	local engine_id = engines.Begin();
 
 	local towns = AITownList();

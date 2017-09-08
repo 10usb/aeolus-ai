@@ -41,3 +41,47 @@ function AirPort::GetBestType(small){
 	}
 	throw("Did not found any falid airport types");
 }
+
+function AirPort::GetTypes(){
+	local list = AIList();
+	list.AddItem(AIAirport.AT_SMALL, 0);
+	list.AddItem(AIAirport.AT_LARGE, 0);
+	list.AddItem(AIAirport.AT_METROPOLITAN, 0);
+	list.AddItem(AIAirport.AT_INTERNATIONAL, 0);
+	list.AddItem(AIAirport.AT_COMMUTER, 0);
+	list.AddItem(AIAirport.AT_INTERCON, 0);
+	list.AddItem(AIAirport.AT_HELIPORT, 0);
+	list.AddItem(AIAirport.AT_HELISTATION, 0);
+	list.AddItem(AIAirport.AT_HELIDEPOT, 0);
+	return list;
+}
+
+function AirPort::GetTypeName(type){
+	switch(type){
+		case AIAirport.AT_SMALL: return "Small";
+		case AIAirport.AT_LARGE: return "Large";
+		case AIAirport.AT_METROPOLITAN: return "Metropolitan";
+		case AIAirport.AT_INTERNATIONAL: return "International";
+		case AIAirport.AT_COMMUTER: return "Commuter";
+		case AIAirport.AT_INTERCON: return "Intercon";
+		case AIAirport.AT_HELIPORT: return "Heliport";
+		case AIAirport.AT_HELISTATION: return "Helistation";
+		case AIAirport.AT_HELIDEPOT: return "Helidepot";
+	}
+	throw("Unknown aiport tyoe");
+}
+
+function AirPort::GetDaysBetweenAcceptPlane(type){
+	switch(type){
+		case AIAirport.AT_SMALL: return 18;
+		case AIAirport.AT_LARGE: return 10;
+		case AIAirport.AT_METROPOLITAN: return 6;
+		case AIAirport.AT_INTERNATIONAL: return 4;
+		case AIAirport.AT_COMMUTER: return 10;
+		case AIAirport.AT_INTERCON: return 2;
+		case AIAirport.AT_HELIPORT: return 24;
+		case AIAirport.AT_HELISTATION: return 18;
+		case AIAirport.AT_HELIDEPOT: return 18;
+	}
+	throw("Unknown aiport tyoe");
+}

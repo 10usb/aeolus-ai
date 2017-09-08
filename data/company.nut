@@ -27,7 +27,7 @@ function Company::Init(){
 	AILog.Info("Supply me " + AICargo.GetCargoLabel(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
 
 	local vehicle_types = AIList();
-	vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
+	//vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
 	//vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
 	//vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
 	vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
