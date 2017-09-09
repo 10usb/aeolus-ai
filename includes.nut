@@ -10,6 +10,7 @@ require("map/point.nut");
 require("map/vector.nut");
 require("map/matrix.nut");
 
+require("data/storage.nut");
 require("data/airport.nut");
 require("data/company.nut");
 require("data/finance.nut");

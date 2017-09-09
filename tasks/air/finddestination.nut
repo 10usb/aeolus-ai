@@ -125,21 +125,27 @@ function AirFindDestination::GetCost(opportunity){
 	local posible_planes		= Math.round((available_cargo / (Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) * 1.12)) * days / 30);
 
 	opportunity.price			= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * Math.min(posible_planes, max_planes);
+	opportunity.minimum_price	= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes;
 	opportunity.monthly_profit	= Math.min(posible_planes, max_planes) * profit - maintenance_cost;
+	if(opportunity.monthly_profit <= 0){
+		// TODO remove opportunity from opportunities
+		return false;
+	}
+	opportunity.buildable		= 1;
 
 
-	AILog.Warning("" + AITown.GetName(opportunity.source.town_id) + " <==> " + AITown.GetName(opportunity.destination.town_id) + " with " + Cargo.GetName(opportunity.cargo_id) + " (" + days + ")");
-	//AILog.Info("Engine: " + Engine.GetName(opportunity.engine_id) + " (" + Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) + ")");
-	//AILog.Info("Days: " + Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95));
-	AILog.Info("planes: " + needed_planes + " / " + posible_planes + " / " + max_planes);
-	//AILog.Info("running_cost: " + running_cost);
-	//AILog.Info("maintenance_cost: " + maintenance_cost);
-	//AILog.Info("income: " + income);
-	//AILog.Info("profit: " + profit);
+	AILog.Info("Found opportunity " + Town.GetName(opportunity.source.town_id) + " <==> " + Town.GetName(opportunity.destination.town_id) + " with " + Cargo.GetName(opportunity.cargo_id) + " (" + days + " days of travel)");
+	// //AILog.Info("Engine: " + Engine.GetName(opportunity.engine_id) + " (" + Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) + ")");
+	// //AILog.Info("Days: " + Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95));
+	// AILog.Info("planes: " + needed_planes + " / " + posible_planes + " / " + max_planes);
+	// //AILog.Info("running_cost: " + running_cost);
+	// //AILog.Info("maintenance_cost: " + maintenance_cost);
+	// //AILog.Info("income: " + income);
+	// //AILog.Info("profit: " + profit);
 
-	AILog.Info("price : " + opportunity.price);
-	AILog.Info("profit: " + opportunity.monthly_profit);
-	AILog.Info("months: " + ceil(opportunity.price.tofloat() / opportunity.monthly_profit));
+	// AILog.Info("price : " + opportunity.price);
+	// AILog.Info("profit: " + opportunity.monthly_profit);
+	// AILog.Info("months: " + ceil(opportunity.price.tofloat() / opportunity.monthly_profit));
 
 	return false;
 }

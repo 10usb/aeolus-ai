@@ -115,8 +115,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 
 	local town_id = List.RandPriority(towns);
 
-	//AILog.Info("Found opportunity at " + AITown.GetName(town_id) + " with " + Town.GetAvailableCargo(town_id, cargo_id) + " " + Cargo.GetName(cargo_id));
-	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id);
+	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id, AIVehicle.VT_AIR);
 	if(opportunity_id <= 0) return false;
 
 	Aeolus.AddThread(AirFindDestination(opportunity_id));

@@ -1,4 +1,4 @@
-class Industry {
+class Industry extends AIIndustry {
 	static list = {};
 
 	id = null;

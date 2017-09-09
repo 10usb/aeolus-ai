@@ -10,6 +10,16 @@ function List::GetSum(list){
 	return total;
 }
 
+function List::GetMax(list){
+	local max = 0;
+	foreach(dummy, value in list){
+		if(value > max){
+			max = value;
+		}
+	}
+	return max;
+}
+
 function List::SetValue(unsued, value){
 	return value;
 }

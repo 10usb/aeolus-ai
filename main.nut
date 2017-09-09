@@ -15,7 +15,7 @@ function Aeolus::Start(){
 	Company.Init();
 
 	// Add some initial threads
-	//Aeolus.threads.push(BuildOpportunities());
+	Aeolus.threads.push(BuildOpportunities());
 	Aeolus.threads.push(FindOpportunities());
 
 	// Main loop and should never end...
