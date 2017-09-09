@@ -82,7 +82,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	}
 
 	local engines = Engine.GetForCargo(Company.GetFavoredVehicleType(), cargo_id);
-	engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100);
+	engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100, 0.95);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
 	if(engines.Count() <= 0) return false;
 	local engine_id = engines.Begin();
@@ -115,7 +115,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 
 	local town_id = List.RandPriority(towns);
 
-	AILog.Info("Found opportunity at " + AITown.GetName(town_id) + " with " + Town.GetAvailableCargo(town_id, cargo_id) + " " + Cargo.GetName(cargo_id));
+	//AILog.Info("Found opportunity at " + AITown.GetName(town_id) + " with " + Town.GetAvailableCargo(town_id, cargo_id) + " " + Cargo.GetName(cargo_id));
 	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id);
 	if(opportunity_id <= 0) return false;
 

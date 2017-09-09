@@ -39,12 +39,15 @@ function Opportunity::CreateIndustry(industry_id, cargo_id){
 	Opportunity.global.list.rawset(id, {
 		id = id,
 		vehicle_type = Company.GetFavoredVehicleType(),
-		cargo_id = cargo_id,
+		cargo_id = cargo_id
 		source = {
 			type = Opportunity.LT_INDUSTRY,
 			industry_id = industry_id
 		},
-		destination = null
+		destination = null,
+		engine_id = null,
+		price = 0,
+		monthly_profit = 0
 	});
 	Opportunity.industries.AddItem(industry_id, id);
 	return id;
@@ -64,7 +67,10 @@ function Opportunity::CreateTown(town_id, cargo_id){
 			type = Opportunity.LT_TOWN,
 			town_id = town_id
 		},
-		destination = null
+		destination = null,
+		engine_id = null,
+		price = 0,
+		monthly_profit = 0
 	});
 	Opportunity.towns.AddItem(town_id, id);
 	return id;

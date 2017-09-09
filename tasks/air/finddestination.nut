@@ -24,54 +24,73 @@ function AirFindDestination::Run(){
 
 function AirFindDestination::Initialize(opportunity){
 	local engines = Engine.GetForCargo(opportunity.vehicle_type, opportunity.cargo_id);
-	engines.Valuate(Engine.GetEstimatedIncomeByDays, opportunity.cargo_id, 100);
+	engines.Valuate(Engine.GetEstimatedIncomeByDays, opportunity.cargo_id, 100, 0.95);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
 	if(engines.Count() <= 0) return false;
 
-	local engine_id = engines.Begin();
-
 	local towns = AITownList();
-	towns.RemoveList(Opportunity.towns);
-	towns.RemoveItem(opportunity.source.town_id); // should not needed
+	towns.RemoveItem(opportunity.source.town_id);
+	//towns.RemoveList(Opportunity.towns); // Remove all towns where destination is source
 
-	if(opportunity.vehicle_type == AIVehicle.VT_AIR){
-		towns.Valuate(Town.CanBuildAirport);
-		towns.KeepAboveValue(0);
+	towns.Valuate(Town.CanBuildAirport);
+	towns.KeepAboveValue(0);
 
-		towns.Valuate(Town.GetAirportCount);
-		towns.KeepValue(0);
+	towns.Valuate(Town.GetAirportCount);
+	towns.KeepValue(0);
+
+	towns.Valuate(Town.GetDistanceToTile, Town.GetLocation(opportunity.source.town_id));
+
+
+	foreach(engine_id, value in engines){
+		local temp = AIList();
+		temp.AddList(towns);
+
+		temp.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
+
+		temp.Valuate(AITown.GetPopulation);
+		temp.Sort(AIList.SORT_BY_VALUE, false);
+		temp.KeepTop(5);
+
+		temp.Valuate(Town.GetAvailableCargo, opportunity.cargo_id);
+
+		local selected = AIList();
+		local airport_types = AIList();
+		foreach (town_id, availableCargo in temp){
+			local distance = Town.GetDistanceToTile(opportunity.source.town_id, Town.GetLocation(town_id));
+
+			local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
+			local income			= Cargo.GetCargoIncome(opportunity.cargo_id, distance, (days*0.9).tointeger()) * (Engine.GetCapacity(engine_id, opportunity.cargo_id) * 1.12).tointeger() * 30 / days;
+			local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
+			local profit			= income - running_cost;
+
+			foreach (airport_type in [ Airport.AT_SMALL ]) {
+				local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(airport_type)).tointeger();
+				local maintenance_cost	= Airport.GetMaintenanceCost(airport_type) * 2;
+				local needed_planes		= ceil(maintenance_cost / profit.tofloat()).tointeger();
+				if(needed_planes > max_planes) continue;
+
+				local capacity = (Engine.GetCapacity(engine_id, opportunity.cargo_id) * 1.12 * needed_planes) * 30 / days;
+
+				if(availableCargo > capacity){
+					selected.AddItem(town_id, availableCargo);
+					airport_types.AddItem(town_id, airport_type);
+				}
+			}
+		}
+		if(selected.Count() <= 0) continue;
+		local town_id = List.RandPriority(selected);
+
+		opportunity.engine_id = engine_id;
+		opportunity.rawset("airport_type", airport_types.GetValue(town_id));
+		opportunity.destination = {
+			type = Opportunity.LT_TOWN,
+			town_id = town_id
+		};
+		break;
 	}
 
-	towns.Valuate(AITown.GetDistanceSquareToTile, AITown.GetLocation(opportunity.source.town_id));
+	if(opportunity.destination == null) return false;
 
-	towns.KeepBetweenValue(pow(Engine.GetEstimatedDistance(engine_id, 80, 0.95), 2).tointeger(), pow(Engine.GetEstimatedDistance(engine_id, 120, 0.95), 2).tointeger());
-
-	towns.Valuate(AITown.GetPopulation);
-	towns.Sort(AIList.SORT_BY_VALUE, false);
-	towns.KeepTop(5);
-
-	towns.Valuate(Town.GetAvailableCargo, opportunity.cargo_id);
-
-	if(opportunity.vehicle_type == AIVehicle.VT_AIR){
-		local cost = AIAirport.GetMaintenanceCostFactor(AIAirport.AT_SMALL) * 500;
-		local capacity = (cost / AICargo.GetCargoIncome(opportunity.cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
-		capacity = Math.max(capacity, Engine.GetCapacity(engine_id, opportunity.cargo_id));
-		cost += (AIEngine.GetRunningCost(engine_id) / 24) * Math.max(1, capacity / Engine.GetCapacity(engine_id, opportunity.cargo_id));
-		capacity = (cost / AICargo.GetCargoIncome(opportunity.cargo_id, Engine.GetEstimatedDistance(engine_id, 80, 0.7), 80).tofloat()).tointeger();
-		capacity = Math.max(capacity, Engine.GetCapacity(engine_id, opportunity.cargo_id));
-		towns.KeepAboveValue(capacity);
-	}else{
-		towns.KeepAboveValue(Engine.GetCapacity(engine_id, opportunity.cargo_id));
-	}
-	if(towns.Count() <= 0) return false;
-
-	local town_id = List.RandPriority(towns);
-	AILog.Info("" + AITown.GetName(opportunity.source.town_id) + " <==> " + AITown.GetName(town_id) + " with " + Cargo.GetName(opportunity.cargo_id));
-
-	opportunity.destination = {
-		type = Opportunity.LT_TOWN,
-		town_id = town_id
-	};
 	state++;
 	return true;
 }
@@ -79,21 +98,32 @@ function AirFindDestination::Initialize(opportunity){
 function AirFindDestination::GetCost(opportunity){
 	local distance = Town.GetDistanceToTile(opportunity.source.town_id, Town.GetLocation(opportunity.destination.town_id));
 
-	local engines = Engine.GetForCargo(opportunity.vehicle_type, opportunity.cargo_id);
-	engines.Valuate(Engine.GetEstimatedIncomeByDistance, opportunity.cargo_id, distance);
-	engines.Sort(AIList.SORT_BY_VALUE, false);
-	if(engines.Count() <= 0) return false;
+	local days				= Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95);
+	local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(opportunity.airport_type)).tointeger();
+	local maintenance_cost	= Airport.GetMaintenanceCost(opportunity.airport_type) * 2;
 
-	local engine_id = engines.Begin();
+	local running_cost		= AIEngine.GetRunningCost(opportunity.engine_id) / 12;
+	local income			= Cargo.GetCargoIncome(opportunity.cargo_id, distance, (days*0.9).tointeger()) * (Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) * 1.12).tointeger() * 30 / days;
+	local profit			= income - running_cost;
 
-	local days = Engine.GetEstimatedDays(engine_id, distance, 0.95);
-	local numberOfPlanes = days * 2 / Airport.GetDaysBetweenAcceptPlane(Airport.AT_SMALL);
+	local needed_planes		= ceil(maintenance_cost / profit.tofloat()).tointeger();
 
-	AILog.Info("Engine: " + Engine.GetName(engine_id));
-	AILog.Info("Days: " + days);
-	AILog.Info("NumberOfPlanes: " + numberOfPlanes);
+	if(needed_planes > max_planes) return false;
 
+	local cost = Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes;
 
+	AILog.Warning("" + AITown.GetName(opportunity.source.town_id) + " <==> " + AITown.GetName(opportunity.destination.town_id) + " with " + Cargo.GetName(opportunity.cargo_id) + " (" + days + ")");
+
+	Log.Warning("" + AITown.GetName(opportunity.source.town_id) + " <==> " + AITown.GetName(opportunity.destination.town_id) + " with " + Cargo.GetName(opportunity.cargo_id) + " (" + days + ")");
+	//AILog.Info("Engine: " + Engine.GetName(opportunity.engine_id) + " (" + Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) + ")");
+	//AILog.Info("Days: " + Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95));
+	//AILog.Info("planes: " + needed_planes + " / " + max_planes);
+	// AILog.Info("running_cost: " + running_cost);
+	// AILog.Info("maintenance_cost: " + maintenance_cost);
+	// AILog.Info("income: " + income);
+	// AILog.Info("profit: " + profit);
+
+	AILog.Info("cost: " + cost);
 
 	return false;
 }
