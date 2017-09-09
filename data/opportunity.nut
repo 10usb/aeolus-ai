@@ -47,7 +47,9 @@ function Opportunity::CreateIndustry(industry_id, cargo_id){
 		destination = null,
 		engine_id = null,
 		price = 0,
-		monthly_profit = 0
+		monthly_profit = 0,
+		buildable = false,
+		created = AIDate.GetCurrentDate()
 	});
 	Opportunity.industries.AddItem(industry_id, id);
 	return id;
@@ -70,7 +72,9 @@ function Opportunity::CreateTown(town_id, cargo_id){
 		destination = null,
 		engine_id = null,
 		price = 0,
-		monthly_profit = 0
+		monthly_profit = 0,
+		buildable = false,
+		created = AIDate.GetCurrentDate()
 	});
 	Opportunity.towns.AddItem(town_id, id);
 	return id;
