@@ -13,5 +13,5 @@ function Station::GetDaysTravel(station_id, tile, speed){
 }
 
 function Station::GetAiportMaintenanceCostFactor(station_id){
-	return Aiport.GetMaintenanceCostFactor(Station.GetAirportType(Station.GetLocation(station_id)));
+	return Airport.GetMaintenanceCostFactor(Airport.GetAirportType(Station.GetLocation(station_id)));
 }

@@ -12,12 +12,12 @@ function BuildOpportunities::Run(){
 	opportunities.Valuate(Opportunity.IsBuildable);
 	opportunities.KeepValue(1);
 
-	if(Opportunity.GetCount() <= 0) return this.Sleep(50);
+	if(opportunities.Count() <= 0) return this.Sleep(50);
 
 	opportunities.Valuate(Opportunity.GetMinimumPrice);
 	opportunities.KeepBelowValue(Finance.GetAvailableMoney());
 
-	if(Opportunity.GetCount() <= 0) return this.Sleep(50);
+	if(opportunities.Count() <= 0) return this.Sleep(500);
 
 	opportunities.Valuate(BuildOpportunities.GetMonths);
 	local max = List.GetMax(opportunities) + 1;
@@ -29,13 +29,12 @@ function BuildOpportunities::Run(){
 
 	local opportunity_id = List.RandPriority(temp);
 
-    AILog.Warning("Building " + Opportunity.GetSourceName(opportunity_id) + " <==> " + Opportunity.GetDestinationName(opportunity_id) + " with " + Cargo.GetName(Opportunity.GetCargo(opportunity_id)));
-	AILog.Info("  price     : " + Opportunity.GetPrice(opportunity_id));
-	AILog.Info("  min. price: " + Opportunity.GetMinimumPrice(opportunity_id));
-	AILog.Info("  profit    : " + Opportunity.GetMonthlyProfit(opportunity_id));
-	AILog.Info("  months    : " + ceil(Opportunity.GetPrice(opportunity_id).tofloat() / Opportunity.GetMonthlyProfit(opportunity_id)));
-
-	return this.Sleep(5000);
+	if(Opportunity.GetVehicleType(opportunity_id) == AIVehicle.VT_AIR){
+		Aeolus.AddThread(AirBuildOpportunity(opportunity_id));
+	}else{
+		throw("Can't build this");
+	}
+	return this.Sleep(500);
 }
 
 function BuildOpportunities::GetMonths(opportunity_id){

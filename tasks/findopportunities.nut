@@ -9,7 +9,7 @@ class FindOpportunities extends Thread {
 function FindOpportunities::Run(){
 	local cargo_id = Company.GetFavoredCargo();
 
-	if(Opportunity.Count() > 10) return this.Sleep(500);
+	if(Opportunity.Count() > 2) return this.Sleep(500);
 
 	if(AICargo.GetTownEffect(cargo_id) == AICargo.TE_NONE){
 		if(!FindOpportunities.FindIndustryToIndustry(cargo_id)){

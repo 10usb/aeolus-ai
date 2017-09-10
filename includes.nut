@@ -26,6 +26,7 @@ require("air/controller.nut");
 require("rail/controller.nut");
 
 require("tasks/findopportunities.nut");
+require("tasks/buildopportunities.nut");
 require("tasks/finddestination.nut");
 require("tasks/air/finddestination.nut");
-require("tasks/buildopportunities.nut");
+require("tasks/air/buildopportunity.nut");

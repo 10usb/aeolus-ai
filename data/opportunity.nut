@@ -29,6 +29,12 @@ function Opportunity::IsValidOpportunity(opportunity_id){
 	return 1;
 }
 
+function Opportunity::RemoveOpportunity(opportunity_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
+	opportunities.rawdelete(opportunity_id);
+}
+
 function Opportunity::IsBuildable(opportunity_id){
 	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
 	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
@@ -81,25 +87,49 @@ function Opportunity::GetSourceName(opportunity_id){
 	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
 	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
 
-	local source = opportunities.rawget(opportunity_id).source;
-	switch(source.type){
-		case Opportunity.LT_INDUSTRY: return Industry.GetName(source.industry_id);
-		case Opportunity.LT_TOWN: return Town.GetName(source.town_id);
+	local location = opportunities.rawget(opportunity_id).source;
+	switch(location.type){
+		case Opportunity.LT_INDUSTRY: return Industry.GetName(location.industry_id);
+		case Opportunity.LT_TOWN: return Town.GetName(location.town_id);
 		default: throw("Unknown source type");
 	}
+}
+
+function Opportunity::GetSourceTown(opportunity_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
+
+	local location = opportunities.rawget(opportunity_id).source;
+	if(location.type != Opportunity.LT_TOWN) throw("Unknown source type");
+	return location.town_id;
 }
 
 function Opportunity::GetDestinationName(opportunity_id){
 	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
 	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
 
-	local destination = opportunities.rawget(opportunity_id).destination;
-	if(destination == null) throw("No destination for this opportunity");
-	switch(destination.type){
-		case Opportunity.LT_INDUSTRY: return Industry.GetName(destination.industry_id);
-		case Opportunity.LT_TOWN: return Town.GetName(destination.town_id);
+	local location = opportunities.rawget(opportunity_id).destination;
+	if(location == null) throw("No destination for this opportunity");
+	switch(location.type){
+		case Opportunity.LT_INDUSTRY: return Industry.GetName(location.industry_id);
+		case Opportunity.LT_TOWN: return Town.GetName(location.town_id);
 		default: throw("Unknown destination type");
 	}
+}
+
+function Opportunity::GetDestinationTown(opportunity_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
+
+	local location = opportunities.rawget(opportunity_id).destination;
+	if(location.type != Opportunity.LT_TOWN) throw("Unknown destination type");
+	return location.town_id;
+}
+
+function Opportunity::GetAirportType(opportunity_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
+	return opportunities.rawget(opportunity_id).airport_type;
 }
 
 
@@ -115,32 +145,6 @@ function Opportunity::Get(opportunity_id){
 	}
 	return opportunities.rawget(opportunity_id);
 }
-
-function Opportunity::CreateIndustry(industry_id, cargo_id){
-	if(Opportunity.industries.HasItem(industry_id)) return 0;
-
-	local id = ++Opportunity.global.increment;
-
-	Opportunity.global.list.rawset(id, {
-		id = id,
-		vehicle_type = Company.GetFavoredVehicleType(),
-		cargo_id = cargo_id
-		source = {
-			type = Opportunity.LT_INDUSTRY,
-			industry_id = industry_id
-		},
-		destination = null,
-		engine_id = null,
-		price = 0,
-		minimum_price = 0,
-		monthly_profit = 0,
-		buildable = 0,
-		created = AIDate.GetCurrentDate()
-	});
-	Opportunity.industries.AddItem(industry_id, id);
-	return id;
-}
-
 
 function Opportunity::CreateTown(town_id, cargo_id, vehicle_type){
 	if(Opportunity.towns.HasItem(town_id)) return 0;
