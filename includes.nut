@@ -25,8 +25,9 @@ require("data/opportunity.nut");
 require("air/controller.nut");
 require("rail/controller.nut");
 
+require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
 require("tasks/buildopportunities.nut");
-require("tasks/finddestination.nut");
 require("tasks/air/finddestination.nut");
 require("tasks/air/buildopportunity.nut");
+require("tasks/air/stationmanager.nut");

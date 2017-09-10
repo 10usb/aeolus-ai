@@ -17,6 +17,7 @@ function AirFindDestination::Run(){
 		case 0: return Initialize(opportunity);
 		case 1: return GetCost(opportunity);
 		default:
+			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Unknown state " + state);
 		return false;
 	}
@@ -27,7 +28,8 @@ function AirFindDestination::Initialize(opportunity){
 	engines.Valuate(Engine.GetEstimatedIncomeByDays, opportunity.cargo_id, 100, 0.95);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
 	if(engines.Count() <= 0){
-		// TODO remove opportunity from opportunities
+		AILog.Info("No engine");
+		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
 
@@ -57,7 +59,7 @@ function AirFindDestination::Initialize(opportunity){
 		temp.Valuate(Town.GetAvailableCargo, opportunity.cargo_id);
 
 		local selected = AIList();
-		local airport_types = AIList();
+		local selected_types = AIList();
 		foreach (town_id, available_cargo in temp){
 			local distance = Town.GetDistanceToTile(opportunity.source.town_id, Town.GetLocation(town_id));
 
@@ -66,7 +68,10 @@ function AirFindDestination::Initialize(opportunity){
 			local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
 			local profit			= income - running_cost;
 
-			foreach (airport_type in [ Airport.AT_SMALL ]) {
+			local airport_types = Airport.GetList();
+			airport_types.Valuate(Airport.IsValidAirportType);
+			airport_types.KeepValue(1);
+			foreach(airport_type, dummy in airport_types){
 				local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(airport_type)).tointeger();
 				local maintenance_cost	= Airport.GetMaintenanceCost(airport_type) * 2;
 				local needed_planes		= ceil(maintenance_cost / profit.tofloat()).tointeger();
@@ -76,24 +81,25 @@ function AirFindDestination::Initialize(opportunity){
 
 				if(available_cargo > capacity){
 					selected.AddItem(town_id, available_cargo);
-					airport_types.AddItem(town_id, airport_type);
+					selected_types.AddItem(town_id, airport_type);
 				}
 			}
 		}
 		if(selected.Count() <= 0) continue;
-		local town_id = List.RandPriority(selected);
+		local selected_town_id = List.RandPriority(selected);
 
 		opportunity.engine_id = engine_id;
-		opportunity.rawset("airport_type", airport_types.GetValue(town_id));
+		opportunity.rawset("airport_type", selected_types.GetValue(selected_town_id));
 		opportunity.destination = {
 			type = Opportunity.LT_TOWN,
-			town_id = town_id
+			town_id = selected_town_id
 		};
 		break;
 	}
 
 	if(opportunity.destination == null){
-		// TODO remove opportunity from opportunities
+		AILog.Info("No destination");
+		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
 
@@ -115,7 +121,8 @@ function AirFindDestination::GetCost(opportunity){
 	local needed_planes			= ceil(maintenance_cost / profit.tofloat()).tointeger();
 
 	if(needed_planes > max_planes){
-		// TODO remove opportunity from opportunities
+		AILog.Info("Max planes");
+		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
 
@@ -127,24 +134,13 @@ function AirFindDestination::GetCost(opportunity){
 	opportunity.minimum_price	= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes;
 	opportunity.monthly_profit	= Math.min(posible_planes, max_planes) * profit - maintenance_cost;
 	if(opportunity.monthly_profit <= 0){
-		// TODO remove opportunity from opportunities
+		AILog.Info("No profit");
+		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
 	opportunity.buildable		= 1;
 
 
 	AILog.Info("Found opportunity " + Town.GetName(opportunity.source.town_id) + " <==> " + Town.GetName(opportunity.destination.town_id) + " with " + Cargo.GetName(opportunity.cargo_id) + " (" + days + " days of travel with " + needed_planes + " planes)");
-	// //AILog.Info("Engine: " + Engine.GetName(opportunity.engine_id) + " (" + Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) + ")");
-	// //AILog.Info("Days: " + Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95));
-	// AILog.Info("planes: " + needed_planes + " / " + posible_planes + " / " + max_planes);
-	// //AILog.Info("running_cost: " + running_cost);
-	// //AILog.Info("maintenance_cost: " + maintenance_cost);
-	// //AILog.Info("income: " + income);
-	// //AILog.Info("profit: " + profit);
-
-	// AILog.Info("price : " + opportunity.price);
-	// AILog.Info("profit: " + opportunity.monthly_profit);
-	// AILog.Info("months: " + ceil(opportunity.price.tofloat() / opportunity.monthly_profit));
-
 	return false;
 }

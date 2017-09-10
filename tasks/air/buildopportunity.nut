@@ -26,18 +26,20 @@ class AirBuildOpportunity extends Thread {
 function AirBuildOpportunity::Run(){
 	switch(state){
 		case 0:
+			airport_type = Opportunity.GetAirportType(opportunity_id);
+			width = Airport.GetAirportWidth(airport_type);
+			height = Airport.GetAirportHeight(airport_type);
+
 			AILog.Info("Building " + Opportunity.GetSourceName(opportunity_id) + " <==> " + Opportunity.GetDestinationName(opportunity_id) + " with " + Cargo.GetName(Opportunity.GetCargo(opportunity_id)));
 			AILog.Info("  price     : " + Opportunity.GetPrice(opportunity_id));
 			AILog.Info("  min. price: " + Opportunity.GetMinimumPrice(opportunity_id));
 			AILog.Info("  profit    : " + Opportunity.GetMonthlyProfit(opportunity_id));
 			AILog.Info("  months    : " + ceil(Opportunity.GetPrice(opportunity_id).tofloat() / Opportunity.GetMonthlyProfit(opportunity_id)));
-
-			airport_type = Opportunity.GetAirportType(opportunity_id);
-			width = Airport.GetAirportWidth(airport_type);
-			height = Airport.GetAirportHeight(airport_type);
+			AILog.Info("  airport   : " + Airport.GetName(airport_type));
+			AILog.Info("  engine    : " + Engine.GetName(Opportunity.GetEngine(opportunity_id)));
 
 			state++;
-		return this.Sleep(50);
+		return true;
 		case 1: return BuildSource();
 		case 2: return BuildAirport();
 		case 3: return TryBuildAirport();
@@ -70,7 +72,7 @@ function AirBuildOpportunity::BuildSource(){
 	local price		= Airport.GetPrice(airport_type) * 1.2;
 
 	if(price > Finance.GetAvailableMoney()){
-		AILog.Info("Waiting for enough money");
+		//AILog.Info("Waiting for enough money");
 		return this.Sleep(50);
 	}
 
@@ -95,6 +97,9 @@ function AirBuildOpportunity::BuildAirport(){
 	list.Valuate(AITile.GetCargoProduction, Opportunity.GetCargo(opportunity_id), width, height, Airport.GetAirportCoverageRadius(airport_type));
 	list.Sort(AIList.SORT_BY_VALUE, false);
 	list.KeepTop(Math.max(5, list.Count() / 4));
+	if(list.Count() <= 0){
+		AILog.Warning("No tiles found");
+	}
 
 	state++;
 	return true;
@@ -118,18 +123,23 @@ function AirBuildOpportunity::TryBuildAirport(){
 
 	local cost = matrix.GetCosts();
 
-	if(cost > budget){
-		AILog.Warning("Not enough budget, need " + cost + " only have " + budget);
-		return true;
+	if(cost > 0){
+		if(cost > budget){
+			AILog.Warning("Not enough budget, need " + cost + " only have " + budget);
+			return true;
+		}
+
+		if(!Finance.GetMoney(cost)){
+			AILog.Warning("Failed to get " + cost);
+			return true;
+		}
 	}
-
-	if(!Finance.GetMoney(cost)) return true;
-
 	matrix.MakeLevel();
 
-	if(!Finance.GetMoney(Airport.GetPrice(airport_type) * 1.1)) return true;
+	if(!Finance.GetMoney(Airport.GetPrice(airport_type) * 1.5)) return true;
 
 	if(!Airport.BuildAirport(tile, airport_type, AIStation.STATION_NEW)){
+		AILog.Warning("Building airport failed: " + AIError.GetLastErrorString());
 		state = failed_state;
 		return true;
 	}
@@ -143,7 +153,7 @@ function AirBuildOpportunity::BuildDestination(){
 	local price		= Airport.GetPrice(airport_type) * 1.2;
 
 	if(price > Finance.GetAvailableMoney()){
-		AILog.Info("Waiting for enough money");
+		//AILog.Info("Waiting for enough money");
 		return this.Sleep(100);
 	}
 
@@ -151,7 +161,7 @@ function AirBuildOpportunity::BuildDestination(){
 	town_id			= Opportunity.GetDestinationTown(opportunity_id);
 	failed_state	= 6;
 	success_state	= 7;
-	state 		= 2;
+	state 			= 2;
 	return true;
 }
 
@@ -165,37 +175,44 @@ function AirBuildOpportunity::BuildPlanes(){
 	local income			= Cargo.GetCargoIncome(cargo_id, distance, (days * 0.9).tointeger()) * (Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days;
 	local profit			= income - running_cost;
 	needed_planes			= ceil(maintenance_cost / profit.tofloat()).tointeger();
-	Opportunity.RemoveOpportunity(opportunity_id);
+
+
+
+	Station.SetProperty(Station.GetStationID(source_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * needed_planes));
+	Station.SetProperty(Station.GetStationID(destination_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * needed_planes));
+
 	state++;
 	return BuildPlane();
 }
 
 function AirBuildOpportunity::BuildPlane(){
 	if(!Finance.GetMoney(Engine.GetPrice(engine_id))){
-		AILog.Info("Waiting for enough money");
+		//AILog.Info("Waiting for enough money");
 		return this.Sleep(100);
 	}
-
-	local vehicle = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
-	if (!AIVehicle.IsValidVehicle(vehicle)){
-		Finance.Repay();
-		AILog.Error("Building plane failed: " + AIError.GetLastErrorString());
-		return false;
-	}
-
-	AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_NONE);
-	AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-	AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_NONE);
-	AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-	AIVehicle.StartStopVehicle(vehicle);
-
-	Finance.Repay();
 
 	local vehicles = AIVehicleList_Station(Station.GetStationID(source_tile));
 	if(vehicles.Count() < needed_planes){
-		return this.Sleep(100);
-		//return this.SleepDays(Airport.GetDaysBetweenAcceptPlane(airport_type));
+		local vehicle = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
+		if (!AIVehicle.IsValidVehicle(vehicle)){
+			Finance.Repay();
+			AILog.Error("Building plane failed: " + AIError.GetLastErrorString());
+			return false;
+		}
+		AILog.Info("Build " + Engine.GetName(engine_id));
+
+		AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_NONE);
+		AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
+		AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_NONE);
+		AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
+		AIVehicle.StartStopVehicle(vehicle);
+
+		Finance.Repay();
+
+		return this.Wait(Airport.GetDaysBetweenAcceptPlane(airport_type));
+
 	}
 
+	Opportunity.RemoveOpportunity(opportunity_id);
 	return false;
 }

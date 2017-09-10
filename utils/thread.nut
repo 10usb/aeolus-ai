@@ -11,18 +11,7 @@ function Thread::Sleep(ticks){
 	return true;
 }
 
-function Thread::SleepDays(days){
-	_date  = {};
-	while(days > 0){
-		_date.rawset(AIDate.GetCurrentDate() + days, true);
-		days--;
-	}
-	return true;
-}
-
 function Thread::IsSleepy(){
-	if(_date != null) return _date.rawin(AIDate.GetCurrentDate());
-
 	if(Aeolus.GetTick() < _ticks){
 		return false;
 	}
@@ -32,13 +21,38 @@ function Thread::IsSleepy(){
 	return true;
 }
 
+function Thread::SleepAmount(){
+	return (_ticks + _sleep) - Aeolus.GetTick();
+}
+
+function Thread::Wait(days){
+	_date  = {
+		start = AIDate.GetCurrentDate(),
+		till = AIDate.GetCurrentDate() + days
+	};
+	return true;
+}
+
+function Thread::IsWaiting(){
+	if(_date == null) return false;
+
+	if(AIDate.GetCurrentDate() < _date.start){
+		return false;
+	}
+
+	if(AIDate.GetCurrentDate() > _date.till){
+		return false;
+	}
+
+	return true;
+}
+
+function Thread::WaitAmount(){
+	return _date.till - AIDate.GetCurrentDate();
+}
+
 function Thread::WakeUp(){
 	_ticks = 0;
 	_sleep = 0;
-	_date  = null;
-}
-
-function Thread::SleepAmount(){
-	if(_date != null) return 50;
-	return (_ticks + _sleep) - Aeolus.GetTick();
+	_date = null;
 }

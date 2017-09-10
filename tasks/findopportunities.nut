@@ -9,7 +9,7 @@ class FindOpportunities extends Thread {
 function FindOpportunities::Run(){
 	local cargo_id = Company.GetFavoredCargo();
 
-	if(Opportunity.Count() > 2) return this.Sleep(500);
+	if(Opportunity.Count() > 3) return this.Sleep(500);
 
 	if(AICargo.GetTownEffect(cargo_id) == AICargo.TE_NONE){
 		if(!FindOpportunities.FindIndustryToIndustry(cargo_id)){
@@ -116,7 +116,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	local town_id = List.RandPriority(towns);
 
 	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id, AIVehicle.VT_AIR);
-	if(opportunity_id <= 0) return false;
+	if(opportunity_id < 0) return false;
 
 	Aeolus.AddThread(AirFindDestination(opportunity_id));
 	return true;
