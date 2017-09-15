@@ -28,3 +28,7 @@ function Cargo::GetWeight(cargo_id, amount){
 	if(Cargo.GetCargoLabel(cargo_id) == "LVST") return amount / 5;
 	return amount;
 }
+
+function Cargo::GetAmountWaitingAtStation(cargo_id, station_id){
+	return Station.GetCargoWaiting(station_id, cargo_id);
+}

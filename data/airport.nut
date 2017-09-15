@@ -59,3 +59,52 @@ function Airport::GetMaintenanceAmount(){
 function Airport::GetMaintenanceCost(type){
 	return Airport.GetMaintenanceCostFactor(type) * Airport.GetMaintenanceAmount();
 }
+
+function Airport::CanPlaneTypeLand(type, plane_type){
+	switch(plane_type){
+		case Airport.PT_HELICOPTER: return 1;
+		case Airport.PT_SMALL_PLANE:
+			switch(type){
+				case Airport.AT_SMALL:
+				case Airport.AT_LARGE:
+				case Airport.AT_METROPOLITAN:
+				case Airport.AT_INTERNATIONAL:
+				case Airport.AT_COMMUTER:
+				case Airport.AT_INTERCON:
+				return 1;
+			}
+		break;
+		case Airport.PT_BIG_PLANE:
+			switch(type){
+				case Airport.AT_LARGE:
+				case Airport.AT_METROPOLITAN:
+				case Airport.AT_INTERNATIONAL:
+				case Airport.AT_INTERCON:
+				return 1;
+			}
+		break;
+	}
+	return 0;
+}
+
+function Airport::CanEngineLand(engine_id, type){
+	return Airport.CanPlaneTypeLand(type, Engine.GetPlaneType(engine_id));
+}
+
+function Airport::CanPlaneTypeLandOnStation(station_id, plane_type){
+	return Airport.CanPlaneTypeLand(Airport.GetAirportType(Station.GetLocation(station_id)), plane_type);
+}
+
+function Airport::IsFull(station_id){
+	local vehicles = AIVehicleList_Station(station_id);
+	if(vehicles.Count() <= 0) return 0;
+	vehicles.Valuate(Vehicle.GetVehicleType);
+	vehicles.KeepValue(Vehicle.VT_AIR);
+	vehicles.Valuate(Vehicle.GetEstimatedDaysTravel, 0.95);
+	local days = List.GetAvg(vehicles);
+
+	if(vehicles.Count() < Math.round(days.tofloat() / Airport.GetDaysBetweenAcceptPlane(Airport.GetAirportType(Station.GetLocation(station_id))))){
+		return 0;
+	}
+	return 1;
+}

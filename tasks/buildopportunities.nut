@@ -18,7 +18,7 @@ function BuildOpportunities::Run(){
 	if(opportunities.Count() <= 0) return this.Sleep(30);
 
 	opportunities.Valuate(Opportunity.GetMinimumPrice);
-	opportunities.KeepBelowValue(Finance.GetAvailableMoney());
+	opportunities.KeepBelowValue(Finance.GetAvailableMoney() - Finance.GetMonthlyIncome());
 
 	if(opportunities.Count() <= 0){
 		// Remove opportunity to make room for new ones

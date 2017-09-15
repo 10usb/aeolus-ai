@@ -12,6 +12,7 @@ class AirBuildOpportunity extends Thread {
 	list = null;
 	tile = 0;
 	engine_id = 0;
+	cargo_id = 0;
 	needed_planes = 0;
 
 	source_tile = 0;
@@ -86,7 +87,7 @@ function AirBuildOpportunity::BuildSource(){
 
 
 function AirBuildOpportunity::BuildAirport(){
-	list = Town.GetTiles(town_id, true, Math.max(width, height));
+	list = Town.GetTiles(town_id, true, ceil(sqrt(pow(width, 2) + pow(height, 2))) * 1.5);
 
 	list.Valuate(AITile.IsBuildableRectangle, width, height);
 	list.KeepValue(1);
@@ -98,7 +99,7 @@ function AirBuildOpportunity::BuildAirport(){
 	list.Sort(AIList.SORT_BY_VALUE, false);
 	list.KeepTop(Math.max(5, list.Count() / 4));
 	if(list.Count() <= 0){
-		AILog.Warning("No tiles found");
+		AILog.Error("No tiles found");
 	}
 
 	state++;
@@ -139,7 +140,7 @@ function AirBuildOpportunity::TryBuildAirport(){
 	if(!Finance.GetMoney(Airport.GetPrice(airport_type) * 1.5)) return true;
 
 	if(!Airport.BuildAirport(tile, airport_type, AIStation.STATION_NEW)){
-		AILog.Warning("Building airport failed: " + AIError.GetLastErrorString());
+		AILog.Error("Building airport failed: " + AIError.GetLastErrorString());
 		state = failed_state;
 		return true;
 	}
@@ -167,7 +168,7 @@ function AirBuildOpportunity::BuildDestination(){
 
 function AirBuildOpportunity::BuildPlanes(){
 	engine_id 				= Opportunity.GetEngine(opportunity_id);
-	local cargo_id			= Opportunity.GetCargo(opportunity_id);
+	cargo_id			= Opportunity.GetCargo(opportunity_id);
 	local distance 			= sqrt(AITile.GetDistanceSquareToTile(source_tile, destination_tile)).tointeger();
 	local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
 	local maintenance_cost	= Airport.GetMaintenanceCost(airport_type) * 2;
@@ -193,19 +194,20 @@ function AirBuildOpportunity::BuildPlane(){
 
 	local vehicles = AIVehicleList_Station(Station.GetStationID(source_tile));
 	if(vehicles.Count() < needed_planes){
-		local vehicle = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
-		if (!AIVehicle.IsValidVehicle(vehicle)){
+		local vehicle_id = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
+		if (!AIVehicle.IsValidVehicle(vehicle_id)){
 			Finance.Repay();
 			AILog.Error("Building plane failed: " + AIError.GetLastErrorString());
 			return false;
 		}
-		AILog.Info("Build " + Engine.GetName(engine_id));
+		//AILog.Info("Build " + Engine.GetName(engine_id));
+		AIVehicle.RefitVehicle(vehicle_id, cargo_id);
 
-		AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_NONE);
-		AIOrder.AppendOrder(vehicle, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-		AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_NONE);
-		AIOrder.AppendOrder(vehicle, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-		AIVehicle.StartStopVehicle(vehicle);
+		AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_NONE);
+		AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
+		AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_NONE);
+		AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
+		AIVehicle.StartStopVehicle(vehicle_id);
 
 		Finance.Repay();
 

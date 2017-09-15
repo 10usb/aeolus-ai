@@ -20,9 +20,8 @@ function Station::GetAiportMaintenanceCostFactor(station_id){
 	return Airport.GetMaintenanceCostFactor(Airport.GetAirportType(Station.GetLocation(station_id)));
 }
 
-function Station::GetIsFull(station_id){
-	local list = AIVehicleList_Station(station_id);
-	return list.Count() > 4;
+function Station::GetDistanceToTile(station_id, tile){
+	return sqrt(Station.GetDistanceSquareToTile(station_id, tile)).tointeger();
 }
 
 function Station::GetDaysTravel(station_id, tile, speed){

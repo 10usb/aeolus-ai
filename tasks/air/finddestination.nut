@@ -51,6 +51,7 @@ function AirFindDestination::Initialize(opportunity){
 		temp.AddList(towns);
 
 		temp.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
+		if(temp.Count() <= 0) continue;
 
 		temp.Valuate(AITown.GetPopulation);
 		temp.Sort(AIList.SORT_BY_VALUE, false);
@@ -70,6 +71,8 @@ function AirFindDestination::Initialize(opportunity){
 
 			local airport_types = Airport.GetList();
 			airport_types.Valuate(Airport.IsValidAirportType);
+			airport_types.KeepValue(1);
+			airport_types.Valuate(Airport.CanPlaneTypeLand, Engine.GetPlaneType(engine_id));
 			airport_types.KeepValue(1);
 			foreach(airport_type, dummy in airport_types){
 				local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(airport_type)).tointeger();

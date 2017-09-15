@@ -10,17 +10,21 @@ require("map/point.nut");
 require("map/vector.nut");
 require("map/matrix.nut");
 
-require("data/storage.nut");
+
 require("data/airport.nut");
-require("data/company.nut");
-require("data/finance.nut");
-require("data/town.nut");
-require("data/industry.nut");
-require("data/station.nut");
-require("data/engine.nut");
-require("data/wagon.nut");
 require("data/cargo.nut");
+require("data/company.nut");
+require("data/engine.nut");
+require("data/finance.nut");
+require("data/industry.nut");
 require("data/opportunity.nut");
+require("data/station.nut");
+require("data/storage.nut");
+require("data/town.nut");
+require("data/vehicle.nut");
+require("data/wagon.nut");
+
+
 
 require("air/controller.nut");
 require("rail/controller.nut");

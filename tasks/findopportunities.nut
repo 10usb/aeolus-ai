@@ -42,6 +42,7 @@ function FindOpportunities::Run(){
 		}
 	}
 
+	if(fails > 10) this.Sleep(50 * fails);
 	return true;
 }
 

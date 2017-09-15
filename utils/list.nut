@@ -10,6 +10,14 @@ function List::GetSum(list){
 	return total;
 }
 
+function List::GetAvg(list){
+	local total = 0;
+	foreach(dummy, value in list){
+		total+= value;
+	}
+	return total / list.Count();
+}
+
 function List::GetMax(list){
 	local max = 0;
 	foreach(dummy, value in list){
