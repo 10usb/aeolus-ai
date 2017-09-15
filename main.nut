@@ -13,13 +13,14 @@ function Aeolus::Start(){
 	AILog.Info("Aeolus Started");
 
 	// Set company default
-	Company.Init();
+	Company.Init(); // TODO should be in a task
 
 	// Add some initial threads
 	Aeolus.threads.push(RepayLoad());
 	Aeolus.threads.push(BuildOpportunities());
 	Aeolus.threads.push(FindOpportunities());
 	Aeolus.threads.push(AirStationManager());
+	Aeolus.threads.push(AirAircraftManager());
 
 	// Main loop and should never end...
 	do {

@@ -2,6 +2,21 @@ class Vehicle extends AIVehicle {
 
 }
 
+function Vehicle::GetProperty(vehicle_id, key, defaultValue){
+	local list = Storage.ValueExists("vehicles") ? Storage.GetValue("vehicles") : Storage.SetValue("vehicles", {});
+	if(!list.rawin(vehicle_id)) return defaultValue;
+
+	local station  = list.rawget(vehicle_id);
+	if(!station.rawin(key)) return defaultValue;
+	return station.rawget(key);
+}
+
+function Vehicle::SetProperty(vehicle_id, key, value){
+	local list = Storage.ValueExists("vehicles") ? Storage.GetValue("vehicles") : Storage.SetValue("vehicles", {});
+	if(!list.rawin(vehicle_id)) list.rawset(vehicle_id, {});
+	list.rawget(vehicle_id).rawset(key, value);
+}
+
 function Vehicle::GetOrderDistance(vehicle_id){
 	local destinations = [];
 
@@ -24,4 +39,8 @@ function Vehicle::GetOrderDistance(vehicle_id){
 
 function Vehicle::GetEstimatedDaysTravel(vehicle_id, efficiency){
 	return Engine.GetEstimatedDays(Vehicle.GetEngineType(vehicle_id), Vehicle.GetOrderDistance(vehicle_id), efficiency);
+}
+
+function Vehicle::GetAgePercentage(vehicle_id){
+	return (AIVehicle.GetAge(vehicle_id) * 100.0 / AIVehicle.GetMaxAge(vehicle_id)).tointeger();
 }
