@@ -9,6 +9,10 @@ class AirFindDestination extends Thread {
 	}
 }
 
+function AirFindDestination::GetName(){
+	return "AirFindDestination";
+}
+
 function AirFindDestination::Run(){
 	local opportunity = Opportunity.Get(opportunity_id);
 	if(!opportunity) return false;

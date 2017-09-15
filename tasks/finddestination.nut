@@ -9,6 +9,10 @@ class FindDestination extends Thread {
 	}
 }
 
+function FindDestination::GetName(){
+	return "FindDestination";
+}
+
 function FindDestination::Run(){
 	local opportunity = Opportunity.Get(opportunity_id);
 	if(!opportunity) return false;

@@ -68,7 +68,7 @@ function Aeolus::Start(){
 				}
 
 				if(start < Aeolus.GetTick() && (Aeolus.GetTick() - start) > 10){
-					AILog.Warning("Thread used " + (Aeolus.GetTick() - start) + " ticks to run");
+					AILog.Warning("Thread " + thread.GetName() + " used " + (Aeolus.GetTick() - start) + " ticks to run");
 				}
 			}
 

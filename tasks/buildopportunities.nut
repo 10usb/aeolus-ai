@@ -4,6 +4,10 @@ class BuildOpportunities extends Thread {
 	}
 }
 
+function BuildOpportunities::GetName(){
+	return "BuildOpportunities";
+}
+
 function BuildOpportunities::Run(){
 	if(Storage.ValueExists("opportunity.build_id") && Opportunity.IsValidOpportunity(Storage.GetValue("opportunity.build_id"))){
 		 return this.Sleep(15);

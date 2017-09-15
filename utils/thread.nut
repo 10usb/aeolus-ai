@@ -3,6 +3,7 @@ class Thread {
 	_sleep = 0;
 	_date  = null;
 	function Run();
+	function GetName();
 }
 
 function Thread::Sleep(ticks){

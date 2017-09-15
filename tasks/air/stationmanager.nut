@@ -2,6 +2,10 @@
 class AirStationManager extends Thread {
 }
 
+function AirStationManager::GetName(){
+	return "AirStationManager";
+}
+
 function AirStationManager::Run(){
 	local stations = AIStationList(Station.STATION_AIRPORT);
 	if(stations.Count() <= 0) return this.Sleep(50);

@@ -24,6 +24,10 @@ class AirBuildOpportunity extends Thread {
 	}
 }
 
+function AirBuildOpportunity::GetName(){
+	return "AirBuildOpportunity";
+}
+
 function AirBuildOpportunity::Run(){
 	switch(state){
 		case 0:

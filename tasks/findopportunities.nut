@@ -6,6 +6,10 @@ class FindOpportunities extends Thread {
 	}
 }
 
+function FindOpportunities::GetName(){
+	return "FindOpportunities";
+}
+
 function FindOpportunities::Run(){
 	local cargo_id = Company.GetFavoredCargo();
 
