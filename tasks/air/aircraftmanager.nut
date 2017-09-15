@@ -1,30 +1,12 @@
 
-class AirAircraftManager extends Thread {
-	static CHECK = 0;
-	static REPLACE = 1;
-
-	state = 0;
-	vehicle_id = 0;
-
-	constructor(){
-		this.state = CHECK;
-	}
+class AircraftManager extends Thread {
 }
 
-function AirAircraftManager::GetName(){
-	return "Air.AircraftManager";
+function AircraftManager::GetName(){
+	return "AircraftManager";
 }
 
-function AirAircraftManager::Run(){
-	switch(state){
-		case CHECK: return Check();
-		default:
-			AILog.Error("Unknown state " + state);
-		return false;
-	}
-}
-
-function AirAircraftManager::Check(){
+function AircraftManager::Run(){
 	local vehicles = AIVehicleList();
 	if(vehicles.Count() <= 0) return this.Sleep(50);
 
@@ -38,30 +20,14 @@ function AirAircraftManager::Check(){
 	if(vehicles.Count() <= 0) return this.Sleep(50);
 
 	vehicles.Sort(AIList.SORT_BY_VALUE, true);
-	vehicle_id = stations.Begin();
+	local vehicle_id = vehicles.Begin();
 
 	if(Vehicle.GetAgePercentage(vehicle_id) > 70){
-		state = REPLACE;
+		Vehicle.SetProperty(vehicle_id, "air.manager.next_check_date", AIDate.GetCurrentDate() + 180);
+		Aeolus.AddThread(AircraftReplacer(vehicle_id));
 		return true;
 	}
 
-	local old = AIList();
-	old.AddList(vehicles);
-	old.Valuate(Vehicle.GetAgePercentage);
-	old.KeepAboveValue(70);
-	foreach(vehicle_id, age in old){
-		if(!AIOrder.IsGotoDepotOrder(vehicle_id, AIOrder.ORDER_CURRENT)) {
-			AIVehicle.SendVehicleToDepot(vehicle_id);
-		}
-	}
-
-	local indepot = AIList();
-	indepot.AddList(vehicles);
-	indepot.Valuate(AIVehicle.IsStoppedInDepot);
-	indepot.KeepValue(1);
-
-	foreach(vehicle_id, dummy in indepot){
-		AIVehicle.SellVehicle(vehicle_id);
-	}
+	vehicles.Valuate(Vehicle.GetProperty, "air.manager.next_check_date", AIDate.GetCurrentDate() + 10);
 	return this.Wait(50);
 }

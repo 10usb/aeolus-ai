@@ -10,8 +10,6 @@ class Aeolus extends AIController {
 }
 
 function Aeolus::Start(){
-	AILog.Info("Aeolus Started");
-
 	// Set company default
 	Company.Init(); // TODO should be in a task
 
@@ -20,7 +18,7 @@ function Aeolus::Start(){
 	Aeolus.threads.push(BuildOpportunities());
 	Aeolus.threads.push(FindOpportunities());
 	Aeolus.threads.push(AirStationManager());
-	Aeolus.threads.push(AirAircraftManager());
+	Aeolus.threads.push(AircraftManager());
 
 	// Main loop and should never end...
 	do {

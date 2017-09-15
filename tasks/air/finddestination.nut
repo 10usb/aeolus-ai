@@ -32,7 +32,7 @@ function AirFindDestination::Initialize(opportunity){
 	engines.Valuate(Engine.GetEstimatedIncomeByDays, opportunity.cargo_id, 100, 0.95);
 	engines.Sort(AIList.SORT_BY_VALUE, false);
 	if(engines.Count() <= 0){
-		AILog.Info("No engine");
+		AILog.Warning("No engine");
 		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
@@ -105,7 +105,7 @@ function AirFindDestination::Initialize(opportunity){
 	}
 
 	if(opportunity.destination == null){
-		AILog.Info("No destination");
+		AILog.Warning("No destination");
 		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
@@ -128,7 +128,7 @@ function AirFindDestination::GetCost(opportunity){
 	local needed_planes			= ceil(maintenance_cost / profit.tofloat()).tointeger();
 
 	if(needed_planes > max_planes){
-		AILog.Info("Max planes");
+		AILog.Warning("Max planes");
 		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}
@@ -141,7 +141,7 @@ function AirFindDestination::GetCost(opportunity){
 	opportunity.minimum_price	= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes;
 	opportunity.monthly_profit	= Math.min(posible_planes, max_planes) * profit - maintenance_cost;
 	if(opportunity.monthly_profit <= 0){
-		AILog.Info("No profit");
+		AILog.Warning("No profit");
 		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}

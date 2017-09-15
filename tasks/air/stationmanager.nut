@@ -37,8 +37,8 @@ function AirStationManager::Run(){
 
 		local engines = Engine.GetForCargo(Vehicle.VT_AIR, cargo_id);
 		engines.Valuate(Airport.CanEngineLand, Airport.GetAirportType(Station.GetLocation(station_id)));
-		engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100, 0.95);
-		engines.Sort(AIList.SORT_BY_VALUE, false);
+		//engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100, 0.95);
+		//engines.Sort(AIList.SORT_BY_VALUE, false);
 		if(engines.Count() <= 0) continue;
 
 		foreach(engine_id, value in engines){
@@ -62,11 +62,11 @@ function AirStationManager::Run(){
 
 				local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
 
-				local engine_capacity 	= ((Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days);
+				local engine_capacity 	= ((Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days / 2);
 
 				if((engine_capacity * 2) > Math.min(Station.GetCargoWaiting(station_id, cargo_id), Station.GetCargoWaiting(destination_id, cargo_id))) continue;
 
-				local income			= Cargo.GetCargoIncome(cargo_id, distance, (days*0.9).tointeger()) * engine_capacity;
+				local income			= Cargo.GetCargoIncome(cargo_id, distance, days) * engine_capacity;
 				local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
 				local profit			= income - running_cost;
 

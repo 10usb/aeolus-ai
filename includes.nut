@@ -36,3 +36,4 @@ require("tasks/air/finddestination.nut");
 require("tasks/air/buildopportunity.nut");
 require("tasks/air/stationmanager.nut");
 require("tasks/air/aircraftmanager.nut");
+require("tasks/air/aircraftreplacer.nut");
