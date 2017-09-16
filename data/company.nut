@@ -27,10 +27,18 @@ function Company::Init(){
 	AILog.Info("Supply me " + Cargo.GetName(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
 
 	local vehicle_types = AIList();
-	//vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
-	//vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
-	//vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
-	vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
+	if(Aeolus.GetSetting("use_air")){
+		vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
+	}
+	if(Aeolus.GetSetting("use_rail")){
+		vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
+	}
+	if(Aeolus.GetSetting("use_road")){
+		vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
+	}
+	if(Aeolus.GetSetting("use_water")){
+		vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
+	}
 
 	Company.global.vehicle = Preference(vehicle_types);
 
