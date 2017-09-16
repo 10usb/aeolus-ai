@@ -69,9 +69,17 @@ function AirStationManager::Run(){
 				local income			= Cargo.GetCargoIncome(cargo_id, distance, days) * engine_capacity;
 				local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
 				local profit			= income - running_cost;
+				if(profit == 0){
+					profit = -1;
+				}
 
-				if(profit > 0){
-					selected_profit.AddItem(selected.len(), profit);
+				local repay		= Engine.GetPrice(engine_id) / profit.tofloat();
+				local remain	= (Engine.GetMaxAge(engine_id) * 12.0) - repay;
+
+				local netto_profit = (remain * profit) / (Engine.GetMaxAge(engine_id) * 12.0);
+
+				if(netto_profit > 0){
+					selected_profit.AddItem(selected.len(), netto_profit.tointeger());
 					selected.push({
 						engine_id = engine_id,
 						station_id = destination_id,
