@@ -53,7 +53,7 @@ function AirBuildOpportunity::Run(){
 		case 4:
 			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
-			AILog.Error("Failed to build source airport");
+			AILog.Error("Failed to build source airport at " + Town.GetName(town_id));
 			Finance.Repay();
 		return false;
 		case 5:
@@ -62,7 +62,7 @@ function AirBuildOpportunity::Run(){
 		case 6:
 			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
-			AILog.Error("Failed to build destination airport");
+			AILog.Error("Failed to build destination airport at " + Town.GetName(town_id));
 			AIAirport.RemoveAirport(source_tile);
 			Finance.Repay();
 		return false;

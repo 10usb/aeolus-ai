@@ -1,5 +1,27 @@
 
 class AirStationManager extends Thread {
+	static INITIALIZE		= 0;
+	static NEXT_CARGO		= 1;
+	static NEXT_ENGINE		= 2;
+	static NEXT_STATION		= 3;
+	static BUILD_AIRCRAFT	= 4;
+
+	state = 0;
+
+	station_id = 0;
+	cargos = null;
+	cargo_id = 0;
+	engines = null;
+	engine_id = 0;
+	destinations = null
+	destination_id = 0;
+
+	selected = null;
+	selected_profit = null;
+
+	constructor(){
+		this.state = INITIALIZE;
+	}
 }
 
 function AirStationManager::GetName(){
@@ -7,6 +29,19 @@ function AirStationManager::GetName(){
 }
 
 function AirStationManager::Run(){
+	switch(state){
+		case INITIALIZE: return Initialize();
+		case NEXT_CARGO: return NextCargo();
+		case NEXT_ENGINE: return NextEngine();
+		case NEXT_STATION: return NextStation();
+		case BUILD_AIRCRAFT: return BuildAircraft();
+		default:
+			AILog.Error("Unknown state " + state);
+		return false;
+	}
+}
+
+function AirStationManager::Initialize(){
 	local stations = AIStationList(Station.STATION_AIRPORT);
 	if(stations.Count() <= 0) return this.Sleep(50);
 
@@ -16,7 +51,7 @@ function AirStationManager::Run(){
 
 	stations.Sort(AIList.SORT_BY_VALUE, true);
 
-	local station_id = stations.Begin();
+	station_id = stations.Begin();
 
 	if(Airport.IsFull(station_id)){
 		//AILog.Info(Station.GetName(station_id) + " is full");
@@ -25,71 +60,107 @@ function AirStationManager::Run(){
 	}
 
 
-	local cargos = AICargoList();
+	cargos = AICargoList();
 	cargos.Valuate(Cargo.GetAmountWaitingAtStation, station_id);
 	cargos.KeepAboveValue(0);
 
-	local selected = [];
-	local selected_profit = AIList();
+	selected = [];
+	selected_profit = AIList();
 
-	foreach(cargo_id, amount in cargos){
-		//AILog.Info(Cargo.GetName(cargo_id) + " (" + amount + ")");
+	state = NEXT_CARGO;
+	return true;
+}
 
-		local engines = Engine.GetForCargo(Vehicle.VT_AIR, cargo_id);
-		engines.Valuate(Airport.CanEngineLand, Airport.GetAirportType(Station.GetLocation(station_id)));
-		//engines.Valuate(Engine.GetEstimatedIncomeByDays, cargo_id, 100, 0.95);
-		//engines.Sort(AIList.SORT_BY_VALUE, false);
-		if(engines.Count() <= 0) continue;
-
-		foreach(engine_id, value in engines){
-			local stations = AIStationList(Station.STATION_AIRPORT);
-			stations.RemoveItem(station_id);
-
-			stations.Valuate(Station.GetDistanceToTile, Station.GetLocation(station_id));
-			stations.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
-			if(stations.Count() <= 0) continue;
-
-			stations.Valuate(Airport.CanPlaneTypeLandOnStation, Engine.GetPlaneType(engine_id));
-			stations.KeepValue(1);
-			if(stations.Count() <= 0) continue;
-
-			stations.Valuate(Airport.IsFull);
-			stations.KeepValue(0);
-			if(stations.Count() <= 0) continue;
-
-			foreach(destination_id, dummy in stations){
-				local distance			= Station.GetDistanceToTile(station_id, Station.GetLocation(destination_id));
-
-				local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
-
-				local engine_capacity 	= ((Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days / 2);
-
-				if((engine_capacity * 2) > Math.min(Station.GetCargoWaiting(station_id, cargo_id), Station.GetCargoWaiting(destination_id, cargo_id))) continue;
-
-				local income			= Cargo.GetCargoIncome(cargo_id, distance, days) * engine_capacity;
-				local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
-				local profit			= income - running_cost;
-				if(profit == 0){
-					profit = -1;
-				}
-
-				local repay		= Engine.GetPrice(engine_id) / profit.tofloat();
-				local remain	= (Engine.GetMaxAge(engine_id) * 12.0) - repay;
-
-				local netto_profit = (remain * profit) / (Engine.GetMaxAge(engine_id) * 12.0);
-
-				if(netto_profit > 0){
-					selected_profit.AddItem(selected.len(), netto_profit.tointeger());
-					selected.push({
-						engine_id = engine_id,
-						station_id = destination_id,
-						cargo_id = cargo_id
-					});
-				}
-			}
-		}
+function AirStationManager::NextCargo(){
+	if(cargos.Count() <= 0){
+		state = BUILD_AIRCRAFT;
+		return true;
 	}
 
+	cargo_id = cargos.Begin();
+	cargos.RemoveTop(1);
+
+	engines = Engine.GetForCargo(Vehicle.VT_AIR, cargo_id);
+	engines.Valuate(Airport.CanEngineLand, Airport.GetAirportType(Station.GetLocation(station_id)));
+	if(engines.Count() <= 0) return true;
+
+	state = NEXT_ENGINE;
+	return true;
+}
+
+function AirStationManager::NextEngine(){
+	if(engines.Count() <= 0){
+		state = NEXT_CARGO;
+		return true;
+	}
+
+	engine_id = engines.Begin();
+	engines.RemoveTop(1);
+
+	destinations = AIStationList(Station.STATION_AIRPORT);
+	destinations.RemoveItem(station_id);
+
+	destinations.Valuate(Station.GetDistanceToTile, Station.GetLocation(station_id));
+	destinations.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
+	if(destinations.Count() <= 0) return true;
+
+	destinations.Valuate(Airport.CanPlaneTypeLandOnStation, Engine.GetPlaneType(engine_id));
+	destinations.KeepValue(1);
+	if(destinations.Count() <= 0) return true;
+
+	destinations.Valuate(Airport.IsFull);
+	destinations.KeepValue(0);
+	if(destinations.Count() <= 0) return true;
+
+	state = NEXT_STATION;
+	return true;
+}
+
+function AirStationManager::NextStation(){
+	if(destinations.Count() <= 0){
+		state = NEXT_ENGINE;
+		return true;
+	}
+
+	destination_id = destinations.Begin();
+	destinations.RemoveTop(1);
+
+	local distance			= Station.GetDistanceToTile(station_id, Station.GetLocation(destination_id));
+
+	local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
+
+	local engine_capacity 	= ((Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days / 2);
+
+	if((engine_capacity * 2) > Math.min(Station.GetCargoWaiting(station_id, cargo_id), Station.GetCargoWaiting(destination_id, cargo_id))){
+		return true;
+	}
+
+	local income			= Cargo.GetCargoIncome(cargo_id, distance, days) * engine_capacity;
+	local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
+	local profit			= income - running_cost;
+
+	if(profit == 0){
+		profit = -1;
+	}
+
+	local repay		= Engine.GetPrice(engine_id) / profit.tofloat();
+	local remain	= (Engine.GetMaxAge(engine_id) * 12.0) - repay;
+
+	local netto_profit = (remain * profit) / (Engine.GetMaxAge(engine_id) * 12.0);
+
+	if(netto_profit > 0){
+		selected_profit.AddItem(selected.len(), netto_profit.tointeger());
+		selected.push({
+			engine_id = engine_id,
+			station_id = destination_id,
+			cargo_id = cargo_id
+		});
+	}
+
+	return true;
+}
+
+function AirStationManager::BuildAircraft(){
 	if(selected_profit.Count() <= 0){
 		Station.SetProperty(station_id, "air.station.manager.check_date", AIDate.GetCurrentDate());
 		return true;
@@ -100,7 +171,7 @@ function AirStationManager::Run(){
 
 	if(!Finance.GetMoney(Engine.GetPrice(selected[index].engine_id))){
 		//AILog.Info("Waiting for enough money");
-		return this.Sleep(100);
+		return this.Wait(3);
 	}
 
 	local source_tile = Station.GetLocation(station_id);
@@ -110,6 +181,7 @@ function AirStationManager::Run(){
 	if (!AIVehicle.IsValidVehicle(vehicle_id)){
 		Finance.Repay();
 		Station.SetProperty(station_id, "air.station.manager.check_date", AIDate.GetCurrentDate());
+		state = INITIALIZE;
 		return true;
 	}
 
@@ -126,5 +198,7 @@ function AirStationManager::Run(){
 
 	Station.SetProperty(station_id, "air.station.manager.check_date", AIDate.GetCurrentDate() + 10);
 	Station.SetProperty(selected[index].station_id, "air.station.manager.check_date", AIDate.GetCurrentDate());
+
+	state = INITIALIZE;
 	return true;
 }

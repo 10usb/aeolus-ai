@@ -10,7 +10,6 @@ require("map/point.nut");
 require("map/vector.nut");
 require("map/matrix.nut");
 
-
 require("data/airport.nut");
 require("data/budget.nut");
 require("data/cargo.nut");
@@ -24,11 +23,6 @@ require("data/storage.nut");
 require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");
-
-
-
-require("air/controller.nut");
-require("rail/controller.nut");
 
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
