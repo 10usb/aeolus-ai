@@ -17,10 +17,12 @@ class AirBuildOpportunity extends Thread {
 
 	source_tile = 0;
 	destination_tile = 0;
+	budget_id = 0;
 
 	constructor(opportunity_id){
 		this.opportunity_id = opportunity_id;
 		this.state = 0;
+		this.budget_id = Budget.Create(Opportunity.GetMinimumPrice(opportunity_id));
 	}
 }
 
@@ -49,6 +51,7 @@ function AirBuildOpportunity::Run(){
 		case 2: return BuildAirport();
 		case 3: return TryBuildAirport();
 		case 4:
+			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Failed to build source airport");
 			Finance.Repay();
@@ -57,6 +60,7 @@ function AirBuildOpportunity::Run(){
 			source_tile = tile;
 		return BuildDestination();
 		case 6:
+			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Failed to build destination airport");
 			AIAirport.RemoveAirport(source_tile);
@@ -67,6 +71,7 @@ function AirBuildOpportunity::Run(){
 		return BuildPlanes();
 		case 8: return BuildPlane();
 		default:
+			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Unknown state " + state);
 		return false;
@@ -122,7 +127,7 @@ function AirBuildOpportunity::TryBuildAirport(){
 	local matrix = MapMatrix();
 	matrix.AddRectangle(tile, width, height);
 	if(!matrix.Level()){
-		AILog.Warning("Failed to make level");
+		//AILog.Warning("Failed to make level");
 		return true;
 	}
 
@@ -139,15 +144,20 @@ function AirBuildOpportunity::TryBuildAirport(){
 			return true;
 		}
 	}
+	Budget.Start(budget_id);
 	matrix.MakeLevel();
+	Budget.Stop(budget_id);
 
 	if(!Finance.GetMoney(Airport.GetPrice(airport_type) * 1.5)) return true;
 
+	Budget.Start(budget_id);
 	if(!Airport.BuildAirport(tile, airport_type, AIStation.STATION_NEW)){
+		Budget.Stop(budget_id);
 		AILog.Error("Building airport failed: " + AIError.GetLastErrorString());
 		state = failed_state;
 		return true;
 	}
+	Budget.Stop(budget_id);
 
 	state = success_state;
 	return true;
@@ -172,7 +182,7 @@ function AirBuildOpportunity::BuildDestination(){
 
 function AirBuildOpportunity::BuildPlanes(){
 	engine_id 				= Opportunity.GetEngine(opportunity_id);
-	cargo_id			= Opportunity.GetCargo(opportunity_id);
+	cargo_id				= Opportunity.GetCargo(opportunity_id);
 	local distance 			= sqrt(AITile.GetDistanceSquareToTile(source_tile, destination_tile)).tointeger();
 	local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
 	local maintenance_cost	= Airport.GetMaintenanceCost(airport_type) * 2;
@@ -183,42 +193,48 @@ function AirBuildOpportunity::BuildPlanes(){
 
 
 
-	Station.SetProperty(Station.GetStationID(source_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * needed_planes));
-	Station.SetProperty(Station.GetStationID(destination_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * needed_planes));
+	Station.SetProperty(Station.GetStationID(source_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));
+	Station.SetProperty(Station.GetStationID(destination_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));
 
 	state++;
 	return BuildPlane();
 }
 
 function AirBuildOpportunity::BuildPlane(){
+	Station.SetProperty(Station.GetStationID(source_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));
+	Station.SetProperty(Station.GetStationID(destination_tile), "air.station.manager.check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));
+
 	if(!Finance.GetMoney(Engine.GetPrice(engine_id))){
 		//AILog.Info("Waiting for enough money");
-		return this.Sleep(100);
+		return this.Wait(3);
 	}
 
 	local vehicles = AIVehicleList_Station(Station.GetStationID(source_tile));
 	if(vehicles.Count() < needed_planes){
-		local vehicle_id = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
-		if (!AIVehicle.IsValidVehicle(vehicle_id)){
+		Budget.Start(budget_id);
+		local vehicle_id = Vehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), engine_id);
+		Budget.Stop(budget_id);
+
+		if (!Vehicle.IsValidVehicle(vehicle_id)){
 			Finance.Repay();
 			AILog.Error("Building plane failed: " + AIError.GetLastErrorString());
 			return false;
 		}
 		//AILog.Info("Build " + Engine.GetName(engine_id));
-		AIVehicle.RefitVehicle(vehicle_id, cargo_id);
+		Vehicle.RefitVehicle(vehicle_id, cargo_id);
 
 		AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_NONE);
 		AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
 		AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_NONE);
 		AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-		AIVehicle.StartStopVehicle(vehicle_id);
+		Vehicle.StartStopVehicle(vehicle_id);
 
 		Finance.Repay();
 
 		return this.Wait(Airport.GetDaysBetweenAcceptPlane(airport_type));
 
 	}
-
+	Budget.RemoveBudget(budget_id);
 	Opportunity.RemoveOpportunity(opportunity_id);
 	return false;
 }

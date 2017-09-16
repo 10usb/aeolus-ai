@@ -12,6 +12,7 @@ require("map/matrix.nut");
 
 
 require("data/airport.nut");
+require("data/budget.nut");
 require("data/cargo.nut");
 require("data/company.nut");
 require("data/engine.nut");
