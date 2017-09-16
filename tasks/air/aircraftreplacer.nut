@@ -111,8 +111,17 @@ function AircraftReplacer::Waiting(){
 		local running_cost		= AIEngine.GetRunningCost(engine_id) / 12;
 		local profit			= income - running_cost;
 
-		if(profit > 0){
-			selected.AddItem(engine_id, profit);
+		if(profit == 0){
+			profit = -1;
+		}
+
+		local repay		= Engine.GetPrice(engine_id) / profit.tofloat();
+		local remain	= (Engine.GetMaxAge(engine_id) * 12.0) - repay;
+
+		local netto_profit = (remain * profit) / (Engine.GetMaxAge(engine_id) * 12.0);
+
+		if(netto_profit > 0){
+			selected.AddItem(engine_id, netto_profit.tointeger());
 		}
 	}
 
@@ -125,7 +134,7 @@ function AircraftReplacer::Waiting(){
 
 
 	if(!Finance.GetMoney(Engine.GetPrice(engine_id))){
-		return this.Sleep(100);
+		return this.Wait(3);
 	}
 
 	stations.RemoveItem(station_id);
