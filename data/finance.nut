@@ -45,7 +45,7 @@ function Finance::GetMoney(amount){
 	local additional = (ceil(amount / 10000.0).tointeger() - floor(AICompany.GetBankBalance(AICompany.COMPANY_SELF) / 10000.0).tointeger()) * 10000;
 	local neededloan = AICompany.GetLoanAmount() + additional;
 
-	if(neededloan < AICompany.GetMaxLoanAmount()){
+	if(neededloan <= AICompany.GetMaxLoanAmount()){
 		AICompany.SetMinimumLoanAmount(neededloan.tointeger());
 		return true;
 	}

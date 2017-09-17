@@ -42,7 +42,7 @@ function Budget::Create(amount){
 
 	budgets.rawset(id, {
 		id = id,
-		amount = amount,
+		amount = amount.tointeger(),
 		used = 0,
 		accounting = null,
 		created = AIDate.GetCurrentDate()
