@@ -75,8 +75,6 @@ function AircraftReplacer::Waiting(){
 	engines.Valuate(Airport.CanEngineLand, Airport.GetAirportType(Station.GetLocation(station_id)));
 	if(engines.Count() <= 0) return false;
 
-
-
 	local cargoWaiting = Station.GetCargoWaiting(station_id, cargo_id);
 
 	local destinations = [];
@@ -132,9 +130,10 @@ function AircraftReplacer::Waiting(){
 	selected.Sort(AIList.SORT_BY_VALUE, false);
 	local engine_id = selected.Begin();
 
-
-	if(!Finance.GetMoney(Engine.GetPrice(engine_id))){
-		return this.Wait(3);
+	local price = Engine.GetPrice(Engine.GetPrice(engine_id));
+	local available = Finance.GetAvailableMoney();
+	if(price > available || !Finance.GetMoney(price)){
+		return false;
 	}
 
 	stations.RemoveItem(station_id);
@@ -160,8 +159,6 @@ function AircraftReplacer::Waiting(){
 	AIVehicle.StartStopVehicle(vehicle_id);
 
 	Finance.Repay();
-
-
 	return false;
 }
 

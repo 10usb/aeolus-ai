@@ -56,7 +56,7 @@ function Company::GetFavoredCargo(){
 }
 
 function Company::DecreaseCargoFavor(cargo_id){
-	AILog.Info("Decreasing favor for " + Cargo.GetName(cargo_id));
+	//AILog.Info("Decreasing favor for " + Cargo.GetName(cargo_id));
 	return Company.global.cargo.DecreaseFavor(cargo_id);
 
 }
@@ -66,11 +66,12 @@ function Company::GetFavoredVehicleType(){
 }
 
 function Company::DecreaseVehicleTypeFavor(vehicle_type){
+	/*
 	switch(Company.global.vehicle.GetFavored()){
 		case AIVehicle.VT_RAIL: AILog.Info("Decreasing favor for Great Train Robbery by Black Uhuru"); break;
 		case AIVehicle.VT_ROAD: AILog.Info("Decreasing favor for Road Tripin' by Red Hot Chili Peppers"); break;
 		case AIVehicle.VT_WATER: AILog.Info("Decreasing favor for I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
 		case AIVehicle.VT_AIR: AILog.Info("Decreasing favor for Flying High by Captain Hollywood Project"); break;
-	}
+	}*/
 	return Company.global.vehicle.DecreaseFavor(vehicle_type);
 }

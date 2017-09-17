@@ -4,15 +4,39 @@ class Finance {
 }
 
 function Finance::GetMonthlyExpenses(){
-	return Math.max(abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)), abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER))) / 3;
+	return Math.max(
+		abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)),
+		abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER))
+	) / 3;
 }
 
 function Finance::GetMonthlyIncome(){
-	return Math.max(abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)), abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER))) / 3;
+	return Math.max(
+		abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)),
+		abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER))
+	) / 3;
+}
+
+function Finance::GetMonthlyProfit(){
+	return (
+		Math.max(
+			abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)),
+			abs(Company.GetQuarterlyIncome(Company.COMPANY_SELF, Company.CURRENT_QUARTER))
+		) + Math.max(
+			abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER + 1)),
+			abs(Company.GetQuarterlyExpenses(Company.COMPANY_SELF, Company.CURRENT_QUARTER)))
+	) / 3;
 }
 
 function Finance::GetAvailableMoney(){
-	return (AICompany.GetMaxLoanAmount() - AICompany.GetLoanAmount()) + AICompany.GetBankBalance(AICompany.COMPANY_SELF) - (Finance.GetMonthlyExpenses() * 1.5).tointeger();
+	local available = AICompany.GetMaxLoanAmount() - AICompany.GetLoanAmount();
+	available+= AICompany.GetBankBalance(AICompany.COMPANY_SELF);
+	available-= (Finance.GetMonthlyExpenses() * 1.5).tointeger();
+
+	local budgets = Budget.GetList();
+	budgets.Valuate(Budget.GetRemain);
+	available-= List.GetSum(budgets);
+	return available;
 }
 
 function Finance::GetMoney(amount){

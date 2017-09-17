@@ -169,16 +169,23 @@ function AirStationManager::BuildAircraft(){
 	selected_profit.Sort(AIList.SORT_BY_VALUE, false);
 	local index = selected_profit.Begin();
 
-	if(!Finance.GetMoney(Engine.GetPrice(selected[index].engine_id))){
-		//AILog.Info("Waiting for enough money");
+	local price = Engine.GetPrice(selected[index].engine_id);
+	local available = Finance.GetAvailableMoney();
+	if(price > available){
+		local days = Math.max(1, (price - available) * 30 / Finance.GetMonthlyProfit());
+		return this.Wait(days);
+	}
+
+	if(!Finance.GetMoney(price)){
+		AILog.Error("Failed to get enough money");
 		return this.Wait(3);
 	}
 
 	local source_tile = Station.GetLocation(station_id);
 	local destination_tile = Station.GetLocation(selected[index].station_id);
 
-	local vehicle_id = AIVehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), selected[index].engine_id);
-	if (!AIVehicle.IsValidVehicle(vehicle_id)){
+	local vehicle_id = Vehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), selected[index].engine_id);
+	if (!Vehicle.IsValidVehicle(vehicle_id)){
 		Finance.Repay();
 		Station.SetProperty(station_id, "air.station.manager.check_date", AIDate.GetCurrentDate());
 		state = INITIALIZE;
@@ -186,13 +193,13 @@ function AirStationManager::BuildAircraft(){
 	}
 
 	AILog.Info("Build extra " + Engine.GetName(selected[index].engine_id) + " at " + Station.GetName(station_id));
-	AIVehicle.RefitVehicle(vehicle_id, selected[index].cargo_id);
+	Vehicle.RefitVehicle(vehicle_id, selected[index].cargo_id);
 
 	AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_NONE);
 	AIOrder.AppendOrder(vehicle_id, source_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
 	AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_NONE);
 	AIOrder.AppendOrder(vehicle_id, destination_tile, AIOrder.OF_GOTO_NEAREST_DEPOT);
-	AIVehicle.StartStopVehicle(vehicle_id);
+	Vehicle.StartStopVehicle(vehicle_id);
 
 	Finance.Repay();
 
