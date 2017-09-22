@@ -175,6 +175,7 @@ function AirStationManager::BuildAircraft(){
 	if(selected_profit.Count() <= 0){
 		//AILog.Info("No cargo waiting at station " + Station.GetName(station_id));
 		Station.SetProperty(station_id, "air.station.manager.next_check_date", AIDate.GetCurrentDate() + Airport.GetDaysBetweenAcceptPlane(Airport.GetAirportType(Station.GetLocation(station_id))));
+		state = INITIALIZE;
 		return true;
 	}
 
