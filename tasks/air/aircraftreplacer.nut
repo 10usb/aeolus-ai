@@ -97,7 +97,7 @@ function AircraftReplacer::Waiting(){
 		destinations.AddList(stations)
 		destinations.Valuate(Airport.CanPlaneTypeLandOnStation, Engine.GetPlaneType(engine_id));
 		destinations.KeepValue(1);
-		if(destinations.Count() <= 0) continue;
+		if(destinations.Count() < stations.Count()) continue;
 
 		local days				= Engine.GetEstimatedDays(engine_id, distance, 0.95);
 
