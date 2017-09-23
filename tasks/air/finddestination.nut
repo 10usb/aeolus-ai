@@ -137,9 +137,9 @@ function AirFindDestination::GetCost(opportunity){
 	local available_cargo		= Math.min(Town.GetAvailableCargo(opportunity.source.town_id, opportunity.cargo_id), Town.GetAvailableCargo(opportunity.destination.town_id, opportunity.cargo_id));
 	local posible_planes		= Math.round((available_cargo / (Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) * 1.12)) * days / 30);
 
-	opportunity.price			= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * Math.min(posible_planes, max_planes);
-	opportunity.minimum_price	= Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes;
-	opportunity.monthly_profit	= Math.min(posible_planes, max_planes) * profit - maintenance_cost;
+	opportunity.price			= (Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * Math.min(posible_planes, max_planes)).tointeger();
+	opportunity.minimum_price	= (Airport.GetPrice(opportunity.airport_type) * 2 + Engine.GetPrice(opportunity.engine_id) * needed_planes).tointeger();
+	opportunity.monthly_profit	= (Math.min(posible_planes, max_planes) * profit - maintenance_cost).tointeger();
 	if(opportunity.monthly_profit <= 0){
 		AILog.Warning("No profit");
 		Opportunity.RemoveOpportunity(opportunity_id);

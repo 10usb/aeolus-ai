@@ -1,5 +1,5 @@
 class Budget {
-
+	static accounting = { instance = null };
 }
 
 function Budget::GetCount(){
@@ -44,7 +44,6 @@ function Budget::Create(amount){
 		id = id,
 		amount = amount.tointeger(),
 		used = 0,
-		accounting = null,
 		created = AIDate.GetCurrentDate()
 	});
 	return id;
@@ -54,11 +53,10 @@ function Budget::Start(budget_id){
 	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
 	if(!budgets.rawin(budget_id)) throw("Budget not exists");
 
-	local budget = budgets.rawget(budget_id);
-	if(budget.accounting!=null){
+	if(Budget.accounting.instance != null){
 		throw("Can't start tracking costs when not stopped");
 	}
-	budget.accounting = AIAccounting();
+	Budget.accounting.instance = AIAccounting();
 }
 
 function Budget::Stop(budget_id){
@@ -66,9 +64,9 @@ function Budget::Stop(budget_id){
 	if(!budgets.rawin(budget_id)) throw("Budget not exists");
 
 	local budget = budgets.rawget(budget_id);
-	if(budget.accounting != null){
-		budget.used+= budget.accounting.GetCosts();
-		budget.accounting = null;
+	if(Budget.accounting.instance != null){
+		budget.used+= Budget.accounting.instance.GetCosts();
+		Budget.accounting.instance = null;
 	}
 	//AILog.Info("Budget " + budget.used + " / " + budget.amount + " (" + (budget.used * 100 / budget.amount) + "%)");
 }

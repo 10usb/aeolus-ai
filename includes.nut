@@ -2,7 +2,9 @@ require("utils/math.nut");
 require("utils/list.nut");
 require("utils/signs.nut");
 require("utils/thread.nut");
+require("utils/storage.nut");
 require("utils/preference.nut");
+require("utils/console.nut");
 
 require("map/tile.nut");
 require("map/box.nut");
@@ -19,7 +21,6 @@ require("data/finance.nut");
 require("data/industry.nut");
 require("data/opportunity.nut");
 require("data/station.nut");
-require("data/storage.nut");
 require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");

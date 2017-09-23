@@ -22,7 +22,10 @@ function Company::Init(){
 
 	AILog.Info("I'm from the house of '" + name + "' and you'll will bow down before me!");
 
-	Company.global.cargo = Preference(AICargoList());
+	Company.global.cargo = Preference("preferance.cargo");
+	if(!Company.global.cargo.IsLoaded()){
+		Company.global.cargo.Init(AICargoList());
+	}
 
 	AILog.Info("Supply me " + Cargo.GetName(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
 
@@ -40,7 +43,10 @@ function Company::Init(){
 		vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
 	}
 
-	Company.global.vehicle = Preference(vehicle_types);
+	Company.global.vehicle = Preference("preferance.vehicle_types");
+	if(!Company.global.vehicle.IsLoaded()){
+		Company.global.vehicle.Init(vehicle_types);
+	}
 
 	AILog.Info("Tuning in on some great music while running my company");
 	switch(Company.global.vehicle.GetFavored()){

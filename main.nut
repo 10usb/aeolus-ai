@@ -102,5 +102,16 @@ function Aeolus::AddThread(thread){
     Aeolus.enqueue.push(thread);
 }
 
-function Aeolus::Save(){ return {}; }
-function Aeolus::Load(version, data){}
+function Aeolus::Save(){
+	AILog.Info("Saving");
+	return Storage.values;
+}
+
+function Aeolus::Load(version, data){
+	if(version == 1){
+		AILog.Info("Loading from version " + version);
+		foreach(key, value in data) {
+			Storage.values.rawset(key, value);
+		}
+	}
+}
