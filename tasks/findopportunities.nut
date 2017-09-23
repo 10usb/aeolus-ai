@@ -46,7 +46,7 @@ function FindOpportunities::Run(){
 		}
 	}
 
-	if(fails > 10) this.Sleep(50 * fails);
+	if(fails > 10) this.Sleep(50 * Math.min(20, fails));
 	return true;
 }
 
@@ -92,18 +92,13 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	if(engines.Count() <= 0) return false;
 	local engine_id = engines.Begin();
 
+	
 	local towns = AITownList();
+	towns.Valuate(Town.GetPopulation);
+	Company.GetTownPreference().Update(towns);
+
+	towns = Company.GetTownPreference().GetList();
 	towns.RemoveList(Opportunity.towns);
-
-	towns.Valuate(Town.CanBuildAirport);
-	towns.KeepAboveValue(0);
-
-	towns.Valuate(Town.GetAirportCount);
-	towns.KeepValue(0);
-
-	towns.Valuate(AITown.GetPopulation);
-	towns.Sort(AIList.SORT_BY_VALUE, false);
-	towns.KeepTop(5);
 
 	towns.Valuate(Town.GetAvailableCargo, cargo_id);
 

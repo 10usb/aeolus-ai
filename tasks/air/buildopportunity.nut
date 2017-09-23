@@ -66,6 +66,9 @@ function AirBuildOpportunity::Run(){
 			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Failed to build source airport at " + Town.GetName(town_id));
+			AILog.Info("Decrease favor for " + Town.GetName(town_id));
+			Company.GetTownPreference().DecreaseFavor(town_id);
+			Opportunity.RemoveWithTown(town_id);
 			Finance.Repay();
 		return false;
 		case BUILD_DESTINATION:
@@ -75,6 +78,9 @@ function AirBuildOpportunity::Run(){
 			Budget.RemoveBudget(budget_id);
 			Opportunity.RemoveOpportunity(opportunity_id);
 			AILog.Error("Failed to build destination airport at " + Town.GetName(town_id));
+			AILog.Info("Decrease favor for " + Town.GetName(town_id));
+			Company.GetTownPreference().DecreaseFavor(town_id);
+			Opportunity.RemoveWithTown(town_id);
 			AIAirport.RemoveAirport(source_tile);
 			Finance.Repay();
 		return false;

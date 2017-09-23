@@ -103,7 +103,6 @@ function Aeolus::AddThread(thread){
 }
 
 function Aeolus::Save(){
-	AILog.Info("Saving");
 	return Storage.values;
 }
 
@@ -113,5 +112,6 @@ function Aeolus::Load(version, data){
 		foreach(key, value in data) {
 			Storage.values.rawset(key, value);
 		}
+		// TODO Start a find destination thread for each opportunity nog yet buildable
 	}
 }

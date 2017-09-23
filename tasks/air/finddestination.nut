@@ -41,24 +41,18 @@ function AirFindDestination::Initialize(opportunity){
 	towns.RemoveItem(opportunity.source.town_id);
 	//towns.RemoveList(Opportunity.towns); // Remove all towns where destination is source
 
-	towns.Valuate(Town.CanBuildAirport);
-	towns.KeepAboveValue(0);
-
-	towns.Valuate(Town.GetAirportCount);
-	towns.KeepValue(0);
 
 	towns.Valuate(Town.GetDistanceToTile, Town.GetLocation(opportunity.source.town_id));
 
 
 	foreach(engine_id, value in engines){
-		local temp = AIList();
-		temp.AddList(towns);
+		local range = AIList();
+		range.AddList(towns);
+		range.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
+		if(range.Count() <= 0) continue;
 
-		temp.KeepBetweenValue(Engine.GetEstimatedDistance(engine_id, 60, 0.95), Engine.GetEstimatedDistance(engine_id, 120, 0.95));
-		if(temp.Count() <= 0) continue;
-
-		temp.Valuate(AITown.GetPopulation);
-		temp.Sort(AIList.SORT_BY_VALUE, false);
+		local temp = Company.GetTownPreference().GetList();
+		temp.KeepList(range);
 		temp.KeepTop(5);
 
 		temp.Valuate(Town.GetAvailableCargo, opportunity.cargo_id);
@@ -105,7 +99,8 @@ function AirFindDestination::Initialize(opportunity){
 	}
 
 	if(opportunity.destination == null){
-		AILog.Warning("No destination");
+		AILog.Info("No destination found for " + Town.GetName(Opportunity.GetSourceTown(opportunity_id)));
+		Company.GetTownPreference().DecreaseFavor(Opportunity.GetSourceTown(opportunity_id));
 		Opportunity.RemoveOpportunity(opportunity_id);
 		return false;
 	}

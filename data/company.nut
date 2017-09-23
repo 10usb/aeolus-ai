@@ -21,35 +21,12 @@ function Company::Init(){
 	AICompany.SetPresidentName(initials[AIBase.RandRange(initials.len())] + ". " + name);
 
 	AILog.Info("I'm from the house of '" + name + "' and you'll will bow down before me!");
+	AILog.Info("Supply me " + Cargo.GetName(Company.GetCargoPreference().GetFavored()) + "!!! I would like that, please...");
 
-	Company.global.cargo = Preference("preferance.cargo");
-	if(!Company.global.cargo.IsLoaded()){
-		Company.global.cargo.Init(AICargoList());
-	}
 
-	AILog.Info("Supply me " + Cargo.GetName(Company.global.cargo.GetFavored()) + "!!! I would like that, please...");
-
-	local vehicle_types = AIList();
-	if(Aeolus.GetSetting("use_air") > 0){
-		vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
-	}
-	if(Aeolus.GetSetting("use_rail") > 0){
-		vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
-	}
-	if(Aeolus.GetSetting("use_road") > 0){
-		vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
-	}
-	if(Aeolus.GetSetting("use_water") > 0){
-		vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
-	}
-
-	Company.global.vehicle = Preference("preferance.vehicle_types");
-	if(!Company.global.vehicle.IsLoaded()){
-		Company.global.vehicle.Init(vehicle_types);
-	}
 
 	AILog.Info("Tuning in on some great music while running my company");
-	switch(Company.global.vehicle.GetFavored()){
+	switch(Company.GetVehicleTypePreference().GetFavored()){
 		case AIVehicle.VT_RAIL: AILog.Info(" - Great Train Robbery by Black Uhuru"); break;
 		case AIVehicle.VT_ROAD: AILog.Info(" - Road Tripin' by Red Hot Chili Peppers"); break;
 		case AIVehicle.VT_WATER: AILog.Info(" - I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
@@ -57,27 +34,81 @@ function Company::Init(){
 	}
 }
 
+function Company::GetCargoPreference(){
+	local preferance = null;
+
+	if(!Cache.ValueExists("preferance.cargo")){
+		preferance = Cache.SetValue("preferance.cargo", Preference("preferance.cargo"));
+		if(!preferance.IsLoaded()){
+			preferance.Init(AICargoList());
+		}
+	}
+
+	return Cache.GetValue("preferance.cargo");
+}
+
 function Company::GetFavoredCargo(){
-	return Company.global.cargo.GetFavored();
+	return Company.GetCargoPreference().GetFavored();
 }
 
 function Company::DecreaseCargoFavor(cargo_id){
 	//AILog.Info("Decreasing favor for " + Cargo.GetName(cargo_id));
-	return Company.global.cargo.DecreaseFavor(cargo_id);
+	return Company.GetCargoPreference().DecreaseFavor(cargo_id);
 
 }
 
+function Company::GetVehicleTypePreference(){
+	local preferance = null;
+
+	if(!Cache.ValueExists("preferance.vehicle_types")){
+		preferance = Cache.SetValue("preferance.vehicle_types", Preference("preferance.vehicle_types"));
+		if(!preferance.IsLoaded()){
+			local vehicle_types = AIList();
+			if(Aeolus.GetSetting("use_air") > 0){
+				vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
+			}
+			if(Aeolus.GetSetting("use_rail") > 0){
+				vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
+			}
+			if(Aeolus.GetSetting("use_road") > 0){
+				vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
+			}
+			if(Aeolus.GetSetting("use_water") > 0){
+				vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
+			}
+			preferance.Init(vehicle_types);
+		}
+	}
+
+	return Cache.GetValue("preferance.vehicle_types");
+}
+
 function Company::GetFavoredVehicleType(){
-	return Company.global.vehicle.GetFavored();
+	return Company.GetVehicleTypePreference().GetFavored();
 }
 
 function Company::DecreaseVehicleTypeFavor(vehicle_type){
 	/*
-	switch(Company.global.vehicle.GetFavored()){
+	switch(Company.GetVehicleTypePreference().GetFavored()){
 		case AIVehicle.VT_RAIL: AILog.Info("Decreasing favor for Great Train Robbery by Black Uhuru"); break;
 		case AIVehicle.VT_ROAD: AILog.Info("Decreasing favor for Road Tripin' by Red Hot Chili Peppers"); break;
 		case AIVehicle.VT_WATER: AILog.Info("Decreasing favor for I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
 		case AIVehicle.VT_AIR: AILog.Info("Decreasing favor for Flying High by Captain Hollywood Project"); break;
 	}*/
-	return Company.global.vehicle.DecreaseFavor(vehicle_type);
+	return Company.GetVehicleTypePreference().DecreaseFavor(vehicle_type);
+}
+
+function Company::GetTownPreference(){
+	local preferance = null;
+
+	if(!Cache.ValueExists("preferance.towns")){
+		preferance = Cache.SetValue("preferance.towns", Preference("preferance.towns"));
+		if(!preferance.IsLoaded()){
+			local towns = AITownList();
+			towns.Valuate(Town.GetPopulation);
+			preferance.Init(towns);
+		}
+	}
+
+	return Cache.GetValue("preferance.towns");
 }

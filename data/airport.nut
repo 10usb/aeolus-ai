@@ -32,6 +32,15 @@ function Airport::GetName(type){
 	throw("Unknown AirportType");
 }
 
+function Airport::GetPlaneTypeName(type){
+	switch(type){
+		case Airport.PT_SMALL_PLANE: return "Small plane";
+		case Airport.PT_BIG_PLANE: return "Big plane";
+		case Airport.PT_HELICOPTER: return "Helicopter";
+	}
+	throw("Unknown AirportType");
+}
+
 function Airport::GetDaysBetweenAcceptPlane(type){
 	switch(type){
 		case Airport.AT_SMALL: return 20;

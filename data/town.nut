@@ -1,23 +1,12 @@
 class Town extends AITown {
 }
 
-function Town::GetAirportCount(town_id){
-	local stations = AIStationList(AIStation.STATION_AIRPORT);
-	stations.Valuate(AIStation.GetNearestTown);
-	stations.KeepValue(town_id);
-	return stations.Count();
-}
-
 function Town::GetDaysTravel(town_id, tile, speed){
 	return (Math.sqrt(AITown.GetDistanceSquareToTile(town_id, tile)) * 44.3 / speed).tointeger();
 }
 
 function Town::GetAvailableCargo(town_id, cargo_id){
 	return AITown.GetLastMonthProduction(town_id, cargo_id) - AITown.GetLastMonthSupplied(town_id, cargo_id);
-}
-
-function Town::CanBuildAirport(town_id){
-	return 1;
 }
 
 function Town::GetDistanceToTile(town_id, tile){

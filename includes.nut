@@ -3,6 +3,7 @@ require("utils/list.nut");
 require("utils/signs.nut");
 require("utils/thread.nut");
 require("utils/storage.nut");
+require("utils/cache.nut");
 require("utils/preference.nut");
 require("utils/console.nut");
 

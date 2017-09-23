@@ -35,6 +35,23 @@ function Opportunity::RemoveOpportunity(opportunity_id){
 	opportunities.rawdelete(opportunity_id);
 }
 
+function Opportunity::RemoveWithTown(town_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	local location = null;
+	foreach(opportunity_id, opportunity in opportunities){
+		location = opportunities.rawget(opportunity_id).source;
+		if(location.type == Opportunity.LT_TOWN && location.town_id == town_id){
+			opportunities.rawdelete(opportunity_id);
+			continue;
+		}
+		location = opportunities.rawget(opportunity_id).destination;
+		if(location != null && location.type == Opportunity.LT_TOWN && location.town_id == town_id){
+			opportunities.rawdelete(opportunity_id);
+			continue;
+		}
+	}
+}
+
 function Opportunity::IsBuildable(opportunity_id){
 	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
 	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
@@ -131,7 +148,6 @@ function Opportunity::GetAirportType(opportunity_id){
 	if(!opportunities.rawin(opportunity_id)) throw("Opportunity not exists");
 	return opportunities.rawget(opportunity_id).airport_type;
 }
-
 
 
 function Opportunity::Count(){

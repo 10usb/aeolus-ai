@@ -48,11 +48,13 @@ function Preference::IsLoaded(){
 	return Storage.ValueExists(name);
 }
 
-function Preference::Init(list){
+function Preference::Init(list, randomize = true){
 	preference = AIList();
 	preference.AddList(list);
 
-	preference.Valuate(List.RandRangeItem, 1, 1000);
+	if(randomize){
+		preference.Valuate(List.RandRangeItem, 1, 1000);
+	}
 	preference.Sort(AIList.SORT_BY_VALUE, false);
 
 	preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 1000 * preference.Count());
@@ -62,7 +64,7 @@ function Preference::Init(list){
 	rating.AddList(preference);
 	rating.Valuate(List.SetValue, 0);
 
-	favor	= AIList();
+	favor = AIList();
 	favor.AddList(preference);
 	Flush();
 }
@@ -75,6 +77,44 @@ function Preference::GetValues(){
 	local list = AIList();
 	list.AddList(preference);
 	return list;
+}
+
+function Preference::GetList(){
+	local list = AIList();
+	list.AddList(favor);
+	list.Sort(AIList.SORT_BY_VALUE, false);
+	return list;
+}
+
+function Preference::Update(list){
+	local addition = AIList();
+	addition.AddList(list);
+	addition.RemoveList(preference);
+	addition.Valuate(List.SetValue, 0);
+
+	local subtraction = AIList();
+	subtraction.AddList(preference);
+	subtraction.RemoveList(list);
+
+	preference = AIList();
+	preference.AddList(list);
+
+	preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 1000 * preference.Count());
+	preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - List.GetSum(preference));
+
+	rating.AddList(addition);
+	rating.RemoveList(subtraction);
+
+	favor.AddList(addition);
+	favor.RemoveList(subtraction);
+
+	// Now recalculate the favor
+	foreach(other_id, value in favor){
+		favor.SetValue(other_id, preference.GetValue(other_id) + rating.GetValue(other_id));
+	}
+	favor.Sort(AIList.SORT_BY_VALUE, false);
+
+	Flush();
 }
 
 function Preference::DecreaseFavor(id, percentage = 10){
