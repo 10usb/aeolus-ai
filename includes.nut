@@ -25,6 +25,7 @@ require("data/station.nut");
 require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");
+require("data/views/opportunitylist.nut");
 
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");

@@ -43,12 +43,12 @@ function Airport::GetPlaneTypeName(type){
 
 function Airport::GetDaysBetweenAcceptPlane(type){
 	switch(type){
-		case Airport.AT_SMALL: return 20;
-		case Airport.AT_LARGE: return 12;
-		case Airport.AT_METROPOLITAN: return 7;
-		case Airport.AT_INTERNATIONAL: return 4;
-		case Airport.AT_COMMUTER: return 12;
-		case Airport.AT_INTERCON: return 3;
+		case Airport.AT_SMALL: return 19;
+		case Airport.AT_LARGE: return 14;
+		case Airport.AT_METROPOLITAN: return 10;
+		case Airport.AT_INTERNATIONAL: return 8;
+		case Airport.AT_COMMUTER: return 14;
+		case Airport.AT_INTERCON: return 6;
 		case Airport.AT_HELIPORT: return 24;
 		case Airport.AT_HELISTATION: return 20;
 		case Airport.AT_HELIDEPOT: return 20;

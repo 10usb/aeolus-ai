@@ -13,6 +13,16 @@ function FindOpportunities::GetName(){
 function FindOpportunities::Run(){
 	local cargo_id = Company.GetFavoredCargo();
 
+	local opportunities = OpportunityList();
+	if(Storage.ValueExists("opportunity.build_id")){
+		opportunities.RemoveItem(Storage.GetValue("opportunity.build_id"));
+	}
+	opportunities.Valuate(Opportunity.GetCreated);
+	opportunities.KeepBelowValue(AIDate.GetCurrentDate() - 365);
+	foreach(opportunity_id, dummy in opportunities){
+		Opportunity.RemoveOpportunity(opportunity_id);
+	}
+
 	if(Opportunity.Count() > 3) return this.Sleep(500);
 
 	if(AICargo.GetTownEffect(cargo_id) == AICargo.TE_NONE){
@@ -98,7 +108,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	Company.GetTownPreference().Update(towns);
 
 	towns = Company.GetTownPreference().GetList();
-	towns.RemoveList(Opportunity.towns);
+	//towns.RemoveList(Opportunity.towns);
 
 	towns.Valuate(Town.GetAvailableCargo, cargo_id);
 

@@ -149,19 +149,6 @@ function Opportunity::GetAirportType(opportunity_id){
 	return opportunities.rawget(opportunity_id).airport_type;
 }
 
-
-function Opportunity::Count(){
-	return Opportunity.GetCount();
-}
-
-function Opportunity::Get(opportunity_id){
-	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
-	if(!opportunities.rawin(opportunity_id)){
-		return null;
-	}
-	return opportunities.rawget(opportunity_id);
-}
-
 function Opportunity::CreateTown(town_id, cargo_id, vehicle_type){
 	if(Opportunity.towns.HasItem(town_id)) return 0;
 
@@ -186,6 +173,19 @@ function Opportunity::CreateTown(town_id, cargo_id, vehicle_type){
 		buildable = 0,
 		created = AIDate.GetCurrentDate()
 	});
-	Opportunity.towns.AddItem(town_id, id);
 	return id;
+}
+
+
+
+function Opportunity::Count(){
+	return Opportunity.GetCount();
+}
+
+function Opportunity::Get(opportunity_id){
+	local opportunities = Storage.ValueExists("opportunities") ? Storage.GetValue("opportunities") : Storage.SetValue("opportunities", {});
+	if(!opportunities.rawin(opportunity_id)){
+		return null;
+	}
+	return opportunities.rawget(opportunity_id);
 }

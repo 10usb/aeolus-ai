@@ -6,7 +6,7 @@ class MapDot {
 	constructor(index){
 		this.index	= index;
 		this.height	= this.getCurrentHeight();
-		this.locked	= !AITile.IsBuildableRectangle(MapMatrix.Translate(index, -1, -1), 1, 1);
+		this.locked	= !AITile.IsBuildableRectangle(MapMatrix.Translate(index, -1, -1), 2, 2);
 	}
 }
 
