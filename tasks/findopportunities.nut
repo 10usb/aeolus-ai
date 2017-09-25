@@ -70,9 +70,6 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	}
 
 	local industries = AIIndustryList_CargoProducing(cargo_id);
-
-	industries.RemoveList(Opportunity.industries);
-
 	industries.Valuate(Industry.GetAvailableCargo, cargo_id);
 	industries.KeepAboveValue(0);
 
@@ -82,11 +79,11 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	if(industries.Count() <= 0) return false;
 	local industry_id = List.RandPriority(industries);
 
-	AILog.Info("Found opportunity at " + AIIndustry.GetName(industry_id) + " with " + Industry.GetAvailableCargo(industry_id, cargo_id) + " " + Cargo.GetName(cargo_id));
-	local opportunity_id = Opportunity.CreateIndustry(industry_id, cargo_id);
+	AILog.Info("Found opportunity at " + Industry.GetName(industry_id) + " with " + Industry.GetAvailableCargo(industry_id, cargo_id) + " " + Cargo.GetName(cargo_id));
+	local opportunity_id = Opportunity.CreateIndustry(industry_id, cargo_id, AIVehicle.VT_RAIL);
 	if(opportunity_id <= 0) return false;
 
-	Aeolus.AddThread(FindDestination(opportunity_id));
+	Aeolus.AddThread(RailFindDestinationIndustry(opportunity_id));
 	return true;
 }
 

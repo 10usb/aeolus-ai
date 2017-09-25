@@ -30,8 +30,11 @@ require("data/views/opportunitylist.nut");
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
 require("tasks/buildopportunities.nut");
+
 require("tasks/air/finddestination.nut");
 require("tasks/air/buildopportunity.nut");
 require("tasks/air/stationmanager.nut");
 require("tasks/air/aircraftmanager.nut");
 require("tasks/air/aircraftreplacer.nut");
+
+require("tasks/rail/finddestinationindustry.nut");

@@ -68,11 +68,17 @@ function Engine::GetWagonLength(engine_id, cargo_id, max_distance = 0){
 }
 
 function Engine::GetEstimatedDistance(engine_id, days, efficiency){
-	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 33.2).tointeger();
+	if(Engine.GetVehicleType(engine_id) == AIVehicle.VT_AIR){
+		return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 33.2).tointeger();
+	}
+	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 44.3).tointeger();
 }
 
 function Engine::GetEstimatedDays(engine_id, distance, efficiency){
-	return (distance * 33.2 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
+	if(Engine.GetVehicleType(engine_id) == AIVehicle.VT_AIR){
+		return (distance * 33.2 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
+	}
+	return (distance * 44.3 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
 }
 
 function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){
@@ -98,13 +104,6 @@ function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){
 }
 
 function Engine::GetEstimatedIncomeByDays(engine_id, cargo_id, days, efficiency, length = 0, wagon_id = -1){
-	if(efficiency <= 0){
-		if(Engine.GetVehicleType() == AIVehicle.VT_AIR){
-			efficiency = 0.95;
-		}else{
-			efficiency = 0.45;
-		}
-	}
 	local capacity		= Engine.GetCapacity(engine_id, cargo_id, length, wagon_id);
 	local cargoPrice	= AICargo.GetCargoIncome(cargo_id, Engine.GetEstimatedDistance(engine_id, days, efficiency), days);
 	local cost			= AIEngine.GetRunningCost(engine_id) / 365.0 * days;
