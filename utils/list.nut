@@ -18,6 +18,16 @@ function List::GetAvg(list){
 	return total / list.Count();
 }
 
+function List::Flip(list){
+	local flipped = AIList();
+	foreach(value, key in list){
+		if(!flipped.HasItem(key)){
+			flipped.AddItem(key, value);
+		}
+	}
+	return flipped;
+}
+
 function List::GetMax(list){
 	local max = 0;
 	foreach(dummy, value in list){
