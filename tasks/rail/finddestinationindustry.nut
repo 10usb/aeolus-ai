@@ -34,6 +34,23 @@ function RailFindDestinationIndustry::Run(){
 	foreach(industry_id, value in industries){
 		AILog.Info("  " + sqrt(value).tointeger() + " = " + AIIndustry.GetName(industry_id));
 	}
+
+	local start = AIDate.GetCurrentDate();
+	local finder = RailScanFinder(6);
+
+	finder.AddStartpoints(TranslatedTileList(Industry.GetLocation(Opportunity.GetSourceId(opportunity_id)), 4, 4));
+	finder.AddEndpoint(TranslatedTileList(Industry.GetLocation(industries.Begin()), 4, 4));
+
+	finder.Init();
+	local steps = 0;
+	while(finder.Step()) steps++;
+	AILog.Info("Days: " + (AIDate.GetCurrentDate() - start));
+	AILog.Info("Steps: " + steps);
+
+	finder.GetPath();
+
+
+
 	Aeolus.Sleep(500);
 	
 	switch(state){

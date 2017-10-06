@@ -26,6 +26,10 @@ require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");
 require("data/views/opportunitylist.nut");
+require("data/views/translatedtilelist.nut");
+
+require("rail/scan/finder.nut");
+require("rail/scan/node.nut");
 
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
