@@ -1,5 +1,7 @@
 class RailScanFinder {
     resolution  = 6;
+    max         = 40;
+    keep        = 20;
 
     startpoints = null;
     endpoints   = null;
@@ -8,8 +10,10 @@ class RailScanFinder {
     queue       = null;
     done        = 0;
 
-	constructor(resolution){
+	constructor(resolution, max, keep){
         this.resolution = resolution;
+        this.max = max;
+        this.keep = keep;
         startpoints = AIList();
         endpoints = AIList();
 
@@ -49,8 +53,19 @@ function RailScanFinder::Enqueue(node){
     local value = node.total;
     endpoints.Valuate(AIMap.DistanceSquare, node.index);
     endpoints.Sort(AIList.SORT_BY_VALUE, true);
-    value+= sqrt(endpoints.GetValue(endpoints.Begin())).tointeger() * resolution * resolution;
+    local index = endpoints.Begin();
+    value+= sqrt(endpoints.GetValue(index)).tointeger() * resolution * resolution;
     queue.AddItem(node.index, value);
+
+    if(queue.Count() > max) {
+        //AILog.Info("Clean-up");
+        local selection = AIList();
+        selection.AddList(queue);
+        selection.Valuate(AIMap.DistanceSquare, index);
+        selection.Sort(AIList.SORT_BY_VALUE, true);
+        selection.KeepTop(keep);
+        queue.KeepList(selection);
+    }
 }
 
 function RailScanFinder::Get(index){
@@ -81,7 +96,8 @@ function RailScanFinder::GetPath(){
             }
         }
     }
-
+    if(best == null) return false;
+    
     local current = best;
     while(true){
         current.Sign("" + current.total);
@@ -123,6 +139,7 @@ function RailScanFinder::Step(){
 }
 
 function RailScanFinder::Check(index, towards){
+    if(!AIMap.IsValidTile(index)) return;
     local node = Get(index);
     local extra = (Math.abs(node.GetAvgHeight() + towards.GetAvgHeight()) * (resolution * resolution)) * 2;
     local total = towards.total + extra + node.value;

@@ -36,7 +36,7 @@ function RailFindDestinationIndustry::Run(){
 	}
 
 	local start = AIDate.GetCurrentDate();
-	local finder = RailScanFinder(6);
+	local finder = RailScanFinder(6, 40, 20);
 
 	finder.AddStartpoints(TranslatedTileList(Industry.GetLocation(Opportunity.GetSourceId(opportunity_id)), 4, 4));
 	finder.AddEndpoint(TranslatedTileList(Industry.GetLocation(industries.Begin()), 4, 4));
