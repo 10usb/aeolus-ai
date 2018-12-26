@@ -109,12 +109,26 @@ function RailScanFinder::GetPath(){
 
 function RailScanFinder::Calculate(node){
     local tiles = resolution * resolution;
+    local fullCount = (tiles * 0.75).tointeger();
     local cost = tiles;
-    cost+= (tiles - node.GetBuildableCount()) * 15;
-    cost+= node.GetWaterTileCount() * 20;
+    local count = 0;
+
+    if((count = (tiles - node.GetBuildableCount())) > fullCount){
+        cost+= count * 80;
+    }else{
+        cost+= count * 20;
+    }
+
+    if((count = node.GetWaterTileCount()) > fullCount){
+        cost+= node.GetWaterTileCount() * 90;
+    }else{
+        cost+= node.GetWaterTileCount() * 30;
+    }
+
     cost+= node.GetCoastTileCount() * 10;
     cost+= node.GetFarmTileCount() / 2;
-    cost+= (tiles - node.GetFlatTileCount()) * 5;
+    cost+= (tiles - node.GetFlatTileCount()) * 10;
+
     return cost;
 }
 

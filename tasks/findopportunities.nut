@@ -1,5 +1,5 @@
 
-class FindOpportunities extends Thread {
+class FindOpportunities extends Task {
 	fails = 0;
 
 	constructor(){
@@ -83,7 +83,7 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	local opportunity_id = Opportunity.CreateIndustry(industry_id, cargo_id, AIVehicle.VT_RAIL);
 	if(opportunity_id <= 0) return false;
 
-	Aeolus.AddThread(RailFindDestinationIndustry(opportunity_id));
+	_parent.EnqueueTask(RailFindDestinationIndustry(opportunity_id));
 	return true;
 }
 
@@ -125,7 +125,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id, AIVehicle.VT_AIR);
 	if(opportunity_id < 0) return false;
 
-	Aeolus.AddThread(AirFindDestination(opportunity_id));
+	_parent.EnqueueTask(AirFindDestination(opportunity_id));
 	return true;
 }
 

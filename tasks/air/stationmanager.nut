@@ -200,7 +200,8 @@ function AirStationManager::BuildAircraft(){
 	local vehicle_id = Vehicle.BuildVehicle(Airport.GetHangarOfAirport(source_tile), selected[index].engine_id);
 	if (!Vehicle.IsValidVehicle(vehicle_id)){
 		AILog.Error("Failed to build extra " + Engine.GetName(selected[index].engine_id) + " at " + Station.GetName(station_id));
-		Finance.Repay();Station.SetProperty(station_id, "air.station.manager.next_check_date", AIDate.GetCurrentDate() + 10);
+		Finance.Repay();
+		Station.SetProperty(station_id, "air.station.manager.next_check_date", AIDate.GetCurrentDate() + 10);
 		state = INITIALIZE;
 		return true;
 	}

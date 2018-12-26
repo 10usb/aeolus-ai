@@ -41,7 +41,7 @@ function BuildOpportunities::Run(){
 
 	if(Opportunity.GetVehicleType(opportunity_id) == AIVehicle.VT_AIR){
 		Storage.SetValue("opportunity.build_id", opportunity_id); // TODO should be cache
-		Aeolus.AddThread(AirBuildOpportunity(opportunity_id));
+		_parent.EnqueueTask(AirBuildOpportunity(opportunity_id));
 	}else{
 		throw("Can't build this");
 	}

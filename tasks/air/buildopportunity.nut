@@ -207,6 +207,7 @@ function AirBuildOpportunity::BuildPlanes(){
 	local income			= Cargo.GetCargoIncome(cargo_id, distance, (days * 0.9).tointeger()) * (Engine.GetCapacity(engine_id, cargo_id) * 1.12).tointeger() * 30 / days;
 	local profit			= income - running_cost;
 	needed_planes			= ceil(maintenance_cost / profit.tofloat()).tointeger();
+	if(needed_planes < 1) needed_planes  = 1;
 
 	Station.SetProperty(Station.GetStationID(source_tile), "air.station.manager.next_check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));
 	Station.SetProperty(Station.GetStationID(destination_tile), "air.station.manager.next_check_date", AIDate.GetCurrentDate() + (Airport.GetDaysBetweenAcceptPlane(airport_type) * 2));

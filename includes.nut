@@ -1,3 +1,6 @@
+require("utils/tasks/scheduler.nut");
+require("utils/tasks/task.nut");
+
 require("utils/math.nut");
 require("utils/list.nut");
 require("utils/signs.nut");
@@ -22,11 +25,15 @@ require("data/finance.nut");
 require("data/industry.nut");
 require("data/opportunity.nut");
 require("data/station.nut");
+require("data/tile.nut");
 require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");
 require("data/views/opportunitylist.nut");
 require("data/views/translatedtilelist.nut");
+
+require("rail/scanner/finder.nut");
+require("rail/scanner/node.nut");
 
 require("rail/scan/finder.nut");
 require("rail/scan/node.nut");

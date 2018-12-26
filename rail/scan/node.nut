@@ -46,10 +46,6 @@ function RailScanNode::GetFlatTileCount(){
     return list.Count();
 }
 
-function RailScanNode::IsFlat(index){
-    return AITile.GetMinHeight(index) == AITile.GetMaxHeight(index) ? 1 : 0;
-}
-
 function RailScanNode::GetAvgHeight(){
     local list = AITileList();
     list.AddRectangle(index, to);
@@ -59,13 +55,17 @@ function RailScanNode::GetAvgHeight(){
     return (min + List.GetSum(list)) / (list.Count() * 2);
 }
 
+function RailScanNode::GetDistance(destination){
+    return (sqrt(AIMap.DistanceSquare(index, destination)) + sqrt(AIMap.DistanceSquare(index, destination))).tointeger() / 2;
+}
+
 function RailScanNode::Sign(text){
-    /*
+    /** /
     AISign.BuildSign(index, text);
     AISign.BuildSign(to, text);
     AISign.BuildSign(AIMap.GetTileIndex(AIMap.GetTileX(index), AIMap.GetTileY(to)), text);
     AISign.BuildSign(AIMap.GetTileIndex(AIMap.GetTileX(to), AIMap.GetTileY(index)), text);
-    */
+    /**/
     local list = AITileList();
     list.AddRectangle(index, to);
     list.RemoveRectangle(AIMap.GetTileIndex(
@@ -78,4 +78,9 @@ function RailScanNode::Sign(text){
     foreach(tile, dummy in list){
         AISign.BuildSign(tile, text);
     }
+    /**/
+}
+
+function RailScanNode::IsFlat(index){
+    return AITile.GetMinHeight(index) == AITile.GetMaxHeight(index) ? 1 : 0;
 }

@@ -36,10 +36,20 @@ function RailFindDestinationIndustry::Run(){
 	}
 
 	local start = AIDate.GetCurrentDate();
-	local finder = RailScanFinder(6, 40, 20);
+	AILog.Info("Start searching");
+	local finder = RailScannerFinder(50, 30, 5);
 
-	finder.AddStartpoints(TranslatedTileList(Industry.GetLocation(Opportunity.GetSourceId(opportunity_id)), 4, 4));
-	finder.AddEndpoint(TranslatedTileList(Industry.GetLocation(industries.Begin()), 4, 4));
+	local startpoints = TranslatedTileList(Industry.GetLocation(Opportunity.GetSourceId(opportunity_id)), 5, 5, -1, -1);
+	startpoints.RemoveList(TranslatedTileList(Industry.GetLocation(Opportunity.GetSourceId(opportunity_id)), 4, 4));
+	startpoints.Valuate(AITile.IsBuildable);
+	startpoints.KeepValue(1);
+	finder.AddStartpoints(startpoints);
+
+	local endpoints = TranslatedTileList(Industry.GetLocation(industries.Begin()), 5, 5, -1, -1);
+	endpoints.RemoveList(TranslatedTileList(Industry.GetLocation(industries.Begin()), 4, 4));
+	endpoints.Valuate(AITile.IsBuildable);
+	endpoints.KeepValue(1);
+	finder.AddEndpoint(endpoints);
 
 	finder.Init();
 	local steps = 0;

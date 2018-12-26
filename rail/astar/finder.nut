@@ -137,7 +137,7 @@ function RailAstarFinder::CheckValue(index, towards, value){
 			this.maxvalue = node.value;
 		}
 
-		this.signs.Build(index, "" + value);
+		// this.signs.Build(index, "" + value);
 	}else if(node.value > value){
 		node.towards	= towards;
 		node.value		= value;
@@ -149,7 +149,7 @@ function RailAstarFinder::CheckValue(index, towards, value){
 			this.maxvalue = node.value;
 		}
 
-		this.signs.Build(index, "#" + value);
+		//this.signs.Build(index, "#" + value);
 	}
 }
 
@@ -214,7 +214,7 @@ function RailAstarFinder::Search(){
 	}
 	AILog.Info("Made path");
 	this.nodes = null;
-	signs.Clean();
+	//signs.Clean();
 
 	return this.path;
 }
