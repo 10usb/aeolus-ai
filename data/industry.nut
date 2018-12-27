@@ -1,26 +1,4 @@
 class Industry extends AIIndustry {
-	static list = {};
-
-	id = null;
-	station_build = null;
-
-	constructor(id){
-		this.id = id;
-		this.station_build = null;
-	}
-}
-
-function Industry::Get(id){
-	if(!Industry.list.rawin(id)){
-		Industry.list.rawset(id, Industry(id));
-	}
-	return Industry.list.rawget(id);
-}
-function Industry::CanBuildStation(industry_id){
-	local industry = Industry.Get(industry_id);
-	if(industry.station_build==null) return 1;
-	if((AIDate.GetCurrentDate() - industry.station_build) > 200) return 1;
-	return 0;
 }
 
 function Industry::GetCargoIncome(industry_id, distance, days){

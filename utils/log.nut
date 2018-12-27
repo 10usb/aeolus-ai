@@ -1,8 +1,8 @@
-class Console {
+class Log extends AILog {
 }
 
 
-function Console::Dump(object, prefix = "", suffix = "", tabs = ""){
+function Log::Dump(object, prefix = "", suffix = "", tabs = ""){
     switch(typeof(object)){
         case "string":
         case "float":

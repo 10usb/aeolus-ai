@@ -1,6 +1,4 @@
 class Cargo extends AICargo {
-	constructor(){
-	}
 }
 
 function Cargo::GetName(cargo_id){

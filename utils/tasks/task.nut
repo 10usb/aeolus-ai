@@ -7,24 +7,28 @@ class Task {
 	function GetName();
 }
 
+function Task::GetParent(){
+	return _parent;
+}
+
 function Task::Sleep(ticks){
-	_ticks = Aeolus.GetTick();
+	_ticks = Controller.GetTick();
 	_sleep = ticks;
 	return true;
 }
 
 function Task::IsSleepy(){
-	if(Aeolus.GetTick() < _ticks){
+	if(Controller.GetTick() < _ticks){
 		return false;
 	}
-	if(Aeolus.GetTick() >= (_ticks + _sleep)){
+	if(Controller.GetTick() >= (_ticks + _sleep)){
 		return false;
 	}
 	return true;
 }
 
 function Task::SleepAmount(){
-	return (_ticks + _sleep) - Aeolus.GetTick();
+	return (_ticks + _sleep) - Controller.GetTick();
 }
 
 function Task::Wait(days){

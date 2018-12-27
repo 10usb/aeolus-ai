@@ -1,42 +1,9 @@
 class Company extends AICompany {
-	static global = {
-		cargo = null
-		vehicle = null
-	};
-}
-
-
-function Company::Init(){
-	local initials	= [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ];
-	local names		= [ "Aphrodite", "Apollo", "Aresv", "Artemis", "Athena", "Demeter", "Dionysus", "Hades", "Hephaestus", "Hera", "Hermes", "Hestia",
-						"Poseidon", "Zeus", "Aether", "Ananke", "Erebos", "Gaia", "Hemera", "Chaos", "Chronos", "Nesoi", "Nyx", "Ouranos", "Ourea",
-						"Phanes", "Pontus", "Tartarus", "Thalassa", "Hyperion", "Iapetus", "Coeus", "Crius", "Cronus", "Mnemosyne", "Oceanus", "Phoebe",
-						"Rhea", "Tethys", "Theia", "Themis", "Asteria", "Astraeus", "Atlas", "Aura", "Dione", "Eos", "Epimetheus", "Eurybia", "Eurynome",
-						"Helios", "Clymene", "Lelantos", "Leto", "Menoetius", "Metis", "Ophion", "Pallas", "Perses", "Prometheus", "Selene", "Styx" ];
-	local postfixes	= [ "", "", "", "", "", "", " Ltd.", " Corp.", " Inc.", " Ltd. Co.", " GmbH", " & Co", " V.O.F.", " B.V." ]
-	local name		= "Unknown";
-	do {
-		name = names[AIBase.RandRange(names.len())];
-	}while(!AICompany.SetName(name + postfixes[AIBase.RandRange(postfixes.len())]));
-	AICompany.SetPresidentName(initials[AIBase.RandRange(initials.len())] + ". " + name);
-
-	AILog.Info("I'm from the house of '" + name + "' and you'll will bow down before me!");
-	AILog.Info("Supply me " + Cargo.GetName(Company.GetCargoPreference().GetFavored()) + "!!! I would like that, please...");
-
-
-
-	AILog.Info("Tuning in on some great music while running my company");
-	switch(Company.GetVehicleTypePreference().GetFavored()){
-		case AIVehicle.VT_RAIL: AILog.Info(" - Great Train Robbery by Black Uhuru"); break;
-		case AIVehicle.VT_ROAD: AILog.Info(" - Road Tripin' by Red Hot Chili Peppers"); break;
-		case AIVehicle.VT_WATER: AILog.Info(" - I'm on a Boat by The Lonely Island (feat. T-Pain)"); break;
-		case AIVehicle.VT_AIR: AILog.Info(" - Flying High by Captain Hollywood Project"); break;
-	}
 }
 
 function Company::GetCargoPreference(){
 	local preferance = null;
-
+	
 	if(!Cache.ValueExists("preferance.cargo")){
 		preferance = Cache.SetValue("preferance.cargo", Preference("preferance.cargo"));
 		if(!preferance.IsLoaded()){
@@ -64,16 +31,16 @@ function Company::GetVehicleTypePreference(){
 		preferance = Cache.SetValue("preferance.vehicle_types", Preference("preferance.vehicle_types"));
 		if(!preferance.IsLoaded()){
 			local vehicle_types = AIList();
-			if(Aeolus.GetSetting("use_air") > 0){
+			if(Controller.GetSetting("use_air") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_AIR)){
 				vehicle_types.AddItem(AIVehicle.VT_AIR, 0);
 			}
-			if(Aeolus.GetSetting("use_rail") > 0){
+			if(Controller.GetSetting("use_rail") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_RAIL)){
 				vehicle_types.AddItem(AIVehicle.VT_RAIL, 0);
 			}
-			if(Aeolus.GetSetting("use_road") > 0){
+			if(Controller.GetSetting("use_road") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_ROAD)){
 				vehicle_types.AddItem(AIVehicle.VT_ROAD, 0);
 			}
-			if(Aeolus.GetSetting("use_water") > 0){
+			if(Controller.GetSetting("use_water") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_WATER)){
 				vehicle_types.AddItem(AIVehicle.VT_WATER, 0);
 			}
 			preferance.Init(vehicle_types);

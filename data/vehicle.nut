@@ -1,5 +1,4 @@
 class Vehicle extends AIVehicle {
-
 }
 
 function Vehicle::GetProperty(vehicle_id, key, defaultValue){

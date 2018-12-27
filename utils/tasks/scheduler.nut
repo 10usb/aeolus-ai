@@ -22,7 +22,7 @@ function Scheduler::IsEmpty(){
 
 function Scheduler::Run(){
 	do {
-		scheduler.Execute();
+		Execute();
 	}while(enqueue.len() || sleeping.len() || waiting.len());
 }
 
@@ -57,30 +57,29 @@ function Scheduler::Execute(){
 
     // Are there any active tasks
     if(active.len()){
-        AILog.Warning("beat " + active.len());
         while(active.len()){
             local task = active[0];
             active.remove(0);
-            AILog.Warning("Running " + task.GetName());
+            //Log.Info("Scheduler: " + task.GetName());
 
-            local start	= AIController.GetTick();
+            local start	= Controller.GetTick();
             if(task.Run())
                 // Seems the task is not finished and needs to run again
                 EnqueueTask(task);
 
-            if(start < AIController.GetTick() && (AIController.GetTick() - start) > 10){
-                AILog.Warning("Thread " + task.GetName() + " used " + (AIController.GetTick() - start) + " ticks to run");
+            if(start < Controller.GetTick() && (Controller.GetTick() - start) > 10){
+                Log.Warning("Thread " + task.GetName() + " used " + (Controller.GetTick() - start) + " ticks to run");
             }
         }
     }else if(sleeping.len()){
         // All tasks are asleep so lets sleep until one wakes up
         local ticks = max(1, sleeping.top().SleepAmount());
-        AIController.Sleep(ticks);
+        Controller.Sleep(ticks);
     }else if(waiting.len()){
         // All tasks are waiting till a next day just close the eyes for a moment
-        AIController.Sleep(10);
+        Controller.Sleep(10);
     }else{
-        AILog.Warning("This should happen...");
+        Log.Error("This should happen...");
     }
 }
 
@@ -108,4 +107,5 @@ function Scheduler::EnqueueTask(task){
         // Give it an other go
         enqueue.push(task);
     }
+    return this;
 }

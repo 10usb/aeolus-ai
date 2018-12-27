@@ -10,21 +10,29 @@ An attempt to create an AI for OpenTTD
 
 ## Transport Profiles
 - Passenger Planes (Town to Town)
-  - Find oppertunity
+  - Find oppertunity #1
     - Make a list of best plane engines for each range given 100 days of travel
-    - Find city engine pair with capacity to support maintanance of airport (some idjit set the default setting to 0)
+    - Find city engine pair with capacity to support maintanance of airport (some idjit
+      set the default maintanance setting to 0)
     - Test if airport supported by engine type can be build with enough houses that are
       not in range of other stations
-    - Select best 3 pairs
+    - Select best 3
     - Find destinations
       - Find stations in reach with over capacity of planes
-      - Find stations in reacg with over capacity of cargo
+      - Find stations in reach with over capacity of cargo
       - Find town with enough capacity to support the shared maintanance of the airports
+  - Find oppertunity #2
+    - Find airports that have room for more planes to land and don't transport passengers
+    - Find destinations
+      - Find stations in reach with over capacity of planes
+      - Find airports that have room for more planes to land and don't transport passengers
+      - Find stations in reach with over capacity of cargo
   - Builder
     - Select best payable oppertunity
-    - Build Airport(s)
-    - Redirect planes from other stations
-    - Added planes until capacity limit of cargo or number of planes is reached
+    - Test if oppertunity is still profitable
+    - Build Airport(s) (#1)
+    - Redirect planes from other stations (#1, #2)
+    - Add planes until capacity limit of cargo or number of planes is reached (#1, #2)
   - Manage Airports
     - Check if planes can be added
     - Check if connected planes don't make enough money to support the maintanace cost

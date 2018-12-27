@@ -1,6 +1,4 @@
-
 class Airport extends AIAirport {
-
 }
 
 function Airport::GetList(){
@@ -111,8 +109,9 @@ function Airport::IsFull(station_id){
 	vehicles.KeepValue(Vehicle.VT_AIR);
 	vehicles.Valuate(Vehicle.GetEstimatedDaysTravel, 0.95);
 	local days = List.GetAvg(vehicles);
+	local airportType = Airport.GetAirportType(Station.GetLocation(station_id));
 
-	if(vehicles.Count() < ceil(days.tofloat() / Airport.GetDaysBetweenAcceptPlane(Airport.GetAirportType(Station.GetLocation(station_id))))){
+	if(vehicles.Count() < ceil(days.tofloat() / Airport.GetDaysBetweenAcceptPlane(airportType))){
 		return 0;
 	}
 	return 1;

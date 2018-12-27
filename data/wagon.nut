@@ -1,6 +1,4 @@
 class Wagon {
-	constructor(){
-	}
 }
 
 function Wagon::GetFor(cargo_id, rail_type){

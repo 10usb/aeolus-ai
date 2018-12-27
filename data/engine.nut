@@ -1,6 +1,4 @@
 class Engine extends AIEngine {
-	constructor(){
-	}
 }
 
 function Engine::GetForCargo(vehicle_type, cargo_id){

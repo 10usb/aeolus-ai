@@ -1,6 +1,4 @@
 class Finance {
-	constructor(){
-	}
 }
 
 function Finance::GetMonthlyExpenses(){

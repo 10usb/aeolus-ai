@@ -2,36 +2,38 @@ require("includes.nut");
 
 import("queue.fibonacci_heap", "FibonacciHeap", 2);
 
-class Aeolus extends AIController {
+class Controller extends AIController {
+	scheduler = null;
+	loaded = false;
+
+	constructor(){
+		scheduler = Scheduler();
+	}
 }
 
-function Aeolus::Start(){
-	// Set company default
-	Company.Init(); // TODO should be in a task
+function Controller::Start(){
+	Company.SetAutoRenewStatus(false);
 
-	local scheduler = Scheduler();
+	// Add initial task
+	if(!loaded){
+		scheduler.EnqueueTask(CreatePersonality());
+	}else{
+		scheduler.EnqueueTask(WakeUp());
+	}
 
-	// Add some initial tasks
-	scheduler.EnqueueTask(RepayLoad());
-	scheduler.EnqueueTask(BuildOpportunities());
-	scheduler.EnqueueTask(FindOpportunities());
-	scheduler.EnqueueTask(AirStationManager());
-	scheduler.EnqueueTask(AircraftManager());
-
-	// Main loop and should never end...
+	// Main loop and it should never end...
 	scheduler.Run();
 }
 
-function Aeolus::Save(){
+function Controller::Save(){
 	return Storage.values;
 }
 
-function Aeolus::Load(version, data){
+function Controller::Load(version, data){
 	if(version == 1){
-		AILog.Info("Loading from version " + version);
-		foreach(key, value in data) {
+		loaded = true;
+		foreach(key, value in data){
 			Storage.values.rawset(key, value);
 		}
-		// TODO Start a find destination thread for each opportunity not yet buildable
 	}
 }

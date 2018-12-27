@@ -73,9 +73,9 @@ function AirFindDestination::Initialize(opportunity){
 			airport_types.Valuate(Airport.CanPlaneTypeLand, Engine.GetPlaneType(engine_id));
 			airport_types.KeepValue(1);
 			foreach(airport_type, dummy in airport_types){
-				local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(airport_type)).tointeger();
+				local max_planes		= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(airport_type));
 				local maintenance_cost	= Airport.GetMaintenanceCost(airport_type) * 2;
-				local needed_planes		= ceil(maintenance_cost / profit.tofloat()).tointeger();
+				local needed_planes		= Math.ceil(maintenance_cost / profit.tofloat());
 				if(needed_planes > max_planes) continue;
 
 				local capacity = (Engine.GetCapacity(engine_id, opportunity.cargo_id) * 1.12 * needed_planes) * 30 / days;
@@ -113,14 +113,14 @@ function AirFindDestination::GetCost(opportunity){
 	local distance = Town.GetDistanceToTile(opportunity.source.town_id, Town.GetLocation(opportunity.destination.town_id));
 
 	local days					= Engine.GetEstimatedDays(opportunity.engine_id, distance, 0.95);
-	local max_planes			= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(opportunity.airport_type)).tointeger();
+	local max_planes			= Math.round(days * 2.0 / Airport.GetDaysBetweenAcceptPlane(opportunity.airport_type));
 	local maintenance_cost		= Airport.GetMaintenanceCost(opportunity.airport_type) * 2;
 
 	local running_cost			= AIEngine.GetRunningCost(opportunity.engine_id) / 12;
 	local income				= Cargo.GetCargoIncome(opportunity.cargo_id, distance, (days * 0.9).tointeger()) * (Engine.GetCapacity(opportunity.engine_id, opportunity.cargo_id) * 1.12).tointeger() * 30 / days;
 	local profit				= income - running_cost;
 
-	local needed_planes			= ceil(maintenance_cost / profit.tofloat()).tointeger();
+	local needed_planes			= Math.ceil(maintenance_cost / profit.tofloat());
 
 	if(needed_planes > max_planes){
 		//AILog.Warning("Max planes");

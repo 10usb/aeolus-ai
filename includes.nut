@@ -1,14 +1,16 @@
 require("utils/tasks/scheduler.nut");
 require("utils/tasks/task.nut");
+require("utils/thread.nut");
 
+require("utils/log.nut");
 require("utils/math.nut");
 require("utils/list.nut");
 require("utils/signs.nut");
-require("utils/thread.nut");
+
 require("utils/storage.nut");
 require("utils/cache.nut");
 require("utils/preference.nut");
-require("utils/console.nut");
+
 
 require("map/tile.nut");
 require("map/box.nut");
@@ -16,6 +18,7 @@ require("map/point.nut");
 require("map/vector.nut");
 require("map/matrix.nut");
 
+// Data types
 require("data/airport.nut");
 require("data/budget.nut");
 require("data/cargo.nut");
@@ -24,20 +27,25 @@ require("data/engine.nut");
 require("data/finance.nut");
 require("data/industry.nut");
 require("data/opportunity.nut");
+require("data/personalitytrait.nut");
 require("data/station.nut");
 require("data/tile.nut");
 require("data/town.nut");
 require("data/vehicle.nut");
 require("data/wagon.nut");
-require("data/views/opportunitylist.nut");
-require("data/views/translatedtilelist.nut");
+
+// List of data types
+require("data/lists/opportunitylist.nut");
+require("data/lists/translatedtilelist.nut");
+require("data/lists/personalitytraitlist.nut");
 
 require("rail/scanner/finder.nut");
 require("rail/scanner/node.nut");
-
 require("rail/scan/finder.nut");
 require("rail/scan/node.nut");
 
+// Tasks
+require("tasks/createpersonality.nut");
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
 require("tasks/buildopportunities.nut");

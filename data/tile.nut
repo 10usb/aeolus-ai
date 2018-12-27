@@ -1,6 +1,4 @@
 class Tile extends AITile {
-	constructor(){
-	}
 }
 
 function Tile::GetTranslatedIndex(index, x, y){
