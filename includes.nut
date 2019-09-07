@@ -1,5 +1,6 @@
 require("utils/tasks/scheduler.nut");
 require("utils/tasks/task.nut");
+require("utils/tasks/taskqueue.nut");
 require("utils/thread.nut");
 
 require("utils/log.nut");
@@ -20,6 +21,7 @@ require("map/matrix.nut");
 
 // Data types
 require("data/airport.nut");
+require("data/airportenginematrix.nut");
 require("data/budget.nut");
 require("data/cargo.nut");
 require("data/company.nut");
@@ -35,6 +37,7 @@ require("data/vehicle.nut");
 require("data/wagon.nut");
 
 // List of data types
+require("data/lists/airportlist.nut");
 require("data/lists/opportunitylist.nut");
 require("data/lists/translatedtilelist.nut");
 require("data/lists/personalitytraitlist.nut");
@@ -48,6 +51,8 @@ require("rail/scan/node.nut");
 require("tasks/createpersonality.nut");
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
+require("tasks/findopportunities/passengerplanes.nut");
+
 require("tasks/buildopportunities.nut");
 
 require("tasks/air/finddestination.nut");

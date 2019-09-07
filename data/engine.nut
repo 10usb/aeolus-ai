@@ -72,6 +72,10 @@ function Engine::GetEstimatedDistance(engine_id, days, efficiency){
 	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 44.3).tointeger();
 }
 
+function Engine::GetEstimatedDistanceIndex(engine_id, days = 100, efficiency = 0.95, factor = 3){
+	return Math.round(sqrt(Engine.GetEstimatedDistance(engine_id, days, efficiency)) / factor);
+}
+
 function Engine::GetEstimatedDays(engine_id, distance, efficiency){
 	if(Engine.GetVehicleType(engine_id) == AIVehicle.VT_AIR){
 		return (distance * 33.2 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();

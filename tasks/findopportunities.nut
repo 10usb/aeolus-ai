@@ -1,8 +1,9 @@
 
-class FindOpportunities extends Task {
+class FindOpportunities extends TaskQueue {
 	fails = 0;
 
 	constructor(){
+		::TaskQueue.constructor();
 	}
 }
 
@@ -10,7 +11,32 @@ function FindOpportunities::GetName(){
 	return "FindOpportunities";
 }
 
-function FindOpportunities::Run(){
+function FindOpportunities::RunEmpty(){
+	local opportunities = OpportunityList();
+
+	if(opportunities.Count() < 10){
+		return this.FindNew();
+	}else{
+		// TODO test every opportunity once in a while, if it is still valid
+		Log.Info("Hey, look we reached our maximum opportunities");
+		return this.Sleep(500);
+	}
+}
+
+function FindOpportunities::FindNew(){
+	local personality_trait = PersonalityTrait.GetFavored();
+
+	if(personality_trait == PersonalityTrait.PT_PASSENGER_PLANES){
+		EnqueueTask(FindOpportunities_PassengerPlanes());
+		return true;
+	}else{
+		Log.Info("Decreasing favor " + PersonalityTrait.GetName(personality_trait));
+		PersonalityTrait.DecreaseFavor(personality_trait);
+		return true;
+	}
+}
+
+function FindOpportunities::RunOld(){
 	local cargo_id = Company.GetFavoredCargo();
 
 	local opportunities = OpportunityList();

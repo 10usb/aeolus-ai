@@ -10,16 +10,9 @@ function CreatePersonality::Run(){
 	this.PersonalityTraits();
     this.BuildHQ();
     
-    
+    // Find something todo
     this.GetParent().EnqueueTask(FindOpportunities());
-	// // Add some initial tasks
-	// this.GetParent()
-    //     .EnqueueTask(RepayLoad())
-    //     .EnqueueTask(BuildOpportunities())
-    //     .EnqueueTask(FindOpportunities())
-    //     .EnqueueTask(AirStationManager())
-    //     .EnqueueTask(AircraftManager());
-
+	
     return false;
 }
 
@@ -41,10 +34,9 @@ function CreatePersonality::SetName(){
 }
 
 function CreatePersonality::PersonalityTraits(){
-	local preferance = Preference("preferance.personalitytraits");
-	preferance.Init(PersonalityTraitList());
+	PersonalityTrait.preferance.Init(PersonalityTraitList());
 
-	foreach(id, value in preferance.GetValues()){
+	foreach(id, value in PersonalityTrait.preferance.GetValues()){
 		Log.Info(value + " => " + PersonalityTrait.GetName(id));
 	}
 }

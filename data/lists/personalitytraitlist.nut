@@ -4,8 +4,8 @@ class PersonalityTraitList extends AIList {
         
         if(Controller.GetSetting("use_air") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_AIR)){
             AddItem(PersonalityTrait.PT_PASSENGER_PLANES, 0);
-            AddItem(PersonalityTrait.PT_MAIL_PLANES, 0);
-            AddItem(PersonalityTrait.PT_PASSENGER_HELICOPTERS, 0);
+            //AddItem(PersonalityTrait.PT_MAIL_PLANES, 0);
+            //AddItem(PersonalityTrait.PT_PASSENGER_HELICOPTERS, 0);
         }
         
         if(Controller.GetSetting("use_road") > 0 && !AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_ROAD)){
