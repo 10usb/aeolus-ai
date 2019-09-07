@@ -17,6 +17,8 @@ class PersonalityTrait {
 	static PT_OILTANKER = 15;
 	static PT_CARGOSHIP_INDUSTRY = 16;
 	static PT_CARGOSHIP_TOWN = 17;
+
+    static preferance = Preference("preferance.personalitytraits");
 }
 
 function PersonalityTrait::GetName(personality_trait){
@@ -41,4 +43,12 @@ function PersonalityTrait::GetName(personality_trait){
 		case PersonalityTrait.PT_CARGOSHIP_TOWN: return "Cargoship (Industry to Town)";
 		default: return "Unkown (#" + personality_trait + ")"
 	}
+}
+
+function PersonalityTrait::GetFavored(){
+    return PersonalityTrait.preferance.GetFavored();
+}
+
+function PersonalityTrait::DecreaseFavor(personality_trait){
+    return PersonalityTrait.preferance.DecreaseFavor(personality_trait);
 }
