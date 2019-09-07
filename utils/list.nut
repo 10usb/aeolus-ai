@@ -67,3 +67,17 @@ function List::RandPriority(list){
 
 	throw("Internal error");
 }
+
+function List::GroupByValue(list){
+	local groups = {};
+
+	foreach(key, value in list){
+		if(!groups.rawin(value)){
+			groups.rawset(value, AIList());
+		}
+		local group = groups.rawget(value);
+		group.AddItem(key, value);
+	}
+
+	return groups;
+}
