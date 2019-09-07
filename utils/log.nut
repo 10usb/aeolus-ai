@@ -7,17 +7,32 @@ function Log::Dump(object, prefix = "", suffix = "", tabs = ""){
         case "string":
         case "float":
         case "integer":
-            AILog.Info(tabs + prefix + typeof(object) + "(" + object + ")" + suffix);
+            Log.Info(tabs + prefix + typeof(object) + "(" + object + ")" + suffix);
         break;
         case "table":
-            AILog.Info(tabs + prefix + "table {");
+            Log.Info(tabs + prefix + "table {");
             foreach(key, value in object){
-                Console.Dump(value, key + " = ", ",", tabs + "    ");
+                Log.Dump(value, key + " = ", ",", tabs + "    ");
             }
-            AILog.Info(tabs + "}" + suffix);
+            Log.Info(tabs + "}" + suffix);
+        break;
+        case "array":
+            Log.Info(tabs + prefix + "array [");
+            foreach(key, value in object){
+                Log.Dump(value, key + " = ", ",", tabs + "    ");
+            }
+            Log.Info(tabs + "]" + suffix);
         break;
         default:
-            AILog.Info(tabs + prefix + typeof(object));
+            if(object instanceof ::AIList){
+                Log.Info(tabs + prefix + "AIList {");
+                foreach(key, value in object){
+                    Log.Dump(value, key + " = ", ",", tabs + "    ");
+                }
+                Log.Info(tabs + "}" + suffix);
+            }else{
+                Log.Info(tabs + prefix + typeof(object));
+            }
         break;
     }
 }
