@@ -80,10 +80,6 @@ function Airport::CanPlaneTypeLand(type, plane_type){
 	return 0;
 }
 
-function Airport::CanEngineLand(engine_id, type){
-	return Airport.CanPlaneTypeLand(type, Engine.GetPlaneType(engine_id));
-}
-
 function Airport::CanPlaneTypeLandOnStation(station_id, plane_type){
 	return Airport.CanPlaneTypeLand(Airport.GetAirportType(Station.GetLocation(station_id)), plane_type);
 }

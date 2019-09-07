@@ -115,3 +115,7 @@ function Engine::GetEstimatedProfitByDistance(engine_id, cargo_id, distance, eff
 	local cost			= AIEngine.GetRunningCost(engine_id) / 365.0 * days;
 	return ((capacity * cargoPrice) - cost).tointeger();
 }
+
+function Engine::CanEngineLand(engine_id, type){
+	return Airport.CanPlaneTypeLand(type, Engine.GetPlaneType(engine_id));
+}
