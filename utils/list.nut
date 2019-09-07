@@ -51,7 +51,7 @@ function List::RandRangeItem(unused, min, max){
 }
 
 function List::RandPriority(list){
-	local max = List.GetSum(list) - 1;
+	local max = List.GetSum(list);
 	if(max <= 0){
 		return list.Begin();
 	}
