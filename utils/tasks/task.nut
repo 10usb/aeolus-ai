@@ -58,7 +58,11 @@ function Task::WaitAmount(){
 }
 
 function Task::WakeUp(){
-	_ticks = 0;
-	_sleep = 0;
-	_date = null;
+	if(_sleep > 0 || _date != null){
+		_ticks = 0;
+		_sleep = 0;
+		_date = null;
+		return true;
+	}
+	return false;
 }
