@@ -1,20 +1,6 @@
 class Airport extends AIAirport {
 }
 
-function Airport::GetList(){
-	local list = AIList();
-	list.AddItem(Airport.AT_SMALL, 0);
-	list.AddItem(Airport.AT_LARGE, 0);
-	list.AddItem(Airport.AT_METROPOLITAN, 0);
-	list.AddItem(Airport.AT_INTERNATIONAL, 0);
-	list.AddItem(Airport.AT_COMMUTER, 0);
-	list.AddItem(Airport.AT_INTERCON, 0);
-	list.AddItem(Airport.AT_HELIPORT, 0);
-	list.AddItem(Airport.AT_HELISTATION, 0);
-	list.AddItem(Airport.AT_HELIDEPOT, 0);
-	return list;
-}
-
 function Airport::GetName(type){
 	switch(type){
 		case Airport.AT_SMALL: return "Small";
