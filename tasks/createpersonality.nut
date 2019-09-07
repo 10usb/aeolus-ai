@@ -50,5 +50,38 @@ function CreatePersonality::PersonalityTraits(){
 }
 
 function CreatePersonality::BuildHQ(){
+	local towns = AITownList();
+	towns.Valuate(Town.GetPopulation);
+	
+	local town_id = List.RandPriority(towns);
 
+	Log.Info("Hometown: " + Town.GetName(town_id) + " (" + Town.GetPopulation(town_id) + ")");
+
+	local tiles = Town.GetTiles(town_id, true, 2);
+	tiles.Valuate(Tile.IsBuildableRectangle, 2, 2);
+	tiles.KeepValue(1);
+	tiles.Valuate(CreatePersonality.RoadAccessHQ);
+	tiles.KeepAboveValue(0);
+	tiles.Sort(AIList.SORT_BY_VALUE, false);
+
+	//tiles.Valuate(Tile.GetDistanceSquareToTile, Town.GetLocation(town_id));
+	//tiles.Sort(AIList.SORT_BY_VALUE, true);
+
+	local tile;
+	do {
+		tile = tiles.Begin();
+		tiles.RemoveTop(1);
+
+		local matrix = MapMatrix();
+		matrix.AddRectangle(tile, 2, 2);
+		if(!matrix.MakeLevel()) continue;
+	}while(!Company.BuildCompanyHQ(tile) && tiles.Count())
+}
+
+function CreatePersonality::RoadAccessHQ(tile){
+	local tiles = AITileList();
+	tiles.AddRectangle(Tile.GetTranslatedIndex(tile, 0, -1), Tile.GetTranslatedIndex(tile, 1, 2));
+	tiles.AddRectangle(Tile.GetTranslatedIndex(tile, -1, 0), Tile.GetTranslatedIndex(tile, 2, 1));
+	tiles.Valuate(AIRoad.IsRoadTile);
+	return List.GetSum(tiles);
 }
