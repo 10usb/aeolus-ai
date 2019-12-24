@@ -11,7 +11,7 @@ function CreatePersonality::Run(){
     this.BuildHQ();
     
     // Find something todo
-    this.GetParent().EnqueueTask(FindOpportunities());
+    //this.GetParent().EnqueueTask(FindOpportunities());
 	
     return false;
 }
@@ -43,8 +43,10 @@ function CreatePersonality::PersonalityTraits(){
 
 function CreatePersonality::BuildHQ(){
 	local towns = AITownList();
+	towns.Valuate(Town.IsCity);
+	towns.KeepValue(1);
+
 	towns.Valuate(Town.GetPopulation);
-	
 	local town_id = List.RandPriority(towns);
 
 	Log.Info("Hometown: " + Town.GetName(town_id) + " (" + Town.GetPopulation(town_id) + ")");

@@ -21,6 +21,8 @@ function Controller::Start(){
 		scheduler.EnqueueTask(WakeUp());
 	}
 
+	scheduler.EnqueueTask(Debugging());
+
 	// Main loop and it should never end...
 	scheduler.Run();
 }

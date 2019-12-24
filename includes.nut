@@ -42,12 +42,12 @@ require("data/lists/opportunitylist.nut");
 require("data/lists/translatedtilelist.nut");
 require("data/lists/personalitytraitlist.nut");
 
-require("rail/scanner/finder.nut");
-require("rail/scanner/node.nut");
-require("rail/scan/finder.nut");
-require("rail/scan/node.nut");
+// Rail
+require("rail/path/finder.nut");
 
 // Tasks
+require("tasks/debugging.nut");
+
 require("tasks/createpersonality.nut");
 require("tasks/repayloan.nut");
 require("tasks/findopportunities.nut");
