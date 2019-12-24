@@ -4,6 +4,7 @@ class Aeolus extends AIInfo {
 	function GetDescription() { return "A.I. with an personality and tries to improve its existing infrastructure"; }
 	function GetVersion()     { return 1; }
 	function GetDate()        { return "1836-07-14"; }
+	function UseAsRandomAI () { return false; }
 	function CreateInstance() { return "Controller"; }
 	function GetShortName()   { return "AEOL"; }
 	function GetAPIVersion()  { return "1.5"; }
