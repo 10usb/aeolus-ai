@@ -11,7 +11,7 @@ function RailPathQueue::Count(){
 }
 
 function RailPathQueue::Add(node){
-	return this.instance.Insert(node, node.value);
+	return this.instance.Insert(node, node.value + node.extra);
 }
 
 function RailPathQueue::Poll(){

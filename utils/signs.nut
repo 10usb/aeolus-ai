@@ -8,7 +8,7 @@ function Signs::Build(tile, text){
 
 function Signs::Clean(){
 	foreach(sign in signs){
-		AISign.RemoveSign(sign)
+		AISign.RemoveSign(sign);
 	}
 }
 
