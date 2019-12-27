@@ -48,21 +48,39 @@ function Debugging::Process(command, sign_id){
     }else{
         if(command == "!finder"){
             handler = FinderHandler();
+            handler.SetParent(this.GetParent());
             AISign.RemoveSign(sign_id);
         }
     }
 }
 
 class CommandHandler {
+    _parent = null;
+
+    function GetParent(){
+        return this._parent;
+    }
+
+    function SetParent(task){
+        this._parent = task;
+    }
+
     function OnCommand(command, sign_id);
 }
 
 class FinderHandler extends CommandHandler {
     finder = null;
     start = null;
+    value = 0;
 
 	constructor(){
-	    Log.Info("Started finder handler");
+	    Log.Info("Finder commands");
+	    Log.Info(" - !start          Add a start tile");
+        Log.Info(" - !value=?   Set value for a start/end tile");
+        Log.Info(" - !from           Mark the spot a start tile comes from");
+        Log.Info(" - !end              Add an end tile");
+        Log.Info(" - !exclude   Exclude a tile for being processed");
+        Log.Info(" - !go                 Start the finding process");
         finder = RailPathFinder();
     }
     function OnCommand(command, sign_id){
@@ -70,7 +88,11 @@ class FinderHandler extends CommandHandler {
             start = sign_id;
             AISign.SetName(sign_id, "OK");
         }else if(command == "!end"){
-            finder.AddEndPoint(AISign.GetLocation(sign_id), 0);
+            finder.AddEndPoint(AISign.GetLocation(sign_id), value);
+            value = 0;
+            AISign.RemoveSign(sign_id);
+        }else if(command == "!exclude"){
+            finder.AddExclusion(AISign.GetLocation(sign_id));
             AISign.RemoveSign(sign_id);
         }else if(command == "!from"){
             if(start != null){
@@ -78,7 +100,8 @@ class FinderHandler extends CommandHandler {
                 local towards = AISign.GetLocation(sign_id);
 
                 if(Tile.GetDistanceManhattanToTile(index, towards) == 1){
-                    finder.AddStartPoint(index, towards, 0);
+                    finder.AddStartPoint(index, towards, value);
+                    value = 0;
                 }
                 
                 AISign.RemoveSign(start);
@@ -91,7 +114,7 @@ class FinderHandler extends CommandHandler {
 
             finder.Init();
 
-            local limit = 5000;
+            local limit = 50000;
 
             while(limit-- > 0 && finder.Step());
 
@@ -99,11 +122,18 @@ class FinderHandler extends CommandHandler {
             finder.signs.Clean();
             Log.Info("Cleaned");
 
-            finder.GetPath();
-            Controller.Sleep(100);
-            finder.signs.Clean();
+            local path = finder.GetPath();
+
+            this.GetParent().EnqueueTask(RailPathBuilder(path));
 
             return false;
+        }else if(command.slice(0, 7) == "!value="){
+            try {
+                value = command.slice(7).tointeger();
+            }catch(err){
+                value = 0;
+            }
+            AISign.RemoveSign(sign_id);
         }
         return true;
     }

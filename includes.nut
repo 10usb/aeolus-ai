@@ -62,3 +62,4 @@ require("tasks/air/aircraftmanager.nut");
 require("tasks/air/aircraftreplacer.nut");
 
 require("tasks/rail/finddestinationindustry.nut");
+require("tasks/rail/pathbuilder.nut");

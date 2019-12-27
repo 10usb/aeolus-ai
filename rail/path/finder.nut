@@ -10,6 +10,7 @@ class RailPathFinder {
     distance    = null;
     success     = null;
     radius      = null;
+    exclusions  = null;
 
 	constructor(){
 		this.signs       = Signs();
@@ -17,6 +18,7 @@ class RailPathFinder {
         this.nodes       = {};
         this.startpoints = {};
         this.endpoints   = AIList();
+        this.exclusions  = AIList();
 	}
 }
 
@@ -25,6 +27,7 @@ function RailPathFinder::AddStartPoint(index, towards, value){
         towards = towards,
         value = value
     });
+    this.exclusions.AddItem(towards, 0);
 
     this.signs.Build(index, "start: " + value);
     this.signs.Build(towards, "from: " + value);
@@ -33,6 +36,11 @@ function RailPathFinder::AddStartPoint(index, towards, value){
 function RailPathFinder::AddEndPoint(index, value){
     this.endpoints.AddItem(index, value);
     this.signs.Build(index, "end: " + value);
+}
+
+function RailPathFinder::AddExclusion(index){
+    this.exclusions.AddItem(index, 0);
+    this.signs.Build(index, "EXCLUDED");
 }
 
 function RailPathFinder::Init(){
@@ -73,7 +81,11 @@ function RailPathFinder::Step(){
     
     // Test candidates
     foreach(index, slope in node.GetCandidates()){
-        // Is index buildable
+        // When the tile it excluded do nothing with it
+        if(this.exclusions.HasItem(index))
+            continue;
+
+        // TODO: When the tile is not buildable it might still be crossable
         if(!Tile.IsBuildable(index))
             continue;
         
@@ -160,11 +172,15 @@ function RailPathFinder::GetPath(){
     local current = this.nodes.rawget(best.Begin());
 
     local path = [];
-    while(current != null){
-        this.signs.Build(current.index, "" + current.value);
-
+    for(;;){
+        path.push(current.index);
+        
+        if(current.forerunner == null) break;
         current = current.forerunner;
     }
+
+    // Add the one preceding the path to the begining of it
+    path.push(this.startpoints.rawget(current.index).towards);
 
     path.reverse();
     return path;
