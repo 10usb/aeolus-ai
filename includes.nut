@@ -30,6 +30,7 @@ require("data/finance.nut");
 require("data/industry.nut");
 require("data/opportunity.nut");
 require("data/personalitytrait.nut");
+require("data/rail.nut");
 require("data/station.nut");
 require("data/tile.nut");
 require("data/town.nut");
