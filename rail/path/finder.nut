@@ -149,7 +149,8 @@ function RailPathFinder::CheckBridge(forerunner, to){
                 continue;
             break;
         }
-
+        
+        // The ramps need may only differ 1, but a tile further ther might be an ok place
         if(abs(Tile.GetMaxHeight(ramp) - Tile.GetMaxHeight(to)) > 1){
             continue;
         }
@@ -177,7 +178,7 @@ function RailPathFinder::CheckBridge(forerunner, to){
             local cost = forerunner.value + 300 + length * 10;
             this.Enqueue(index, forerunner, cost);
         }
-        
+
         break;
     }
 }
