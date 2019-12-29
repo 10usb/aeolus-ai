@@ -150,6 +150,10 @@ function RailPathFinder::CheckBridge(forerunner, to){
             break;
         }
 
+        if(abs(Tile.GetMaxHeight(ramp) - Tile.GetMaxHeight(to)) > 1){
+            continue;
+        }
+
         // The tile after the ramp
         local index = vector.GetTileIndex(length + 1);
         if(!Tile.IsBuildable(index)){
@@ -172,8 +176,8 @@ function RailPathFinder::CheckBridge(forerunner, to){
             // this.signs.Build(ramp, "VALID");
             local cost = forerunner.value + 300 + length * 10;
             this.Enqueue(index, forerunner, cost);
-            
         }
+        
         break;
     }
 }
