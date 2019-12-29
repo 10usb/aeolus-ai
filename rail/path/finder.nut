@@ -11,6 +11,7 @@ class RailPathFinder {
     success     = null;
     radius      = null;
     exclusions  = null;
+    railType    = null;
 
 	constructor(){
 		this.signs       = Signs();
@@ -70,6 +71,17 @@ function RailPathFinder::Init(){
     }
 
     this.radius = (this.radius * 1.2).tointeger();
+
+    // We need to set the current rail type otherwise 
+    // we can't test if a bridge can be build
+    local types = AIRailTypeList();
+    types.Valuate(Rail.IsRailTypeAvailable);
+    types.KeepValue(1);
+    this.railType = types.Begin();
+}
+
+function RailPathFinder::BeginStep(){
+    Rail.SetCurrentRailType(this.railType);
 }
 
 function RailPathFinder::Step(){
@@ -85,9 +97,24 @@ function RailPathFinder::Step(){
         if(this.exclusions.HasItem(index))
             continue;
 
-        // TODO: When the tile is not buildable it might still be crossable
-        if(!Tile.IsBuildable(index))
+        // When the tile is not buildable it might still be crossable
+        if(!Tile.IsBuildable(index)){
+            if(Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
+                this.CheckBridge(node.forerunner, node.index);
+            }
             continue;
+        }
+
+        // We need to make this check to know it a bridge could ne build
+        if(this.nodes.rawin(index)){
+            local x = AIMap.GetTileX(index) - node.x;
+            local y = AIMap.GetTileY(index) - node.y;
+
+            local jump = AIMap.GetTileIndex(node.x + x + x, node.y + y + y);
+            if(Tile.IsCrossable(jump)){
+                this.CheckBridge(node, index);
+            }
+        }
         
         // Get cost value
         local cost = 10 + node.value;
@@ -107,6 +134,48 @@ function RailPathFinder::Step(){
     }
 
     return true;
+}
+
+function RailPathFinder::CheckBridge(forerunner, to){
+    // this.signs.Build(forerunner.index, "NODE");
+    // this.signs.Build(to, "RAMP");
+
+    local vector = MapVector.Create(forerunner.index, to);
+
+    for(local length = 3; length <= 8; length++){
+        local ramp = vector.GetTileIndex(length);
+        if(!Tile.IsBuildable(ramp)){
+            if(Tile.IsCrossable(ramp))
+                continue;
+            break;
+        }
+
+        // The tile after the ramp
+        local index = vector.GetTileIndex(length + 1);
+        if(!Tile.IsBuildable(index)){
+            if(Tile.IsCrossable(index)){
+                length++;
+                continue;
+            }
+            break;
+        }
+
+        local bridges = AIBridgeList_Length(length);
+        local valid = false;
+        if(bridges.Count() > 0){
+            local mode = AITestMode();
+            valid = AIBridge.BuildBridge(Vehicle.VT_RAIL, bridges.Begin(), to, ramp);
+            mode = null;
+        }
+
+        if(valid){
+            // this.signs.Build(ramp, "VALID");
+            local cost = forerunner.value + 300 + length * 10;
+            this.Enqueue(index, forerunner, cost);
+            
+        }
+        break;
+    }
 }
 
 function RailPathFinder::Enqueue(index, forerunner, cost){

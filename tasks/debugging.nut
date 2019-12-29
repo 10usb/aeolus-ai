@@ -116,6 +116,7 @@ class FinderHandler extends CommandHandler {
 
             local limit = 50000;
 
+            finder.BeginStep();
             while(limit-- > 0 && finder.Step());
 
             Log.Info("Done");
