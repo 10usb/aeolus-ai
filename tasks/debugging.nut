@@ -40,17 +40,49 @@ function Debugging::Run(){
 }
 
 function Debugging::Process(command, sign_id){
-    if(handler != null){
-        if(!handler.OnCommand(command, sign_id)){
-            handler = null;
-	        Log.Info("Debugging:");
+    try {
+        if(handler != null){
+            if(!handler.OnCommand(command, sign_id)){
+                handler = null;
+                Log.Info("Debugging:");
+            }
+        }else{
+            if(command == "!finder"){
+                handler = FinderHandler();
+                handler.SetParent(this.GetParent());
+                AISign.RemoveSign(sign_id);
+            }else if(command == "!clear"){
+                local signs = AISignList();
+                List.Valuate(signs, AISign.RemoveSign);
+            }else if(command == "!vector"){
+                local vector = RailVector();
+                vector.length = 6;
+
+                local index = AISign.GetLocation(sign_id);
+                local x = AIMap.GetTileX(index);
+                local y = AIMap.GetTileY(index);
+
+                AISign.BuildSign(AIMap.GetTileIndex(x + 2, y), "x+");
+                AISign.BuildSign(AIMap.GetTileIndex(x - 2, y), "x-");
+                AISign.BuildSign(AIMap.GetTileIndex(x, y + 2), "y+");
+                AISign.BuildSign(AIMap.GetTileIndex(x, y - 2), "y-");
+
+                foreach(origin in [Tile.SLOPE_NE, Tile.SLOPE_NW, Tile.SLOPE_SW, Tile.SLOPE_SE]){
+                    AISign.BuildSign(Tile.GetSlopeTileIndex(index, origin), Tile.GetSlopeName(origin));
+
+                    foreach(direction in [RailVector.DIRECTION_STRAIGHT, RailVector.DIRECTION_LEFT, RailVector.DIRECTION_RIGHT]){
+                        vector.direction = direction;
+
+                        local end = vector.GetTileIndex(index, origin);
+
+                        AISign.BuildSign(end, Tile.GetSlopeName(origin) + " - " + RailVector.GetDirectionName(direction));
+                    }
+                }
+            }
         }
-    }else{
-        if(command == "!finder"){
-            handler = FinderHandler();
-            handler.SetParent(this.GetParent());
-            AISign.RemoveSign(sign_id);
-        }
+    }catch(err){
+        Log.Error(err);
+        Log.Info("I'm still alive");
     }
 }
 

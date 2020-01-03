@@ -45,6 +45,7 @@ require("data/lists/personalitytraitlist.nut");
 
 // Rail
 require("rail/path/finder.nut");
+require("rail/vector.nut");
 
 // Tasks
 require("tasks/debugging.nut");
