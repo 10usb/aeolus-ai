@@ -1,12 +1,12 @@
 class RailPathBuilder extends Task {
     path = null;
-    index = 0;
+    offset = 0;
     signs = null;
     railType = null;
 
 	constructor(path){
         this.path = path;
-        this.index = 0;
+        this.offset = 0;
         this.signs = Signs();
 	}
 }
@@ -16,28 +16,51 @@ function RailPathBuilder::GetName(){
 }
 
 function RailPathBuilder::Run(){
-    if(this.index >= this.path.len()) {
+    if(this.offset >= this.path.len()) {
         signs.Clean();
         return false;
     }
 
-    if(index == 0){
+    if(offset == 0){
         local types = AIRailTypeList();
         types.Valuate(Rail.IsRailTypeAvailable);
         types.KeepValue(1);
         railType = types.Begin();   
-        index++;     
+        offset++;     
         return true;
     }
 
     Rail.SetCurrentRailType(railType);
-    for(local count = 0; count < 10 && this.index + 1 < this.path.len(); count++){
-        // this.signs.Build(this.path[this.index], "" + this.index);
+    for(local count = 0; count < 10 && this.offset + 1 < this.path.len(); count++){
+        local from = this.path[this.offset - 1];
+        local index = this.path[this.offset];
+        local to = this.path[this.offset + 1];
 
-        Rail.BuildRail(this.path[this.index - 1], this.path[this.index], this.path[this.index + 1]);
-        this.index++;
+        // this.signs.Build(index, "" + this.offset);
+
+        local distance = Tile.GetDistanceManhattanToTile(index, to);
+        if(distance == 1){
+            Rail.BuildRail(from, index, to);
+            this.offset++;
+        }else{
+            local vector = MapVector.Create(index, to).Normalize();
+            
+            local start = vector.GetTileIndex(1);
+            local end   = vector.GetTileIndex(distance - 1);
+
+            Rail.BuildRail(from, index, start);
+
+            local bridges = AIBridgeList_Length(distance - 1);
+            AIBridge.BuildBridge(Vehicle.VT_RAIL, bridges.Begin(), start, end);
+
+            if(this.offset + 2 < this.path.len()){
+                Rail.BuildRail(end, to, this.path[this.offset + 2]);
+            }
+
+            this.offset+=2;
+        }
     }
 
-    if(this.index < this.path.len()) return true;
+    if(this.offset < this.path.len()) return true;
     return this.Sleep(100);
 }
