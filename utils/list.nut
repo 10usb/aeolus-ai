@@ -2,6 +2,7 @@
 class List {
 }
 
+// From Admiral AI
 function List::CallFunction(func, args){
 	switch (args.len()) {
 		case 0: return func();
@@ -17,6 +18,7 @@ function List::CallFunction(func, args){
 	}
 }
 
+// From Admiral AI
 function List::Valuate(list, valuator, ...){
 	local args = [null];
 
