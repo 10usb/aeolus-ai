@@ -67,15 +67,24 @@ function Debugging::Process(command, sign_id){
                 AISign.BuildSign(AIMap.GetTileIndex(x, y + 2), "y+");
                 AISign.BuildSign(AIMap.GetTileIndex(x, y - 2), "y-");
 
+                local types = AIRailTypeList();
+                types.Valuate(Rail.IsRailTypeAvailable);
+                types.KeepValue(1);
+                Rail.SetCurrentRailType(types.Begin());
+
                 foreach(origin in [Tile.SLOPE_NE, Tile.SLOPE_NW, Tile.SLOPE_SW, Tile.SLOPE_SE]){
-                    AISign.BuildSign(Tile.GetSlopeTileIndex(index, origin), Tile.GetSlopeName(origin));
+                    local from = Tile.GetSlopeTileIndex(index, origin);
+                    AISign.BuildSign(from, Tile.GetSlopeName(origin));
 
                     foreach(direction in [RailVector.DIRECTION_STRAIGHT, RailVector.DIRECTION_LEFT, RailVector.DIRECTION_RIGHT]){
                         vector.direction = direction;
 
-                        local end = vector.GetTileIndex(index, origin);
+                        local to = vector.GetTileIndex(index, origin);
+                        local next = vector.GetTileOrigin(origin);
 
-                        AISign.BuildSign(end, Tile.GetSlopeName(origin) + " - " + RailVector.GetDirectionName(direction));
+                        AISign.BuildSign(to, Tile.GetSlopeName(origin) + " - " + RailVector.GetDirectionName(direction) + " - " + Tile.GetSlopeName(next));
+
+                        Rail.BuildRail(from, index, to);
                     }
                 }
             }
