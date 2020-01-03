@@ -45,3 +45,16 @@ function Tile::GetSlopeName(slope){
 	}
 	throw("Unknown Slope");
 }
+
+function Tile::GetSlopeTileIndex(index, slope){
+    local x = AIMap.GetTileX(index);
+    local y = AIMap.GetTileY(index);
+
+	switch(slope){
+		case Tile.SLOPE_NE: return AIMap.GetTileIndex(x - 1, y);
+		case Tile.SLOPE_NW: return AIMap.GetTileIndex(x, y - 1);
+		case Tile.SLOPE_SW: return AIMap.GetTileIndex(x + 1, y);
+		case Tile.SLOPE_SE: return AIMap.GetTileIndex(x, y + 1);
+	}
+	throw("Unknown Slope");
+}
