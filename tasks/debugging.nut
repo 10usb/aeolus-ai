@@ -55,36 +55,140 @@ function Debugging::Process(command, sign_id){
                 local signs = AISignList();
                 List.Valuate(signs, AISign.RemoveSign);
             }else if(command == "!vector"){
-                local vector = RailVector();
-                vector.length = 6;
 
                 local index = AISign.GetLocation(sign_id);
-                local x = AIMap.GetTileX(index);
-                local y = AIMap.GetTileY(index);
-
-                AISign.BuildSign(AIMap.GetTileIndex(x + 2, y), "x+");
-                AISign.BuildSign(AIMap.GetTileIndex(x - 2, y), "x-");
-                AISign.BuildSign(AIMap.GetTileIndex(x, y + 2), "y+");
-                AISign.BuildSign(AIMap.GetTileIndex(x, y - 2), "y-");
 
                 local types = AIRailTypeList();
                 types.Valuate(Rail.IsRailTypeAvailable);
                 types.KeepValue(1);
                 Rail.SetCurrentRailType(types.Begin());
 
+                // local vector = RailVector();
+                // vector.length = 7;
+
+                // foreach(origin in [Tile.SLOPE_NE, Tile.SLOPE_NW, Tile.SLOPE_SW, Tile.SLOPE_SE]){
+                //     local from = Tile.GetSlopeTileIndex(index, origin);
+                //     AISign.BuildSign(from, Tile.GetSlopeName(origin));
+
+                //     foreach(direction in [RailVector.DIRECTION_STRAIGHT, RailVector.DIRECTION_LEFT, RailVector.DIRECTION_RIGHT]){
+                //         vector.direction = direction;
+
+                //         local to = vector.GetTileIndex(index, origin);
+                //         local next = vector.GetTileOrigin(origin);
+
+                //         AISign.BuildSign(to, Tile.GetSlopeName(origin) + " - " + RailVector.GetDirectionName(direction) + " - " + Tile.GetSlopeName(next));
+
+                //         Rail.BuildRail(from, index, to);
+                //     }
+                // }
+
+                AISign.RemoveSign(sign_id);
+
+                local vectors = [];
+
+                local vector = RailVector();
+                vector.length = 2;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 3;
+                vector.direction = RailVector.DIRECTION_RIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_RIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 4;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 3;
+                vector.direction = RailVector.DIRECTION_RIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 4;
+                vector.direction = RailVector.DIRECTION_RIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 2;
+                vector.direction = RailVector.DIRECTION_STRAIGHT;
+                vectors.push(vector);
+
+                local vector = RailVector();
+                vector.length = 1;
+                vector.direction = RailVector.DIRECTION_LEFT;
+                vectors.push(vector);
+
                 foreach(origin in [Tile.SLOPE_NE, Tile.SLOPE_NW, Tile.SLOPE_SW, Tile.SLOPE_SE]){
-                    local from = Tile.GetSlopeTileIndex(index, origin);
-                    AISign.BuildSign(from, Tile.GetSlopeName(origin));
+                    local current = index;
 
-                    foreach(direction in [RailVector.DIRECTION_STRAIGHT, RailVector.DIRECTION_LEFT, RailVector.DIRECTION_RIGHT]){
-                        vector.direction = direction;
+                    foreach(vector in vectors){    
+                        RailVectorBuilder.Build(vector, current, origin);
 
-                        local to = vector.GetTileIndex(index, origin);
-                        local next = vector.GetTileOrigin(origin);
-
-                        AISign.BuildSign(to, Tile.GetSlopeName(origin) + " - " + RailVector.GetDirectionName(direction) + " - " + Tile.GetSlopeName(next));
-
-                        Rail.BuildRail(from, index, to);
+                        current = vector.GetTileIndex(current, origin);
+                        origin = vector.GetTileOrigin(origin);
                     }
                 }
             }
