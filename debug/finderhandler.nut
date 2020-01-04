@@ -1,10 +1,11 @@
-
 class FinderHandler extends CommandHandler {
     finder = null;
     start = null;
     value = 0;
+    path = null;
+    build = true;
 
-	constructor(){
+	constructor(build = true){
 	    Log.Info("Finder commands");
 	    Log.Info(" - !start          Add a start tile");
         Log.Info(" - !value=?   Set value for a start/end tile");
@@ -13,7 +14,10 @@ class FinderHandler extends CommandHandler {
         Log.Info(" - !exclude   Exclude a tile for being processed");
         Log.Info(" - !go                 Start the finding process");
         finder = RailPathFinder();
+
+        this.build = build;
     }
+    
     function OnCommand(command, sign_id){
         if(command == "!start"){
             start = sign_id;
@@ -54,9 +58,9 @@ class FinderHandler extends CommandHandler {
             finder.signs.Clean();
             Log.Info("Cleaned");
 
-            local path = finder.GetPath();
+            this.path = finder.GetPath();
 
-            this.GetParent().EnqueueTask(RailPathBuilder(path));
+            if(this.build) this.GetParent().EnqueueTask(RailPathBuilder(path));
 
             return false;
         }else if(command.slice(0, 7) == "!value="){

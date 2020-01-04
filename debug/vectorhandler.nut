@@ -1,17 +1,30 @@
 class VectorHandler extends CommandHandler {
+    finder = null;
+    path = null;
+
 	constructor(){
 	    Log.Info("Vector commands");
         Log.Info(" - !compass");
         Log.Info(" - !pattern");
 	    Log.Info(" - !finder");
+	    Log.Info(" - !exit");
     }
     
     function OnCommand(command, sign_id){
-        if(command == "!compass"){
+        if(finder != null){
+            if(!finder.OnCommand(command, sign_id)){
+                this.path = finder.path;
+                finder = null;
+            }
+        }else if(command == "!compass"){
             this.Compass(sign_id);
             AISign.RemoveSign(sign_id);
         }else if(command == "!pattern"){
             this.Pattern(sign_id);
+            AISign.RemoveSign(sign_id);
+        }else if(command == "!finder"){
+            finder = FinderHandler(false);
+            finder.SetParent(this.GetParent());
             AISign.RemoveSign(sign_id);
         }else if(command == "!exit"){
             AISign.RemoveSign(sign_id);
