@@ -48,6 +48,10 @@ require("rail/path/finder.nut");
 require("rail/vector.nut");
 require("rail/vector/builder.nut");
 
+// Debugging
+require("debug/commandhandler.nut");
+require("debug/finderhandler.nut");
+
 // Tasks
 require("tasks/debugging.nut");
 
