@@ -51,6 +51,7 @@ require("rail/vector/builder.nut");
 // Debugging
 require("debug/commandhandler.nut");
 require("debug/finderhandler.nut");
+require("debug/vectorhandler.nut");
 
 // Tasks
 require("tasks/debugging.nut");
