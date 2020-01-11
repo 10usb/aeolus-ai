@@ -30,8 +30,8 @@ function Debugging::Run(){
         local name = AISign.GetName(sign_id);
 
         if(name.slice(0, 1) == "!"){
-            previous = list;
-            this.Process(name, sign_id)
+            this.Process(name, sign_id);
+            previous = AISignList();
             break;
         }
     }
