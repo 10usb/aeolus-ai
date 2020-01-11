@@ -47,6 +47,7 @@ require("data/lists/personalitytraitlist.nut");
 require("rail/path/finder.nut");
 require("rail/vector.nut");
 require("rail/vector/builder.nut");
+require("rail/vector/segment.nut");
 
 // Debugging
 require("debug/commandhandler.nut");

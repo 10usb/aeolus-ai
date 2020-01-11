@@ -1,20 +1,25 @@
 class VectorHandler extends CommandHandler {
-    finder = null;
-    path = null;
+    finder  = null;
+    path    = null;
+    signs   = null;
 
 	constructor(){
 	    Log.Info("Vector commands");
         Log.Info(" - !compass");
         Log.Info(" - !pattern");
 	    Log.Info(" - !finder");
-	    Log.Info(" - !exit");
+        Log.Info(" - !add");
+        Log.Info(" - !exit");
+
+        this.path = [];
+		this.signs = Signs();
     }
     
     function OnCommand(command, sign_id){
         if(finder != null){
             if(!finder.OnCommand(command, sign_id)){
                 this.path = finder.path;
-                finder = null;
+                this.finder = null;
             }
         }else if(command == "!compass"){
             this.Compass(sign_id);
@@ -23,12 +28,20 @@ class VectorHandler extends CommandHandler {
             this.Pattern(sign_id);
             AISign.RemoveSign(sign_id);
         }else if(command == "!finder"){
-            finder = FinderHandler(false);
-            finder.SetParent(this.GetParent());
+            this.finder = FinderHandler(false);
+            this.finder.SetParent(this.GetParent());
             AISign.RemoveSign(sign_id);
         }else if(command == "!exit"){
             AISign.RemoveSign(sign_id);
             return false;
+        }else if(command == "!add"){
+            local index = AISign.GetLocation(sign_id);
+            AISign.RemoveSign(sign_id);
+            this.path.push(index);
+            this.signs.Build(index, "P" + path.len());
+        }else if(command == "!path"){
+            AISign.RemoveSign(sign_id);
+            RailVectorSegment.Parse(this.path);
         }
         return true;
     }

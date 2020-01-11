@@ -10,8 +10,6 @@ class RailVector {
 	direction   = 0; // left, straight, right
     pitch	    = 0; // up, level, down
     length      = 0; // number of rail parts
-    bridge      = false;
-    tunnel      = false;
 }
 
 // Returns the origin the tile needs to have to connect to the end of this vector
