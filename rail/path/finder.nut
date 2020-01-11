@@ -175,8 +175,11 @@ function RailPathFinder::CheckBridge(forerunner, to){
 
         if(valid){
             // this.signs.Build(ramp, "VALID");
-            local cost = forerunner.value + 300 + length * 10;
-            this.Enqueue(index, forerunner, cost);
+            local cost = forerunner.value + 300 + length * 20;
+            local node = this.Enqueue(index, forerunner, cost);
+            if(node != null){
+                node.bridge = true;
+            }
         }
 
         break;
@@ -197,7 +200,10 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
             this.nodes.rawset(node.index, node);
             this.queue.Add(node);
             // this.signs.Build(node.index, "" + node.value);
+
+            return node;
         }
+        return null;
     }else{
         local distance = this.GetDistance(index);
         if(distance > this.radius) return;
@@ -208,6 +214,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
         this.nodes.rawset(node.index, node);
         this.queue.Add(node);
         // this.signs.Build(node.index, "" + node.value);
+        return node;
     }
 }
 
@@ -248,8 +255,16 @@ function RailPathFinder::GetPath(){
     local path = [];
     for(;;){
         path.push(current.index);
-        
         if(current.forerunner == null) break;
+
+        // Add 2 indexed for the ramps
+        if(current.bridge){
+            local distance = Tile.GetDistanceManhattanToTile(current.index, current.forerunner.index);
+            local vector = MapVector.Create(current.index, current.forerunner.index).Normalize();
+            path.push(vector.GetTileIndex(1));
+            path.push(vector.GetTileIndex(distance - 1));
+        }
+
         current = current.forerunner;
     }
 

@@ -14,6 +14,8 @@ class RailPathNode {
     extra       = 0;
     // Can this node be replaces by an other
     fixed       = false;
+    // Can this node be replaces by an other
+    bridge      = false;
 
 	constructor(index, forerunner, value){
         this.index	    = index;
@@ -22,6 +24,7 @@ class RailPathNode {
 		this.forerunner	= forerunner;
         this.value      = value;
         this.extra      = 0;
+        this.bridge     = false;
 
 		if(forerunner){
 			this.towards = Tile.GetDirection(this.index, forerunner.index);

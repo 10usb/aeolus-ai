@@ -45,6 +45,7 @@ function RailPathBuilder::Run(){
         }else{
             local vector = MapVector.Create(index, to).Normalize();
             
+            // TODO Only build rail
             local start = vector.GetTileIndex(1);
             local end   = vector.GetTileIndex(distance - 1);
 
