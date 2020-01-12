@@ -63,7 +63,7 @@ function Scheduler::Execute(){
             //Log.Info("Scheduler: " + task.GetName());
 
             local start	= Controller.GetTick();
-            if(task.Run())
+            if(task.Execute())
                 // Seems the task is not finished and needs to run again
                 EnqueueTask(task);
 

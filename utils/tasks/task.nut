@@ -3,8 +3,25 @@ class Task {
 	_ticks = 0;
 	_sleep = 0;
 	_date  = null;
+	_child = null;
+	_result = true;
 	function Run();
 	function GetName();
+}
+
+function Task::Execute(){
+	if(_child == null) return Run();
+
+	if(!_child.Execute())
+		_child = null;
+	
+	return _result;
+}
+
+function Task::PushTask(task, result = true){
+	_child = task;
+	_result = result;
+	return true;
 }
 
 function Task::GetParent(){
