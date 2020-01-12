@@ -63,7 +63,7 @@ class FinderHandler extends CommandHandler {
             if(this.build) this.GetParent().EnqueueTask(RailPathBuilder(path));
 
             return false;
-        }else if(command.slice(0, 7) == "!value="){
+        }else if(command.len() > 7 && command.slice(0, 7) == "!value="){
             try {
                 value = command.slice(7).tointeger();
             }catch(err){
