@@ -1,6 +1,7 @@
 class VectorHandler extends CommandHandler {
     finder  = null;
     path    = null;
+    vectors = null;
     signs   = null;
 
 	constructor(){
@@ -9,6 +10,7 @@ class VectorHandler extends CommandHandler {
         Log.Info(" - !pattern");
 	    Log.Info(" - !finder");
         Log.Info(" - !add");
+        Log.Info(" - !path");
         Log.Info(" - !exit");
 
         this.path = [];
@@ -41,7 +43,11 @@ class VectorHandler extends CommandHandler {
             this.signs.Build(index, "P" + path.len());
         }else if(command == "!path"){
             AISign.RemoveSign(sign_id);
-            RailVectorSegment.Parse(this.path);
+            this.vectors = RailVectorSegment.Parse(this.path);
+            Log.Info("Path vectorized");
+        }else if(command == "!build"){
+            AISign.RemoveSign(sign_id);
+            RailVectorBuilder.BuildChain(this.vectors);
         }
         return true;
     }

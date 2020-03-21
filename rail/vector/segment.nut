@@ -22,7 +22,7 @@ function RailVectorSegment::Parse(path){
         if(current.rail != null){
             local match = current.rail.GetTileIndex(current.index, current.origin, current.rail.length + 1);
             if(match == path[index]){
-                this.signs.Build(match, "match");
+                // this.signs.Build(match, "match");
 
                 current.rail.length++;
             }else{
@@ -41,33 +41,17 @@ function RailVectorSegment::Parse(path){
 
         index++;
         
-        Controller.Sleep(10);
-        this.signs.Clean();
+        // Controller.Sleep(10);
+        // this.signs.Clean();
     }
-    Log.Info("Building");
 
-    local types = AIRailTypeList();
-    types.Valuate(Rail.IsRailTypeAvailable);
-    types.KeepValue(1);
-    Rail.SetCurrentRailType(types.Begin());
-
-    local current = root;
-    while(current != null){
-        if(current.rail != null){
-            this.signs.Build(current.index, "rail");
-            RailVectorBuilder.BuildRail(current.rail, current.index, current.origin);
-        }else if(current.bridge != null){
-            this.signs.Build(current.index, "bridge");
-            RailVectorBuilder.BuildBridge(current.bridge, current.index, current.origin);
-        }
-        current = current.next;
-    }
+    return root;
 }
 
 function RailVectorSegment::Create(from, index, to){
-    this.signs.Build(from, "from");
-    this.signs.Build(index, "index");
-    this.signs.Build(to, "to");
+    // this.signs.Build(from, "from");
+    // this.signs.Build(index, "index");
+    // this.signs.Build(to, "to");
 
     local segment = RailVectorSegment();
     segment.index = index;
