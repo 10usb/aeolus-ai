@@ -11,6 +11,7 @@ class VectorHandler extends CommandHandler {
 	    Log.Info(" - !finder");
         Log.Info(" - !add");
         Log.Info(" - !path");
+        Log.Info(" - !build");
         Log.Info(" - !exit");
 
         this.path = [];
