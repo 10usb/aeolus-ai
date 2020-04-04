@@ -69,22 +69,22 @@ class BuilderHandler extends CommandHandler {
         tiles.Sort(List.SORT_BY_VALUE, List.SORT_DESCENDING);
         local y2 = tiles.GetValue(tiles.Begin());
         
-        // AISign.BuildSign(Tile.GetIndex(x1, y1), "1");
-        // AISign.BuildSign(Tile.GetIndex(x2, y1), "2");
-        // AISign.BuildSign(Tile.GetIndex(x2, y2), "3");
-        // AISign.BuildSign(Tile.GetIndex(x1, y2), "4");
-
-        // // Expension tiles
-        // AISign.BuildSign(Tile.GetIndex(x2, y1 - (length - 1)), "X1");
-        // AISign.BuildSign(Tile.GetIndex(x1 - (length - 1), y2), "X2");
 
         local vertical = AITileList();
         vertical.AddRectangle(Tile.GetIndex(x2, y1 - (length - 1)), Tile.GetIndex(x1, y1 - 1));
+        vertical.AddList(tiles);
+
+        vertical.Valuate(Tile.IsBuildableRectangle, 1, length);
+        vertical.KeepValue(1);
 
         local horizontal = AITileList();
         horizontal.AddRectangle(Tile.GetIndex(x1 - (length - 1), y2), Tile.GetIndex(x1 - 1, y1));
+        horizontal.AddList(tiles);
+        
+        horizontal.Valuate(Tile.IsBuildableRectangle, length, 1);
+        horizontal.KeepValue(1);
+        
 
-        Lists.Valuate(tiles, AISign.BuildSign, "@");
         Lists.Valuate(vertical, AISign.BuildSign, "V");
         Lists.Valuate(horizontal, AISign.BuildSign, "H");
     }
