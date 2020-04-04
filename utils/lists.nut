@@ -26,6 +26,11 @@ function Lists::Valuate(list, valuator, ...){
 		args.append(vargv[c]);
 	}
 
+	// We can't safely alter the values of the list while iterating over it
+	// When the list it sorted by value, altering it might lead to an
+	// iteration * 2 - 1, Therefore we store the result in a sepparate list
+	local result = List();
+
 	foreach(item, _ in list) {
 		args[0] = item;
 		local value = Lists.CallFunction(valuator, args);
@@ -34,6 +39,11 @@ function Lists::Valuate(list, valuator, ...){
 		} else if (typeof(value) != "integer") {
 			throw("Invalid return type from valuator");
 		}
+		result.SetValue(item, value);
+	}
+
+	// Now save the values back in the original list
+	foreach(item, value in result) {
 		list.SetValue(item, value);
 	}
 }
