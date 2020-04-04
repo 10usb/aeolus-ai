@@ -28,6 +28,8 @@ require("data/company.nut");
 require("data/engine.nut");
 require("data/finance.nut");
 require("data/industry.nut");
+require("data/industrytype.nut");
+require("data/list.nut");
 require("data/opportunity.nut");
 require("data/personalitytrait.nut");
 require("data/rail.nut");

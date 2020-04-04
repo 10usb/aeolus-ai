@@ -3,6 +3,7 @@ class Tile extends AITile {
 
 // Copy these tile related method from Map to the Tile class for consistancy
 Tile.IsValidTile <- AIMap.IsValidTile;
+Tile.GetIndex <- AIMap.GetTileIndex;
 Tile.GetX <- AIMap.GetTileX;
 Tile.GetY <- AIMap.GetTileY;
 
