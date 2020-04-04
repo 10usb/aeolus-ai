@@ -47,7 +47,7 @@ function CreatePersonality::BuildHQ(){
 	towns.KeepValue(1);
 
 	towns.Valuate(Town.GetPopulation);
-	local town_id = List.RandPriority(towns);
+	local town_id = Lists.RandPriority(towns);
 
 	Log.Info("Hometown: " + Town.GetName(town_id) + " (" + Town.GetPopulation(town_id) + ")");
 
@@ -77,5 +77,5 @@ function CreatePersonality::RoadAccessHQ(tile){
 	tiles.AddRectangle(Tile.GetTranslatedIndex(tile, 0, -1), Tile.GetTranslatedIndex(tile, 1, 2));
 	tiles.AddRectangle(Tile.GetTranslatedIndex(tile, -1, 0), Tile.GetTranslatedIndex(tile, 2, 1));
 	tiles.Valuate(AIRoad.IsRoadTile);
-	return List.GetSum(tiles);
+	return Lists.GetSum(tiles);
 }

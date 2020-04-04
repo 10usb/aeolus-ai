@@ -53,16 +53,16 @@ function Preference::Init(list, randomize = true){
 	preference.AddList(list);
 
 	if(randomize){
-		preference.Valuate(List.RandRangeItem, 1, 1000);
+		preference.Valuate(Lists.RandRangeItem, 1, 1000);
 	}
 	preference.Sort(AIList.SORT_BY_VALUE, false);
 
-	preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 1000 * preference.Count());
-	preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - List.GetSum(preference));
+	preference.Valuate(Lists.GetNormalizeValueTo, preference, Lists.GetSum(preference), 1000 * preference.Count());
+	preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - Lists.GetSum(preference));
 
 	rating = AIList();
 	rating.AddList(preference);
-	rating.Valuate(List.SetValue, 0);
+	rating.Valuate(Lists.SetValue, 0);
 
 	favor = AIList();
 	favor.AddList(preference);
@@ -90,7 +90,7 @@ function Preference::Update(list){
 	local addition = AIList();
 	addition.AddList(list);
 	addition.RemoveList(preference);
-	addition.Valuate(List.SetValue, 0);
+	addition.Valuate(Lists.SetValue, 0);
 
 	local subtraction = AIList();
 	subtraction.AddList(preference);
@@ -99,8 +99,8 @@ function Preference::Update(list){
 	preference = AIList();
 	preference.AddList(list);
 
-	preference.Valuate(List.GetNormalizeValueTo, preference, List.GetSum(preference), 1000 * preference.Count());
-	preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - List.GetSum(preference));
+	preference.Valuate(Lists.GetNormalizeValueTo, preference, Lists.GetSum(preference), 1000 * preference.Count());
+	preference.SetValue(preference.Begin(), preference.GetValue(preference.Begin()) + (1000 * preference.Count()) - Lists.GetSum(preference));
 
 	rating.AddList(addition);
 	rating.RemoveList(subtraction);
@@ -126,7 +126,7 @@ function Preference::DecreaseFavor(id, percentage = 10){
 	}
 
 	// Because the sum of rating should always be equal to zero we can substract the difference to lower its value
-	rating.SetValue(id, rating.GetValue(id) - List.GetSum(rating));
+	rating.SetValue(id, rating.GetValue(id) - Lists.GetSum(rating));
 
 	// Now recalculate the favor
 	foreach(other_id, value in favor){
@@ -146,7 +146,7 @@ function Preference::IncreaseFavor(id, percentage = 10){
 	}
 
 	// Because the sum of rating should always be equal to zero we can substract the difference to raise its value
-	rating.SetValue(id, rating.GetValue(id) - List.GetSum(rating));
+	rating.SetValue(id, rating.GetValue(id) - Lists.GetSum(rating));
 
 	// Now recalculate the favor
 	foreach(other_id, value in favor){

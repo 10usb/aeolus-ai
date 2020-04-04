@@ -30,14 +30,14 @@ function BuildOpportunities::Run(){
 	}
 
 	opportunities.Valuate(BuildOpportunities.GetMonths);
-	local max = List.GetMax(opportunities) + 1;
+	local max = Lists.GetMax(opportunities) + 1;
 
 	local temp = AIList();
 	foreach(opportunity_id, value in opportunities){
 		temp.AddItem(opportunity_id, max - value);
 	}
 
-	local opportunity_id = List.RandPriority(temp);
+	local opportunity_id = Lists.RandPriority(temp);
 
 	if(Opportunity.GetVehicleType(opportunity_id) == AIVehicle.VT_AIR){
 		Storage.SetValue("opportunity.build_id", opportunity_id); // TODO should be cache

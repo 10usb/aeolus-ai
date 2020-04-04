@@ -49,7 +49,7 @@ function Debugging::Process(command, sign_id){
         }else{
             if(command == "!clear"){
                 local signs = AISignList();
-                List.Valuate(signs, AISign.RemoveSign);
+                Lists.Valuate(signs, AISign.RemoveSign);
             }else if(command == "!finder"){
                 handler = FinderHandler();
                 handler.SetParent(this.GetParent());

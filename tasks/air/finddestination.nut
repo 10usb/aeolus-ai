@@ -87,7 +87,7 @@ function AirFindDestination::Initialize(opportunity){
 			}
 		}
 		if(selected.Count() <= 0) continue;
-		local selected_town_id = List.RandPriority(selected);
+		local selected_town_id = Lists.RandPriority(selected);
 
 		opportunity.engine_id = engine_id;
 		opportunity.rawset("airport_type", selected_types.GetValue(selected_town_id));

@@ -5,7 +5,7 @@ require("utils/thread.nut");
 
 require("utils/log.nut");
 require("utils/math.nut");
-require("utils/list.nut");
+require("utils/lists.nut");
 require("utils/signs.nut");
 
 require("utils/storage.nut");

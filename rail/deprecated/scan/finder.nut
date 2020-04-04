@@ -33,10 +33,10 @@ function RailScanFinder::AddEndpoint(points){
 
 function RailScanFinder::Init(){
     startpoints.Valuate(RailScanFinder.GetTile, resolution);
-    startpoints = List.Flip(startpoints);
+    startpoints = Lists.Flip(startpoints);
 
     endpoints.Valuate(RailScanFinder.GetTile, resolution);
-    endpoints   = List.Flip(endpoints);
+    endpoints   = Lists.Flip(endpoints);
 
     foreach(index, dummy in startpoints){
         Enqueue(Get(index));

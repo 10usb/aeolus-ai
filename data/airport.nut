@@ -46,7 +46,7 @@ function Airport::GetMaintenanceAmount(){
 	if(stations.Count() <= 0) return 500;
 
 	stations.Valuate(Station.GetAiportMaintenanceCostFactor);
-	return AIInfrastructure.GetMonthlyInfrastructureCosts(Company.COMPANY_SELF, AIInfrastructure.INFRASTRUCTURE_AIRPORT) / List.GetSum(stations);
+	return AIInfrastructure.GetMonthlyInfrastructureCosts(Company.COMPANY_SELF, AIInfrastructure.INFRASTRUCTURE_AIRPORT) / Lists.GetSum(stations);
 }
 
 function Airport::GetMaintenanceCost(type){
@@ -90,7 +90,7 @@ function Airport::IsFull(station_id){
 	vehicles.Valuate(Vehicle.GetVehicleType);
 	vehicles.KeepValue(Vehicle.VT_AIR);
 	vehicles.Valuate(Vehicle.GetEstimatedDaysTravel, 0.95);
-	local days = List.GetAvg(vehicles);
+	local days = Lists.GetAvg(vehicles);
 	local airportType = Airport.GetAirportType(Station.GetLocation(station_id));
 
 	if(vehicles.Count() < ceil(days.tofloat() / Airport.GetDaysBetweenAcceptPlane(airportType))){

@@ -1,9 +1,9 @@
 
-class List {
+class Lists {
 }
 
 // From Admiral AI
-function List::CallFunction(func, args){
+function Lists::CallFunction(func, args){
 	switch (args.len()) {
 		case 0: return func();
 		case 1: return func(args[0]);
@@ -19,7 +19,7 @@ function List::CallFunction(func, args){
 }
 
 // From Admiral AI
-function List::Valuate(list, valuator, ...){
+function Lists::Valuate(list, valuator, ...){
 	local args = [null];
 
 	for(local c = 0; c < vargc; c++) {
@@ -28,7 +28,7 @@ function List::Valuate(list, valuator, ...){
 
 	foreach(item, _ in list) {
 		args[0] = item;
-		local value = List.CallFunction(valuator, args);
+		local value = Lists.CallFunction(valuator, args);
 		if (typeof(value) == "bool") {
 			value = value ? 1 : 0;
 		} else if (typeof(value) != "integer") {
@@ -38,7 +38,7 @@ function List::Valuate(list, valuator, ...){
 	}
 }
 
-function List::GetSum(list){
+function Lists::GetSum(list){
 	local total = 0;
 	foreach(dummy, value in list){
 		total+= value;
@@ -46,7 +46,7 @@ function List::GetSum(list){
 	return total;
 }
 
-function List::GetAvg(list){
+function Lists::GetAvg(list){
 	local total = 0;
 	foreach(dummy, value in list){
 		total+= value;
@@ -54,7 +54,7 @@ function List::GetAvg(list){
 	return total / list.Count();
 }
 
-function List::Flip(list){
+function Lists::Flip(list){
 	local flipped = AIList();
 	foreach(value, key in list){
 		if(!flipped.HasItem(key)){
@@ -64,7 +64,7 @@ function List::Flip(list){
 	return flipped;
 }
 
-function List::GetMax(list){
+function Lists::GetMax(list){
 	local max = 0;
 	foreach(dummy, value in list){
 		if(value > max){
@@ -74,20 +74,20 @@ function List::GetMax(list){
 	return max;
 }
 
-function List::SetValue(unsued, value){
+function Lists::SetValue(unsued, value){
 	return value;
 }
 
-function List::GetNormalizeValueTo(index, list, total, max){
+function Lists::GetNormalizeValueTo(index, list, total, max){
 	return list.GetValue(index) * max / total;
 }
 
-function List::RandRangeItem(unused, min, max){
+function Lists::RandRangeItem(unused, min, max){
 	return min + AIBase.RandRange(AIBase.RandRange(max - min));
 }
 
-function List::RandPriority(list){
-	local max = List.GetSum(list);
+function Lists::RandPriority(list){
+	local max = Lists.GetSum(list);
 	if(max <= 0){
 		return list.Begin();
 	}
@@ -104,7 +104,7 @@ function List::RandPriority(list){
 	throw("Internal error");
 }
 
-function List::GroupByValue(list){
+function Lists::GroupByValue(list){
 	local groups = {};
 
 	foreach(key, value in list){

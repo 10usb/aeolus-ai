@@ -103,7 +103,7 @@ function FindOpportunities::FindIndustryToIndustry(cargo_id){
 	industries.KeepTop(Math.min(5, Math.max(1, industries.Count() / 4)));
 
 	if(industries.Count() <= 0) return false;
-	local industry_id = List.RandPriority(industries);
+	local industry_id = Lists.RandPriority(industries);
 
 	AILog.Info("Found opportunity at " + Industry.GetName(industry_id) + " with " + Industry.GetAvailableCargo(industry_id, cargo_id) + " " + Cargo.GetName(cargo_id));
 	local opportunity_id = Opportunity.CreateIndustry(industry_id, cargo_id, AIVehicle.VT_RAIL);
@@ -146,7 +146,7 @@ function FindOpportunities::FindTownToTown(cargo_id){
 
 	if(towns.Count() <= 0) return false;
 
-	local town_id = List.RandPriority(towns);
+	local town_id = Lists.RandPriority(towns);
 
 	local opportunity_id = Opportunity.CreateTown(town_id, cargo_id, AIVehicle.VT_AIR);
 	if(opportunity_id < 0) return false;

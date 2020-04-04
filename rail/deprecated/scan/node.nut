@@ -50,9 +50,9 @@ function RailScanNode::GetAvgHeight(){
     local list = AITileList();
     list.AddRectangle(index, to);
     list.Valuate(AITile.GetMinHeight);
-    local min = List.GetSum(list);
+    local min = Lists.GetSum(list);
     list.Valuate(AITile.GetMaxHeight);
-    return (min + List.GetSum(list)) / (list.Count() * 2);
+    return (min + Lists.GetSum(list)) / (list.Count() * 2);
 }
 
 function RailScanNode::GetDistance(destination){

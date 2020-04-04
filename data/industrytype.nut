@@ -1,0 +1,2 @@
+class IndustryType extends AIIndustryType {
+}

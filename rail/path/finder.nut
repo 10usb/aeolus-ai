@@ -53,7 +53,7 @@ function RailPathFinder::Init(){
     
     this.success = AIList();
     this.success.AddList(this.endpoints);
-    this.success.Valuate(List.SetValue, 0);
+    this.success.Valuate(Lists.SetValue, 0);
 
     this.radius = null;
 
