@@ -1,6 +1,6 @@
 class BuilderHandler extends CommandHandler {
-    source = null;
-    destination = null;
+    source_id = null;
+    destination_id = null;
 
 	constructor(){
 	    Log.Info("Build commands");
@@ -9,7 +9,10 @@ class BuilderHandler extends CommandHandler {
     }
     
     function OnCommand(command, sign_id){
-        if(command == "!source" || command == "!destination"){
+        if(command == "!exit"){
+            AISign.RemoveSign(sign_id);
+            return false;
+        }else if(command == "!source" || command == "!destination"){
             local location = AISign.GetLocation(sign_id);
             AISign.RemoveSign(sign_id);
 
@@ -19,15 +22,70 @@ class BuilderHandler extends CommandHandler {
                 Log.Info("No industry found");
             }else{
                 if(command == "!source"){
-                    this.source = industry_id;
+                    this.source_id = industry_id;
                     Log.Info("Source: " + Industry.GetName(industry_id));
                 }else{
-                    this.destination = industry_id;
+                    this.destination_id = industry_id;
                     Log.Info("Destination: " + Industry.GetName(industry_id));
                 }
             }
         }else if(command == "!go"){
+            AISign.RemoveSign(sign_id);
+            BuildSourceStation();
         }
         return true;
+    }
+
+    function BuildSourceStation(){
+        local radius = Station.GetCoverageRadius(Station.STATION_TRAIN);
+        local length = 4;
+        local origin = Industry.GetLocation(source_id);
+        local industry_type = Industry.GetIndustryType(source_id);
+        local cargos = IndustryType.GetProducedCargo(industry_type);
+
+        Log.Info("Radius of station: " + radius);
+        Log.Info("Industry type: " + IndustryType.GetName(industry_type));
+        Log.Info("Industry raw: " + IndustryType.IsRawIndustry(industry_type));
+
+        foreach(cargo_id, dummy in cargos){
+            Log.Info(" - " + Cargo.GetName(cargo_id));
+        }
+
+        AISign.BuildSign(origin, "Origin");
+
+        local tiles = AITileList_IndustryProducing(source_id, radius);
+
+        tiles.Valuate(Tile.GetX);
+        tiles.Sort(List.SORT_BY_VALUE, List.SORT_ASCENDING);
+        local x1 = tiles.GetValue(tiles.Begin());
+        
+        tiles.Sort(List.SORT_BY_VALUE, List.SORT_DESCENDING);
+        local x2 = tiles.GetValue(tiles.Begin());
+
+        tiles.Valuate(Tile.GetY);
+        tiles.Sort(List.SORT_BY_VALUE, List.SORT_ASCENDING);
+        local y1 = tiles.GetValue(tiles.Begin());
+
+        tiles.Sort(List.SORT_BY_VALUE, List.SORT_DESCENDING);
+        local y2 = tiles.GetValue(tiles.Begin());
+        
+        // AISign.BuildSign(Tile.GetIndex(x1, y1), "1");
+        // AISign.BuildSign(Tile.GetIndex(x2, y1), "2");
+        // AISign.BuildSign(Tile.GetIndex(x2, y2), "3");
+        // AISign.BuildSign(Tile.GetIndex(x1, y2), "4");
+
+        // // Expension tiles
+        // AISign.BuildSign(Tile.GetIndex(x2, y1 - (length - 1)), "X1");
+        // AISign.BuildSign(Tile.GetIndex(x1 - (length - 1), y2), "X2");
+
+        local vertical = AITileList();
+        vertical.AddRectangle(Tile.GetIndex(x2, y1 - (length - 1)), Tile.GetIndex(x1, y1 - 1));
+
+        local horizontal = AITileList();
+        horizontal.AddRectangle(Tile.GetIndex(x1 - (length - 1), y2), Tile.GetIndex(x1 - 1, y1));
+
+        Lists.Valuate(tiles, AISign.BuildSign, "@");
+        Lists.Valuate(vertical, AISign.BuildSign, "V");
+        Lists.Valuate(horizontal, AISign.BuildSign, "H");
     }
 }
