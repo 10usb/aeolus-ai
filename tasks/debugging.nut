@@ -47,15 +47,19 @@ function Debugging::Process(command, sign_id){
                 Log.Info("Debugging:");
             }
         }else{
-            if(command == "!finder"){
+            if(command == "!clear"){
+                local signs = AISignList();
+                List.Valuate(signs, AISign.RemoveSign);
+            }else if(command == "!finder"){
                 handler = FinderHandler();
                 handler.SetParent(this.GetParent());
                 AISign.RemoveSign(sign_id);
-            }else if(command == "!clear"){
-                local signs = AISignList();
-                List.Valuate(signs, AISign.RemoveSign);
             }else if(command == "!vector"){
                 handler = VectorHandler();
+                handler.SetParent(this.GetParent());
+                AISign.RemoveSign(sign_id);
+            }else if(command == "!builder"){
+                handler = BuilderHandler();
                 handler.SetParent(this.GetParent());
                 AISign.RemoveSign(sign_id);
             }

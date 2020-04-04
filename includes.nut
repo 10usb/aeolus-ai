@@ -53,6 +53,7 @@ require("rail/vector/segment.nut");
 require("debug/commandhandler.nut");
 require("debug/finderhandler.nut");
 require("debug/vectorhandler.nut");
+require("debug/builderhandler.nut");
 
 // Tasks
 require("tasks/debugging.nut");
