@@ -1,6 +1,11 @@
 class Tile extends AITile {
 }
 
+// Copy these tile related method from Map to the Tile class for consistancy
+Tile.IsValidTile <- AIMap.IsValidTile;
+Tile.GetX <- AIMap.GetTileX;
+Tile.GetY <- AIMap.GetTileY;
+
 function Tile::GetTranslatedIndex(index, x, y){
 	return AIMap.GetTileIndex(
             AIMap.GetTileX(index) + x,
