@@ -57,7 +57,6 @@ class BuilderHandler extends CommandHandler {
             Log.Info(" - " + Cargo.GetName(cargo_id));
         }
 
-        AISign.BuildSign(origin, "Origin");
 
         local tiles = AITileList_IndustryProducing(source_id, radius);
 
@@ -83,14 +82,21 @@ class BuilderHandler extends CommandHandler {
         vertical.Valuate(Tile.IsBuildableRectangle, 1, length);
         vertical.KeepValue(1);
 
+        vertical.Valuate(Tile.IsFlatRectangle, 1, length);
+        vertical.KeepValue(1);
+
         local horizontal = AITileList();
         horizontal.AddRectangle(Tile.GetIndex(x1 - (length - 1), y2), Tile.GetIndex(x1 - 1, y1));
         horizontal.AddList(tiles);
         
         horizontal.Valuate(Tile.IsBuildableRectangle, length, 1);
         horizontal.KeepValue(1);
+
+        horizontal.Valuate(Tile.IsFlatRectangle, length, 1);
+        horizontal.KeepValue(1);
         
 
+        AISign.BuildSign(origin, "Origin");
         Lists.Valuate(vertical, AISign.BuildSign, "V");
         Lists.Valuate(horizontal, AISign.BuildSign, "H");
     }
