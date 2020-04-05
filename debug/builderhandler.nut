@@ -6,6 +6,8 @@ class BuilderHandler extends CommandHandler {
 	    Log.Info("Build commands");
         Log.Info(" - !source        Set source industry");
         Log.Info(" - !destination   Set destination industry");
+        Log.Info(" - !endpoints     Mark the end points");
+        Log.Info(" - !station       Set destination industry");
     }
     
     function OnCommand(command, sign_id){
@@ -29,9 +31,12 @@ class BuilderHandler extends CommandHandler {
                     Log.Info("Destination: " + Industry.GetName(industry_id));
                 }
             }
-        }else if(command == "!go"){
+        }else if(command == "!station"){
             AISign.RemoveSign(sign_id);
             BuildSourceStation();
+        }else if(command == "!endpoints"){
+            AISign.RemoveSign(sign_id);
+            EndPoints();
         }
         return true;
     }
@@ -87,5 +92,21 @@ class BuilderHandler extends CommandHandler {
 
         Lists.Valuate(vertical, AISign.BuildSign, "V");
         Lists.Valuate(horizontal, AISign.BuildSign, "H");
+    }
+
+    function EndPoints(){
+        local origin = Industry.GetLocation(source_id);
+        local end = Industry.GetLocation(destination_id);
+
+        local distance = Tile.GetDistance(origin, end);
+        local angle = Tile.GetAngle(end, origin);
+
+        for(local j = 30; j <= 32; j++){
+            AISign.BuildSign(Tile.GetAngledIndex(end, angle, distance - j), "#");
+            for(local i = 1; i < 10; i+=1){
+                AISign.BuildSign(Tile.GetAngledIndex(end, angle - i, distance - j), ".");
+                AISign.BuildSign(Tile.GetAngledIndex(end, angle + i, distance - j), ".");
+            }
+        }
     }
 }
