@@ -64,3 +64,24 @@ function Tile::GetSlopeTileIndex(index, slope){
 	}
 	throw("Unknown Slope");
 }
+
+function Tile::GetDistance(from, to){
+	return (sqrt(Tile.GetDistanceSquareToTile(from, to)) + 0.5).tointeger();
+}
+
+function Tile::GetAngledIndex(origin, angle, length){
+	local rad = angle * PI * 2 / 360;
+	local origin_x = Tile.GetX(origin);
+	local origin_y = Tile.GetY(origin);
+	local offset_x = (cos(rad) * length + 0.5).tointeger();
+	local offset_y = (sin(rad) * length + 0.5).tointeger();
+	return Tile.GetIndex(origin_x + offset_x, origin_y + offset_y);
+}
+
+function Tile::GetAngle(from, towards){
+	local ox = Tile.GetX(from);
+	local oy = Tile.GetY(from);
+	local tx = Tile.GetX(towards);
+	local ty = Tile.GetY(towards);
+	return atan2(ty - oy, tx - ox) * 360 / (PI * 2);
+}
