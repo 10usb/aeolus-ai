@@ -18,6 +18,19 @@ function Tile::IsCrossable(index){
     return AIRoad.IsRoadTile(index) || AIRail.IsRailTile(index) || Tile.IsWaterTile(index);
 }
 
+function Tile::IsFlat(index){
+	return Tile.GetSlope(index) == Tile.SLOPE_FLAT;
+}
+
+function Tile::IsFlatRectangle(index, width, height){
+	local list = AITileList();
+	list.AddRectangle(index, Tile.GetTranslatedIndex(index, width - 1, height - 1));
+	list.Valuate(Tile.IsFlat);
+	local size = list.Count();
+	list.KeepValue(1);
+	return list.Count() == size;
+}
+
 function Tile::GetDirection(from, to){
 	local x = AIMap.GetTileX(to) - AIMap.GetTileX(from);
 	local y = AIMap.GetTileY(to) - AIMap.GetTileY(from);
