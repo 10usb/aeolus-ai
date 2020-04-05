@@ -1,6 +1,7 @@
 class BuilderHandler extends CommandHandler {
     source_id = null;
     destination_id = null;
+    endpoints = null
 
 	constructor(){
 	    Log.Info("Build commands");
@@ -101,12 +102,20 @@ class BuilderHandler extends CommandHandler {
         local distance = Tile.GetDistance(origin, end);
         local angle = Tile.GetAngle(end, origin);
 
+        this.endpoints = List();
+
+        local range = max(10, (100 - (distance / 2.0) + 0.5).tointeger());
+
+
+        if(distance < 35) distance = 35;
         for(local j = 30; j <= 32; j++){
-            AISign.BuildSign(Tile.GetAngledIndex(end, angle, distance - j), "#");
-            for(local i = 1; i < 10; i+=1){
-                AISign.BuildSign(Tile.GetAngledIndex(end, angle - i, distance - j), ".");
-                AISign.BuildSign(Tile.GetAngledIndex(end, angle + i, distance - j), ".");
+            this.endpoints.AddItem(Tile.GetAngledIndex(end, angle, distance - j), 0);
+            for(local i = 1; i < range; i+=1){
+                this.endpoints.AddItem(Tile.GetAngledIndex(end, angle - i, distance - j), 0);
+                this.endpoints.AddItem(Tile.GetAngledIndex(end, angle + i, distance - j), 0);
             }
         }
+
+        Lists.Valuate(this.endpoints, AISign.BuildSign, "+");
     }
 }
