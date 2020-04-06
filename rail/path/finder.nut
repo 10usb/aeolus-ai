@@ -30,18 +30,18 @@ function RailPathFinder::AddStartPoint(index, towards, value){
     });
     this.exclusions.AddItem(towards, 0);
 
-    this.signs.Build(index, "start: " + value);
-    this.signs.Build(towards, "from: " + value);
+    // this.signs.Build(index, "start: " + value);
+    // this.signs.Build(towards, "from: " + value);
 }
 
 function RailPathFinder::AddEndPoint(index, value){
     this.endpoints.AddItem(index, value);
-    this.signs.Build(index, "end: " + value);
+    // this.signs.Build(index, "end: " + value);
 }
 
 function RailPathFinder::AddExclusion(index){
     this.exclusions.AddItem(index, 0);
-    this.signs.Build(index, "EXCLUDED");
+    // this.signs.Build(index, "EXCLUDED");
 }
 
 function RailPathFinder::Init(){

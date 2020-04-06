@@ -94,11 +94,13 @@ class BuilderHandler extends CommandHandler {
 
         horizontal.Valuate(Tile.IsFlatRectangle, length, 1);
         horizontal.KeepValue(1);
-        
 
-        AISign.BuildSign(origin, "Origin");
-        Lists.Valuate(vertical, AISign.BuildSign, "V");
-        Lists.Valuate(horizontal, AISign.BuildSign, "H");
+        // AISign.BuildSign(origin, "Origin");
+        // Lists.Valuate(vertical, AISign.BuildSign, "V");
+        // Lists.Valuate(horizontal, AISign.BuildSign, "H");
+
+
+        FindStation(horizontal, -1, 0);
     }
 
     function EndPoints(){
@@ -122,6 +124,31 @@ class BuilderHandler extends CommandHandler {
             }
         }
 
-        Lists.Valuate(this.endpoints, AISign.BuildSign, "+");
+        // Lists.Valuate(this.endpoints, AISign.BuildSign, "+");
+    }
+
+    function FindStation(tiles, ox, oy){
+        local finder = RailPathFinder();
+
+        foreach(towards, _ in tiles){
+            local index = Tile.GetTranslatedIndex(towards, ox, oy);
+            finder.AddStartPoint(index, towards, 0);
+        }
+        
+        foreach(index, _ in this.endpoints){
+            finder.AddEndPoint(index, 0);
+        }
+
+        finder.Init();
+
+        local limit = 50000;
+
+        finder.BeginStep();
+        while(limit-- > 0 && finder.Step());
+
+
+        local path = finder.GetPath();
+
+        this.GetParent().EnqueueTask(RailPathBuilder(path));
     }
 }
