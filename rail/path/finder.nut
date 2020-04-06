@@ -99,7 +99,7 @@ function RailPathFinder::Step(){
 
         // When the tile is not buildable it might still be crossable
         if(!Tile.IsBuildable(index)){
-            if(Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
+            if(node.forerunner != null && Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
                 this.CheckBridge(node.forerunner, node.index);
             }
             continue;
