@@ -1,14 +1,19 @@
 class BuilderHandler extends CommandHandler {
     source_id = null;
     destination_id = null;
-    endpoints = null
+    endpoints = null;
+    stationHp = null;
+    stationHn = null;
+    stationVp = null;
+    stationVn = null;
 
 	constructor(){
 	    Log.Info("Build commands");
         Log.Info(" - !source        Set source industry");
         Log.Info(" - !destination   Set destination industry");
         Log.Info(" - !endpoints     Mark the end points");
-        Log.Info(" - !station       Set destination industry");
+        Log.Info(" - !station       Let the search for the station begin");
+        Log.Info(" - !path          Builds path of the best option");
     }
     
     function OnCommand(command, sign_id){
@@ -38,6 +43,9 @@ class BuilderHandler extends CommandHandler {
         }else if(command == "!endpoints"){
             AISign.RemoveSign(sign_id);
             EndPoints();
+        }else if(command == "!path"){
+            AISign.RemoveSign(sign_id);
+            BuildPath();
         }
         return true;
     }
@@ -103,16 +111,17 @@ class BuilderHandler extends CommandHandler {
 
         // FindStation(horizontal, -1, 0);
 
-        local stationHp = RailFindStation(tiles, 1, 0, length, this.endpoints);
-        local stationHn = RailFindStation(tiles, -1, 0, length, this.endpoints);
+        this.stationHp = RailFindStation(tiles, 1, 0, length, this.endpoints);
+        this.GetParent().EnqueueTask(this.stationHp);
 
-        local stationVp = RailFindStation(tiles, 0, 1, length, this.endpoints);
-        local stationVn = RailFindStation(tiles, 0, -1, length, this.endpoints);
+        this.stationHn = RailFindStation(tiles, -1, 0, length, this.endpoints);
+        this.GetParent().EnqueueTask(this.stationHn);
 
-        this.GetParent().EnqueueTask(stationHp);
-        this.GetParent().EnqueueTask(stationHn);
-        this.GetParent().EnqueueTask(stationVp);
-        this.GetParent().EnqueueTask(stationVn);
+        this.stationVp = RailFindStation(tiles, 0, 1, length, this.endpoints);
+        this.GetParent().EnqueueTask(this.stationVp);
+
+        this.stationVn = RailFindStation(tiles, 0, -1, length, this.endpoints);
+        this.GetParent().EnqueueTask(this.stationVn);
     }
 
     function EndPoints(){
@@ -137,6 +146,31 @@ class BuilderHandler extends CommandHandler {
         }
 
         // Lists.Valuate(this.endpoints, AISign.BuildSign, "+");
+    }
+
+    function BuildPath(){
+        local best = stationHp;
+        local value = stationHp.finder.GetBest();
+
+        if(value > stationHn.finder.GetBest()){
+            best = stationHn;
+            value = stationHn.finder.GetBest();
+        }
+        if(value > stationVp.finder.GetBest()){
+            best = stationVp;
+            value = stationVp.finder.GetBest();
+        }
+        if(value > stationVn.finder.GetBest()){
+            best = stationVn;
+            value = stationVn.finder.GetBest();
+        }
+
+        Log.Info("dir: " + best.offset.x + "," + best.offset.y + " steps: " + best.steps);
+        Log.Info("Value: " + best.finder.GetBest());
+
+        local path = best.finder.GetPath();
+
+        this.GetParent().EnqueueTask(RailPathBuilder(path));
     }
 
     function FindStation(tiles, ox, oy){
