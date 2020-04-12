@@ -98,6 +98,8 @@ class BuilderHandler extends CommandHandler {
         // AISign.BuildSign(origin, "Origin");
         // Lists.Valuate(vertical, AISign.BuildSign, "V");
         // Lists.Valuate(horizontal, AISign.BuildSign, "H");
+        
+        if(this.endpoints == null) this.EndPoints();
 
 
         FindStation(horizontal, -1, 0);
