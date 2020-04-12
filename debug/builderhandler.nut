@@ -146,6 +146,7 @@ class BuilderHandler extends CommandHandler {
         finder.BeginStep();
         while(limit-- > 0 && finder.Step());
 
+        Log.Info("Value: " + finder.GetBest());
 
         local path = finder.GetPath();
 

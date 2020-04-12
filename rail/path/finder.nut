@@ -242,6 +242,17 @@ function RailPathFinder::MarkEndpoint(index, forerunner, cost){
     return true;
 }
 
+function RailPathFinder::GetBest(){
+    local best = AIList();
+    best.AddList(this.success);
+    best.KeepAboveValue(0);
+
+    if(best.Count() <= 0) return [];
+
+    best.Sort(AIList.SORT_BY_VALUE, true);
+    return best.GetValue(best.Begin());
+}
+
 function RailPathFinder::GetPath(){
     local best = AIList();
     best.AddList(this.success);
