@@ -62,13 +62,18 @@ function Scheduler::Execute(){
             active.remove(0);
             //Log.Info("Scheduler: " + task.GetName());
 
-            local start	= Controller.GetTick();
-            if(task.Execute())
-                // Seems the task is not finished and needs to run again
-                EnqueueTask(task);
+            try {
+                local start	= Controller.GetTick();
+                if(task.Execute())
+                    // Seems the task is not finished and needs to run again
+                    EnqueueTask(task);
 
-            if(start < Controller.GetTick() && (Controller.GetTick() - start) > 10){
-                Log.Warning("Thread " + task.GetName() + " used " + (Controller.GetTick() - start) + " ticks to run");
+                if(start < Controller.GetTick() && (Controller.GetTick() - start) > 10){
+                    Log.Warning("Task " + task.GetName() + " used " + (Controller.GetTick() - start) + " ticks to run");
+                }
+            }catch(err){
+                Log.Error("Task " + task.GetName() + " has thrown an error");
+                Log.Error(err);
             }
         }
     }else if(sleeping.len()){
@@ -79,7 +84,7 @@ function Scheduler::Execute(){
         // All tasks are waiting till a next day just close the eyes for a moment
         Controller.Sleep(10);
     }else{
-        Log.Error("This should happen...");
+        throw "This shouldn't happen... I've run out of tasks to execute bye bye beautiful world";
     }
 }
 
