@@ -36,7 +36,11 @@ function RailFindStation::Run(){
             }
             this.finder.AddStartPoint(start, towards, 0);
         }
-        
+        this.state++;
+        return true;
+    }
+    
+    if(this.state == 1){
         foreach(index, _ in this.endpoints){
             this.finder.AddEndPoint(index, 0);
         }
@@ -44,13 +48,13 @@ function RailFindStation::Run(){
         return true;
     }
     
-    if(this.state == 1){
+    if(this.state == 2){
         this.finder.Init();
         this.state++;
         return true;
     }
     
-    if(this.state == 2){
+    if(this.state == 3){
         this.finder.BeginStep();
         local limit = 35;
         while(limit-- > 0 && this.steps++ < 50000){
