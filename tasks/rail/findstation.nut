@@ -1,19 +1,17 @@
 class RailFindStation extends Task {
     tiles = null;
     offset = null;
-    length = null;
     endpoints = null;
     finder = null;
     state = null;
     steps = null;
 
-	constructor(tiles, ox, oy, length, endpoints){
+	constructor(tiles, ox, oy, endpoints){
         this.tiles = tiles;
         this.offset = {
             x = ox,
             y = oy
         };
-        this.length = length;
         this.endpoints = endpoints;
         this.state = 0;
         this.steps = 0;
@@ -28,9 +26,15 @@ function RailFindStation::Run(){
     if(this.state == 0){
         this.finder = RailPathFinder();
 
-        foreach(towards, _ in this.tiles){
-            local index = Tile.GetTranslatedIndex(towards, this.offset.x, this.offset.y);
-            this.finder.AddStartPoint(index, towards, 0);
+        foreach(index, _ in this.tiles){
+            local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);
+            local towards = index;
+            if(this.offset.x > 0){
+                towards = Tile.GetTranslatedIndex(index, this.offset.x - 1, this.offset.y);
+            }else if(this.offset.y > 0){
+                towards = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y - 1);
+            }
+            this.finder.AddStartPoint(start, towards, 0);
         }
         
         foreach(index, _ in this.endpoints){

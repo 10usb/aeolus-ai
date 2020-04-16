@@ -11,7 +11,6 @@ class BuilderHandler extends CommandHandler {
 	    Log.Info("Build commands");
         Log.Info(" - !source        Set source industry");
         Log.Info(" - !destination   Set destination industry");
-        Log.Info(" - !endpoints     Mark the end points");
         Log.Info(" - !station       Let the search for the station begin");
         Log.Info(" - !path          Builds path of the best option");
     }
@@ -40,9 +39,6 @@ class BuilderHandler extends CommandHandler {
         }else if(command == "!station"){
             AISign.RemoveSign(sign_id);
             BuildSourceStation();
-        }else if(command == "!endpoints"){
-            AISign.RemoveSign(sign_id);
-            EndPoints();
         }else if(command == "!path"){
             AISign.RemoveSign(sign_id);
             BuildPath();
@@ -107,20 +103,20 @@ class BuilderHandler extends CommandHandler {
         // Lists.Valuate(vertical, AISign.BuildSign, "V");
         // Lists.Valuate(horizontal, AISign.BuildSign, "H");
         
-        if(this.endpoints == null) this.EndPoints();
+        this.EndPoints();
 
         // FindStation(horizontal, -1, 0);
 
-        this.stationHp = RailFindStation(tiles, 1, 0, length, this.endpoints);
+        this.stationHp = RailFindStation(horizontal, length, 0, this.endpoints);
         this.GetParent().EnqueueTask(this.stationHp);
 
-        this.stationHn = RailFindStation(tiles, -1, 0, length, this.endpoints);
+        this.stationHn = RailFindStation(horizontal, -1, 0, this.endpoints);
         this.GetParent().EnqueueTask(this.stationHn);
 
-        this.stationVp = RailFindStation(tiles, 0, 1, length, this.endpoints);
+        this.stationVp = RailFindStation(vertical, 0, length, this.endpoints);
         this.GetParent().EnqueueTask(this.stationVp);
 
-        this.stationVn = RailFindStation(tiles, 0, -1, length, this.endpoints);
+        this.stationVn = RailFindStation(vertical, 0, -1, this.endpoints);
         this.GetParent().EnqueueTask(this.stationVn);
     }
 
