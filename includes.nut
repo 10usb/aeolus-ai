@@ -59,6 +59,7 @@ require("debug/builderhandler.nut");
 
 // Tasks
 require("tasks/debugging.nut");
+require("tasks/printinfo.nut");
 
 require("tasks/createpersonality.nut");
 require("tasks/repayloan.nut");
