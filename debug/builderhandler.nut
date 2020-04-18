@@ -107,17 +107,23 @@ class BuilderHandler extends CommandHandler {
 
         // FindStation(horizontal, -1, 0);
 
+        local queue = TaskQueue();
+
         this.stationHp = RailFindStation(horizontal, length, 0, this.endpoints);
-        this.GetParent().EnqueueTask(this.stationHp);
+        queue.EnqueueTask(this.stationHp);
 
         this.stationHn = RailFindStation(horizontal, -1, 0, this.endpoints);
-        this.GetParent().EnqueueTask(this.stationHn);
+        queue.EnqueueTask(this.stationHn);
 
         this.stationVp = RailFindStation(vertical, 0, length, this.endpoints);
-        this.GetParent().EnqueueTask(this.stationVp);
+        queue.EnqueueTask(this.stationVp);
 
         this.stationVn = RailFindStation(vertical, 0, -1, this.endpoints);
-        this.GetParent().EnqueueTask(this.stationVn);
+        queue.EnqueueTask(this.stationVn);
+        
+        queue.EnqueueTask(PrintInfo("Done"));
+
+        this.GetParent().EnqueueTask(queue);
     }
 
     function EndPoints(){
