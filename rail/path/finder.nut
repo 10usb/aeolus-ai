@@ -12,6 +12,7 @@ class RailPathFinder {
     radius      = null;
     exclusions  = null;
     railType    = null;
+    debug       = false;
 
 	constructor(){
 		this.signs       = Signs();
@@ -199,7 +200,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
 
             this.nodes.rawset(node.index, node);
             this.queue.Add(node);
-            // this.signs.Build(node.index, "" + node.value);
+            if(this.debug) this.signs.Build(node.index, "" + node.value);
 
             return node;
         }
@@ -213,7 +214,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
 
         this.nodes.rawset(node.index, node);
         this.queue.Add(node);
-        // this.signs.Build(node.index, "" + node.value);
+        if(this.debug) this.signs.Build(node.index, "" + node.value);
         return node;
     }
 }
@@ -243,6 +244,7 @@ function RailPathFinder::MarkEndpoint(index, forerunner, cost){
 }
 
 function RailPathFinder::GetBest(){
+    this.signs.Clean();
     local best = AIList();
     best.AddList(this.success);
     best.KeepAboveValue(0);
@@ -254,6 +256,7 @@ function RailPathFinder::GetBest(){
 }
 
 function RailPathFinder::GetPath(){
+    this.signs.Clean();
     local best = AIList();
     best.AddList(this.success);
     best.KeepAboveValue(0);
