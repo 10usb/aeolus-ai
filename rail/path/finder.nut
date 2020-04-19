@@ -29,20 +29,24 @@ function RailPathFinder::AddStartPoint(index, towards, value){
         towards = towards,
         value = value
     });
+    // TODO This should be start node specific
     this.exclusions.AddItem(towards, 0);
 
-    // this.signs.Build(index, "start: " + value);
-    // this.signs.Build(towards, "from: " + value);
+    if(debug){
+        this.signs.Build(index, "start: " + value);
+        this.signs.Build(towards, "from: " + value);
+    }
 }
 
 function RailPathFinder::AddEndPoint(index, value){
     this.endpoints.AddItem(index, value);
-    // this.signs.Build(index, "end: " + value);
+    if(debug) this.signs.Build(index, "end: " + value);
 }
 
+// TODO This should be start node specific
 function RailPathFinder::AddExclusion(index){
     this.exclusions.AddItem(index, 0);
-    // this.signs.Build(index, "EXCLUDED");
+    if(debug) this.signs.Build(index, "EXCLUDED");
 }
 
 function RailPathFinder::Init(){
@@ -61,6 +65,7 @@ function RailPathFinder::Init(){
     foreach(index, point in this.startpoints){
         local node = RailPathNode(index, null, point.value);
         node.towards = Tile.GetDirection(index, point.towards);
+        // TODO remove the need for an fixed option if there is any
         node.fixed = true;
         this.nodes.rawset(index, node);
         this.queue.Add(node);
