@@ -77,3 +77,4 @@ require("tasks/air/aircraftreplacer.nut");
 require("tasks/rail/finddestinationindustry.nut");
 require("tasks/rail/findstation.nut");
 require("tasks/rail/pathbuilder.nut");
+require("tasks/rail/pathextender.nut");
