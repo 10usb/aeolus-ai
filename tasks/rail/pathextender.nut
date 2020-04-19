@@ -90,7 +90,7 @@ class RailPathExtender extends Task {
 
         if(distance < 35) distance = 35;
 
-        for(local j = 30; j <= 32; j++){
+        for(local j = this.size; j <= this.size + 2; j++){
             endpoints.AddItem(Tile.GetAngledIndex(end, angle, distance - j), 0);
             for(local i = 1; i < range; i+=1){
                 endpoints.AddItem(Tile.GetAngledIndex(end, angle - i, distance - j), 0);

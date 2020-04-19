@@ -172,7 +172,7 @@ class BuilderHandler extends CommandHandler {
 
         local path = best.finder.GetPath();
 
-        this.GetParent().EnqueueTask(RailPathExtender(path, Industry.GetLocation(this.destination_id), 30));
+        this.GetParent().EnqueueTask(RailPathExtender(path, Industry.GetLocation(this.destination_id), 35));
     }
 
     function FindStation(tiles, ox, oy){
