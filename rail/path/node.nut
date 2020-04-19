@@ -7,7 +7,7 @@ class RailPathNode {
     // The node pointing to
     forerunner  = null;
     // The side pointing to
-	towards		= 0;
+	towards		= null;
     // Value of this node
 	value		= 0;
     // This is an extra value to accelerate the finding 
@@ -45,7 +45,7 @@ function RailPathNode::GetCandidates(){
         if(this.towards != Tile.SLOPE_SW) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
         if(this.towards != Tile.SLOPE_SE) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
     }
-    else if(this.forerunner){
+    else if(this.towards != null){
         // If the opposite side is raised or lowered only straight is posible
         if(slope == this.towards || Tile.GetComplementSlope(slope) == this.towards)
         {
