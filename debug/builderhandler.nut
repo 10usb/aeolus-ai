@@ -61,7 +61,6 @@ class BuilderHandler extends CommandHandler {
             Log.Info(" - " + Cargo.GetName(cargo_id));
         }
 
-
         local tiles = AITileList_IndustryProducing(source_id, radius);
 
         tiles.Valuate(Tile.GetX);

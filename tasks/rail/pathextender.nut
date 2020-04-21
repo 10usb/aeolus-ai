@@ -39,7 +39,9 @@ class RailPathExtender extends Task {
             local origin = this.path[this.path.len() - 1];
             local distance = Tile.GetDistance(origin, this.destination);
 
-            if(distance < this.size){
+            // Because we only build 2/3 of the path we're going to search 1/3
+            // further into the end-zone (7/9 = 2.333/3 to make a marginal difference)
+            if(distance < (this.size  * 7 / 9)){
                 Log.Warning("End of path is found");
                 // Not the way, but should work for testing
                 this.GetParent().EnqueueTask(RailPathBuilder(this.path));
@@ -96,18 +98,18 @@ class RailPathExtender extends Task {
     }
 
     function AddEndPoints(distance, angle){
-        local endpoints = List();
+        // The start point into the end-zone, so we end the search 1/3 into the end-zone
+        local endZone = this.size  * 5 / 3;
+        if(distance < endZone) distance = endZone;
+
         // How wide does the arc needs to be
         local range = max(10, (100 - (distance / 2.0) + 0.5).tointeger());
 
-        if(distance < 35) distance = 35;
-
-        for(local j = this.size; j <= this.size + 2; j++){
-            endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle, distance - j), 0);
-            for(local i = 1; i < range; i+=1){
-                endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle - i, distance - j), 0);
-                endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle + i, distance - j), 0);
-            }
+        local endpoints = List();
+        endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle, distance - this.size), 0);
+        for(local i = 1; i < range; i+=1){
+            endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle - i, distance - this.size), 0);
+            endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle + i, distance - this.size), 0);
         }
 
         foreach(index, _ in endpoints){
