@@ -21,25 +21,41 @@ class RailPathExtender extends Task {
     }
 
     function GetName(){
-        return "RailPathExtender"
+        return "RailPathExtender";
     }
     
     function Run(){
         if(state == 0){
+            Log.Info("Starting search for extending path");
             this.finder = RailPathFinder();
-            //this.finder.debug = true;
-            this.finder.AddStartPoint(this.path[path.len() - 1], this.path[path.len() - 2], 0);
+            // this.finder.debug = true;
+            this.finder.AddStartPoint(this.path[this.path.len() - 1], this.path[this.path.len() - 2], 0);
             state++;
             return true;
         }
 
         if(state == 1){
-            this.AddEndPoints();
+            Log.Info("Add the endpoints to the finder");
+            local origin = this.path[this.path.len() - 1];
+            local distance = Tile.GetDistance(origin, this.destination);
+
+            if(distance < this.size){
+                Log.Warning("End of path is found");
+                // Not the way, but should work for testing
+                this.GetParent().EnqueueTask(RailPathBuilder(this.path));
+                state = 5;
+                return false;
+            }else{
+                Log.Info("Remaining distance " + distance);
+            }
+
+            this.AddEndPoints(distance, Tile.GetAngle(this.destination, origin));
             state++;
             return true;
         }
     
         if(this.state == 2){
+            Log.Info("Initialize finder");
             this.finder.Init();
             this.steps = 0;
             this.state++;
@@ -60,12 +76,13 @@ class RailPathExtender extends Task {
         }
     
         if(this.state == 4){
+            Log.Info("Adding found path to the current");
             // Not the way, but should work for testing
             this.GetParent().EnqueueTask(RailPathBuilder(this.path));
 
             local path = finder.GetPath();
             if(path.len() <=0){
-                Log.Error("Failed to find path")
+                Log.Error("Failed to find path");
                 return false;
             }
 
@@ -78,23 +95,18 @@ class RailPathExtender extends Task {
         return false;
     }
 
-    function AddEndPoints(){
-        local origin = this.path[path.len() - 1];
-        local end = destination;
-
-        local distance = Tile.GetDistance(origin, end);
-
-        local angle = Tile.GetAngle(end, origin);
+    function AddEndPoints(distance, angle){
         local endpoints = List();
+        // How wide does the arc needs to be
         local range = max(10, (100 - (distance / 2.0) + 0.5).tointeger());
 
         if(distance < 35) distance = 35;
 
         for(local j = this.size; j <= this.size + 2; j++){
-            endpoints.AddItem(Tile.GetAngledIndex(end, angle, distance - j), 0);
+            endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle, distance - j), 0);
             for(local i = 1; i < range; i+=1){
-                endpoints.AddItem(Tile.GetAngledIndex(end, angle - i, distance - j), 0);
-                endpoints.AddItem(Tile.GetAngledIndex(end, angle + i, distance - j), 0);
+                endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle - i, distance - j), 0);
+                endpoints.AddItem(Tile.GetAngledIndex(this.destination, angle + i, distance - j), 0);
             }
         }
 

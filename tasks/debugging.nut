@@ -4,7 +4,7 @@ class Debugging extends Task {
 }
 
 function Debugging::GetName(){
-    return "Debugging"
+    return "Debugging";
 }
 
 function Debugging::Run(){
