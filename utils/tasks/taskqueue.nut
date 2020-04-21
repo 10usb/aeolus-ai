@@ -5,6 +5,11 @@ class TaskQueue extends Task {
         tasks  = [];
     }
 }
+
+function TaskQueue::GetName(){
+    return "TaskQueue";
+}
+
 function TaskQueue::RunEmpty(){
     return false;
 }
