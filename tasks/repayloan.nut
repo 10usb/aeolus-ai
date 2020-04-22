@@ -1,12 +1,11 @@
 
-class RepayLoad extends Thread {
-}
-
-function RepayLoad::GetName(){
-	return "RepayLoad";
-}
-
-function RepayLoad::Run(){
-	Finance.Repay();
-	return this.Wait(10);
+class RepayLoan extends Task {
+	function GetName(){
+		return "RepayLoan";
+	}
+	
+	function Run(){
+		Finance.Repay();
+		return this.Wait(10);
+	}
 }
