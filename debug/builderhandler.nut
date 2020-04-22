@@ -104,8 +104,6 @@ class BuilderHandler extends CommandHandler {
         
         this.EndPoints();
 
-        // FindStation(horizontal, -1, 0);
-
         local queue = TaskQueue();
 
         this.stationHp = RailFindStation(horizontal, length, 0, this.endpoints);
