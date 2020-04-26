@@ -6,9 +6,21 @@
  * destination. It returns the tile index of its terminal.
  */
 class RailPathExtender extends Task {
+	static INITIALIZE = 0;
+    static START_SEARCH = 1;
+    static ADD_ENDPOINTS = 2;
+    static INIT_FINDER = 3;
+    static DO_STEP = 4;
+    static GET_SLICE = 5;
+    static FINALIZE = 6
+    
     path = null;
     destination = null;
     size = null;
+
+    startDate = null;
+    endDate = null;
+
     finder = null;
     state = 0;
     steps = 0;
@@ -25,16 +37,22 @@ class RailPathExtender extends Task {
     }
     
     function Run(){
-        if(state == 0){
+        if(state == INITIALIZE){
+            this.startDate = Date.GetCurrentDate();
+            state = START_SEARCH;
+            return true;
+        }
+
+        if(state == START_SEARCH){
             Log.Info("Starting search for extending path");
             this.finder = RailPathFinder();
             // this.finder.debug = true;
             this.finder.AddStartPoint(this.path[this.path.len() - 1], this.path[this.path.len() - 2], 0);
-            state++;
+            state = ADD_ENDPOINTS;
             return true;
         }
 
-        if(state == 1){
+        if(state == ADD_ENDPOINTS){
             Log.Info("Add the endpoints to the finder");
             local origin = this.path[this.path.len() - 1];
             local distance = Tile.GetDistance(origin, this.destination);
@@ -44,32 +62,34 @@ class RailPathExtender extends Task {
             if(distance < (this.size  * 7 / 9)){
                 Log.Warning("End of path is found");
                 // Not the way, but should work for testing
-                this.GetParent().EnqueueTask(RailPathBuilder(this.path));
-                state = 5;
-                return false;
+                this.PushTask(RailPathBuilder(this.path));
+                this.endDate = Date.GetCurrentDate();
+
+                state = FINALIZE;
+                return true;
             }else{
                 Log.Info("Remaining distance " + distance);
             }
 
             this.AddEndPoints(distance, Tile.GetAngle(this.destination, origin));
-            state++;
+            state = INIT_FINDER;
             return true;
         }
     
-        if(this.state == 2){
+        if(this.state == INIT_FINDER){
             Log.Info("Initialize finder");
             this.finder.Init();
             this.steps = 0;
-            this.state++;
+            this.state = DO_STEP;
             return true;
         }
 
-        if(this.state == 3){
+        if(this.state == DO_STEP){
             this.finder.BeginStep();
             local limit = 35;
             while(limit-- > 0 && this.steps++ < 50000){
                 if(!this.finder.Step()){
-                    this.state++;
+                    this.state = GET_SLICE;
                     return true;
                 }
             }
@@ -77,10 +97,10 @@ class RailPathExtender extends Task {
             return true;
         }
     
-        if(this.state == 4){
+        if(this.state == GET_SLICE){
             Log.Info("Adding found path to the current");
             // Not the way, but should work for testing
-            this.GetParent().EnqueueTask(RailPathBuilder(this.path));
+            this.PushTask(RailPathBuilder(this.path));
 
             local path = finder.GetPath();
             if(path.len() <=0){
@@ -90,10 +110,11 @@ class RailPathExtender extends Task {
 
             local end = max(2, path.len() * 2 / 3);
             this.path = path.slice(0, end);
-            this.state = 0;
+            this.state = START_SEARCH;
             return true;
         }
 
+        Log.Info("Extending path took " + (this.endDate - this.startDate) + " days");
         return false;
     }
 
