@@ -16,7 +16,7 @@ function RailPathBuilder::GetName(){
 }
 
 function RailPathBuilder::Run(){
-    if(this.offset >= this.path.len()) {
+    if(this.offset + 1 >= this.path.len()) {
         signs.Clean();
         return false;
     }
@@ -62,6 +62,7 @@ function RailPathBuilder::Run(){
         }
     }
 
-    if(this.offset < this.path.len()) return true;
+    //Log.Info("PathBuilder: " + this.offset + " < " + this.path.len());
+    if(this.offset + 1 < this.path.len()) return true;
     return this.Sleep(100);
 }
