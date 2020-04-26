@@ -25,6 +25,7 @@ require("data/airportenginematrix.nut");
 require("data/budget.nut");
 require("data/cargo.nut");
 require("data/company.nut");
+require("data/date.nut");
 require("data/engine.nut");
 require("data/finance.nut");
 require("data/industry.nut");

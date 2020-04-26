@@ -8,6 +8,10 @@
     length = null;
     size = null;
     state = null;
+
+    startDate = null;
+    endDate = null;
+
     tiles = null;
     bounds = null;
     endpoints = null;
@@ -39,11 +43,13 @@
             case 3: return SelectBest();
         }
         
-        Log.Info("Best: " + this.best.finder.GetBest() + " dir: " + this.best.offset.x + "," + this.best.offset.y + " steps: " + this.best.steps);
+        // Log.Info("Best: " + this.best.finder.GetBest() + " dir: " + this.best.offset.x + "," + this.best.offset.y + " steps: " + this.best.steps);
+        Log.Info("Finding of best loading station for " + Industry.GetName(source_id) + " took " + (this.endDate - this.startDate) + " days with a value of " + this.best.finder.GetBest());
         return false;
     }
     
     function LoadMeta(){
+        this.startDate = Date.GetCurrentDate();
         local radius = Station.GetCoverageRadius(Station.STATION_TRAIN);
         local length = 4;
         local origin = Industry.GetLocation(source_id);
@@ -170,6 +176,8 @@
             this.best = this.stationVn;
             value = this.stationVn.finder.GetBest();
         }
+
+        this.endDate = Date.GetCurrentDate();
 
         this.state++;
         return true;
