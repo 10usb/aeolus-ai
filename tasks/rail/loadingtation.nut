@@ -160,19 +160,28 @@
         return true;
     }
 
-    function SelectBest(){
-        this.best = this.stationHp;
-        local value = this.stationHp.finder.GetBest();
+    function IsBetter(previous, value){
+        if(value < 0) return false;
+        return previous > value;
+    }
 
-        if(value > this.stationHn.finder.GetBest()){
+    function SelectBest(){
+        this.best = null;
+        local value = -1;
+
+        if(IsBetter(value, this.stationHp.finder.GetBest())){
+            this.best = this.stationHp;
+            value = this.stationHp.finder.GetBest();
+        }
+        if(IsBetter(value, this.stationHn.finder.GetBest())){
             this.best = this.stationHn;
             value = this.stationHn.finder.GetBest();
         }
-        if(value > this.stationVp.finder.GetBest()){
+        if(IsBetter(value, this.stationVp.finder.GetBest())){
             this.best = this.stationVp;
             value = this.stationVp.finder.GetBest();
         }
-        if(value > this.stationVn.finder.GetBest()){
+        if(IsBetter(value, this.stationVn.finder.GetBest())){
             this.best = this.stationVn;
             value = this.stationVn.finder.GetBest();
         }

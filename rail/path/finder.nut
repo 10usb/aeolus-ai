@@ -254,7 +254,7 @@ function RailPathFinder::GetBest(){
     best.AddList(this.success);
     best.KeepAboveValue(0);
 
-    if(best.Count() <= 0) return [];
+    if(best.Count() <= 0) return -1;
 
     best.Sort(AIList.SORT_BY_VALUE, true);
     return best.GetValue(best.Begin());
