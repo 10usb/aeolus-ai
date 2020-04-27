@@ -44,7 +44,11 @@
         }
         
         // Log.Info("Best: " + this.best.finder.GetBest() + " dir: " + this.best.offset.x + "," + this.best.offset.y + " steps: " + this.best.steps);
-        Log.Info("Finding of best loading station for " + Industry.GetName(source_id) + " took " + (this.endDate - this.startDate) + " days with a value of " + this.best.finder.GetBest());
+        if(this.best){
+            Log.Info("Finding of best loading station for " + Industry.GetName(source_id) + " took " + (this.endDate - this.startDate) + " days with a value of " + this.best.finder.GetBest());
+        }else{
+            Log.Info("Failed to find loading station for " + Industry.GetName(source_id) + " wasted " + (this.endDate - this.startDate) + " days");
+        }
         return false;
     }
     
@@ -162,6 +166,7 @@
 
     function IsBetter(previous, value){
         if(value < 0) return false;
+        if(previous < 0) return true;
         return previous > value;
     }
 
