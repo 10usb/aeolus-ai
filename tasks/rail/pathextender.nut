@@ -13,6 +13,7 @@ class RailPathExtender extends Task {
     static DO_STEP = 4;
     static GET_SLICE = 5;
     static FINALIZE = 6
+    static DONE = 7;
     
     path = null;
     destination = null;
@@ -26,8 +27,12 @@ class RailPathExtender extends Task {
     steps = 0;
 
 	constructor(path, destination, size){
-        local end = max(2, path.len() * 2 / 3);
-        this.path = path.slice(0, end);
+        local end = max(2, path.len() * 2 / 3) - 1;
+        // If end points to the start of a bridge ramp move to the tile before
+        if(Tile.GetDistanceManhattanToTile(path[end], path[end + 1]) > 1) end--;
+        // If end points to the end of a bridge ramp move to the tile before the bridge
+        if(Tile.GetDistanceManhattanToTile(path[end - 1], path[end]) > 1) end-=2;
+        this.path = path.slice(0, end + 1);
         this.destination = destination;
         this.size = size;
     }
@@ -60,11 +65,6 @@ class RailPathExtender extends Task {
             // Because we only build 2/3 of the path we're going to search 1/3
             // further into the end-zone (7/9 = 2.333/3 to make a marginal difference)
             if(distance < (this.size  * 7 / 9)){
-                Log.Warning("End of path is found");
-                // Not the way, but should work for testing
-                this.PushTask(RailPathBuilder(this.path));
-                this.endDate = Date.GetCurrentDate();
-
                 state = FINALIZE;
                 return true;
             }else{
@@ -108,12 +108,33 @@ class RailPathExtender extends Task {
                 return false;
             }
 
-            local end = max(2, path.len() * 2 / 3);
-            this.path = path.slice(0, end);
+            local end = max(2, path.len() * 2 / 3) - 1;
+            // If end points to the start of a bridge ramp move to the tile before
+            if(Tile.GetDistanceManhattanToTile(path[end], path[end + 1]) > 1) end--;
+            // If end points to the end of a bridge ramp move to the tile before the bridge
+            if(Tile.GetDistanceManhattanToTile(path[end - 1], path[end]) > 1) end-=2;
+            
+            this.path = path.slice(0, end + 1);
             this.state = START_SEARCH;
             return true;
         }
 
+        if(this.state == FINALIZE){
+            Log.Warning("End of path is found");
+            
+            local end = this.path.len() - 1;
+
+            // If end points to the end of a bridge ramp move to the tile before the bridge
+            if(Tile.GetDistanceManhattanToTile(this.path[end - 1], this.path[end]) > 1) end-=2;
+
+            // Not the way, but should work for testing
+            this.PushTask(RailPathBuilder(this.path.slice(0, end + 1)));
+
+            this.state = DONE;
+            return true;
+        }
+
+        this.endDate = Date.GetCurrentDate();
         Log.Info("Extending path took " + (this.endDate - this.startDate) + " days");
         return false;
     }
