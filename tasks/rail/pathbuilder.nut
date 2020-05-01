@@ -1,10 +1,10 @@
 class RailPathBuilder extends Task {
-    path = null;
+    path = [];
     offset = 0;
     signs = null;
     railType = null;
 
-	constructor(path){
+	constructor(path = []){
         this.path = path;
         this.offset = 0;
         this.signs = Signs();
@@ -12,6 +12,10 @@ class RailPathBuilder extends Task {
 
     function GetName(){
         return "RailPathBuilder"
+    }
+
+    function Append(path){
+        this.path.extend(path);
     }
 
     function Run(){
