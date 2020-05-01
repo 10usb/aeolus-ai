@@ -3,6 +3,8 @@ class BuilderHandler extends CommandHandler {
     destination_id = null;
     processor = null;
     loading_station = null;
+    extender = null;
+    offload_station = null;
 
 	constructor(){
 	    Log.Info("Build commands");
@@ -10,6 +12,7 @@ class BuilderHandler extends CommandHandler {
         Log.Info(" - !destination   Set destination industry");
         Log.Info(" - !station       Let the search for the station begin");
         Log.Info(" - !path          Builds path of the best option");
+        Log.Info(" - !endstation    Connect the end of the path to the start");
     }
     
     function OnCommand(command, sign_id){
@@ -39,6 +42,9 @@ class BuilderHandler extends CommandHandler {
         }else if(command == "!path"){
             AISign.RemoveSign(sign_id);
             BuildPath();
+        }else if(command == "!endstation"){
+            AISign.RemoveSign(sign_id);
+            BuildEndStation();
         }
         return true;
     }
@@ -52,6 +58,12 @@ class BuilderHandler extends CommandHandler {
         local path = loading_station.best.finder.GetPath();
         this.processor = RailPathBuilder();
 
-        this.GetParent().EnqueueTask(RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor));
+        this.extender = RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor);
+        this.GetParent().EnqueueTask(this.extender);
+    }
+
+    function BuildSourceStation(){
+        this.offload_station = RailOffloadStation(destination_id, this.extender.GetTerminal()[1]);
+        this.GetParent().EnqueueTask(this.offload_station);
     }
 }
