@@ -55,7 +55,6 @@
     function LoadMeta(){
         this.startDate = Date.GetCurrentDate();
         local radius = Station.GetCoverageRadius(Station.STATION_TRAIN);
-        local length = 4;
         local origin = Industry.GetLocation(source_id);
         local industry_type = Industry.GetIndustryType(source_id);
         local cargos = IndustryType.GetProducedCargo(industry_type);
