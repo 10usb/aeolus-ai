@@ -62,8 +62,8 @@ class BuilderHandler extends CommandHandler {
         this.GetParent().EnqueueTask(this.extender);
     }
 
-    function BuildSourceStation(){
-        this.offload_station = RailOffloadStation(destination_id, this.extender.GetTerminal()[1]);
+    function BuildEndStation(){
+        this.offload_station = RailOffloadStation(destination_id, this.extender.GetTerminal()[1], 4);
         this.GetParent().EnqueueTask(this.offload_station);
     }
 }
