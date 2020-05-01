@@ -12,12 +12,12 @@ class RailPathExtender extends Task {
     static INIT_FINDER = 3;
     static DO_STEP = 4;
     static GET_SLICE = 5;
-    static FINALIZE = 6
-    static DONE = 7;
+    static DONE = 6;
     
-    path = null;
     destination = null;
     size = null;
+    processor = null;
+    terminal = null;
 
     startDate = null;
     endDate = null;
@@ -26,19 +26,34 @@ class RailPathExtender extends Task {
     state = 0;
     steps = 0;
 
-	constructor(path, destination, size){
+	constructor(path, destination, size, processor){
+        this.destination = destination;
+        this.size = size;
+        this.processor = processor;
+
+        // Trim the path to 2/3 of it's length to get a smooth transition
         local end = max(2, path.len() * 2 / 3) - 1;
         // If end points to the start of a bridge ramp move to the tile before
         if(Tile.GetDistanceManhattanToTile(path[end], path[end + 1]) > 1) end--;
         // If end points to the end of a bridge ramp move to the tile before the bridge
         if(Tile.GetDistanceManhattanToTile(path[end - 1], path[end]) > 1) end-=2;
-        this.path = path.slice(0, end + 1);
-        this.destination = destination;
-        this.size = size;
+        path = path.slice(0, end + 1);
+
+        // Take the last 2 parts as terminal for starting point
+        this.terminal = path.slice(-2);
+
+        // Now let the processor already process what we got, he might be able
+        // to construct something from it.
+        this.processor.Append(path);
+        this.PushTask(this.processor);
     }
 
     function GetName(){
         return "RailPathExtender";
+    }
+
+    function GetTerminal(){
+        return this.terminal;
     }
     
     function Run(){
@@ -52,20 +67,22 @@ class RailPathExtender extends Task {
             Log.Info("Starting search for extending path");
             this.finder = RailPathFinder();
             // this.finder.debug = true;
-            this.finder.AddStartPoint(this.path[this.path.len() - 1], this.path[this.path.len() - 2], 0);
+            this.finder.AddStartPoint(this.terminal[1], this.terminal[0], 0);
             state = ADD_ENDPOINTS;
             return true;
         }
 
         if(state == ADD_ENDPOINTS){
             Log.Info("Add the endpoints to the finder");
-            local origin = this.path[this.path.len() - 1];
+            local origin = this.terminal[1];
             local distance = Tile.GetDistance(origin, this.destination);
 
             // Because we only build 2/3 of the path we're going to search 1/3
             // further into the end-zone (7/9 = 2.333/3 to make a marginal difference)
+            // TODO add some additonal limit to prevent infinite loop
             if(distance < (this.size  * 7 / 9)){
-                state = FINALIZE;
+                Log.Warning("End of path is found");
+                state = DONE;
                 return true;
             }else{
                 Log.Info("Remaining distance " + distance);
@@ -99,8 +116,6 @@ class RailPathExtender extends Task {
     
         if(this.state == GET_SLICE){
             Log.Info("Adding found path to the current");
-            // Not the way, but should work for testing
-            this.PushTask(RailPathBuilder(this.path));
 
             local path = finder.GetPath();
             if(path.len() <=0){
@@ -108,29 +123,25 @@ class RailPathExtender extends Task {
                 return false;
             }
 
+            // Trim the path to 2/3 of it's length to get a smooth transition
             local end = max(2, path.len() * 2 / 3) - 1;
             // If end points to the start of a bridge ramp move to the tile before
             if(Tile.GetDistanceManhattanToTile(path[end], path[end + 1]) > 1) end--;
             // If end points to the end of a bridge ramp move to the tile before the bridge
             if(Tile.GetDistanceManhattanToTile(path[end - 1], path[end]) > 1) end-=2;
-            
-            this.path = path.slice(0, end + 1);
+
+            // We start at index 1 as that is equal to last tile we already
+            // gave to the processor
+            path = path.slice(2, end + 1);
+
+            // Take the last 2 parts as terminal for starting point
+            this.terminal = path.slice(-2);
+
+            // Now let the processor process the next piece
+            this.processor.Append(path); 
+            this.PushTask(this.processor);
+
             this.state = START_SEARCH;
-            return true;
-        }
-
-        if(this.state == FINALIZE){
-            Log.Warning("End of path is found");
-            
-            local end = this.path.len() - 1;
-
-            // If end points to the end of a bridge ramp move to the tile before the bridge
-            if(Tile.GetDistanceManhattanToTile(this.path[end - 1], this.path[end]) > 1) end-=2;
-
-            // Not the way, but should work for testing
-            this.PushTask(RailPathBuilder(this.path.slice(0, end + 1)));
-
-            this.state = DONE;
             return true;
         }
 

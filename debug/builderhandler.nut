@@ -1,6 +1,7 @@
 class BuilderHandler extends CommandHandler {
     source_id = null;
     destination_id = null;
+    processor = null;
     loading_station = null;
 
 	constructor(){
@@ -49,6 +50,8 @@ class BuilderHandler extends CommandHandler {
     
     function BuildPath(){
         local path = loading_station.best.finder.GetPath();
-        this.GetParent().EnqueueTask(RailPathExtender(path, Industry.GetLocation(this.destination_id), 35));
+        this.processor = RailPathBuilder();
+
+        this.GetParent().EnqueueTask(RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor));
     }
 }
