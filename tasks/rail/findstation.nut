@@ -5,6 +5,7 @@ class RailFindStation extends Task {
     finder = null;
     state = null;
     steps = null;
+    debug = false;
 
 	constructor(tiles, ox, oy, endpoints){
         this.tiles = tiles;
@@ -24,6 +25,7 @@ class RailFindStation extends Task {
     function Run(){
         if(this.state == 0){
             this.finder = RailPathFinder();
+            this.finder.debug = this.debug;
 
             foreach(index, _ in this.tiles){
                 local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);

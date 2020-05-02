@@ -18,6 +18,9 @@ class RailPathBuilder extends Task {
         this.path.extend(path);
     }
 
+    function Finalize(){
+    }
+
     function Run(){
         if(this.offset + 1 >= this.path.len()) {
             signs.Clean();

@@ -45,6 +45,9 @@ class BuilderHandler extends CommandHandler {
         }else if(command == "!endstation"){
             AISign.RemoveSign(sign_id);
             BuildEndStation();
+        }else if(command == "!finalize"){
+            AISign.RemoveSign(sign_id);
+            Finalize();
         }
         return true;
     }
@@ -65,5 +68,13 @@ class BuilderHandler extends CommandHandler {
     function BuildEndStation(){
         this.offload_station = RailOffloadStation(destination_id, this.extender.GetTerminal()[1], 4);
         this.GetParent().EnqueueTask(this.offload_station);
+    }
+    
+    function Finalize(){
+        local path = offload_station.best.finder.GetPath();
+        path.reverse();
+        this.processor.Append(path.slice(1));
+        this.processor.Finalize();
+        this.GetParent().EnqueueTask(this.processor);
     }
 }

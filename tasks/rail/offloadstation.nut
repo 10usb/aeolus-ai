@@ -3,9 +3,27 @@
  * industry with a path connected to a path terminal
  */
  class RailOffloadStation extends Task {
-	constructor(destination_id, terminal, length){
+    destination_id = null;
+    terminal = null;
+    length = null;
+    state = 0;
+    startDate = null;
+    endDate = null;
+
+    tiles = null;
+    bounds = null;
+
+    stationHp = null;
+    stationHn = null;
+    stationVp = null;
+    stationVn = null;
+
+    best = null;
+
+    constructor(destination_id, terminal, length){
         this.destination_id = destination_id;
         this.terminal = terminal;
+        this.length = length;
     }
 
     function GetName(){
@@ -19,16 +37,21 @@
             case 2: return SelectBest();
         }
         
+        if(this.best){
+            Log.Info("Finding of best offload station for " + Industry.GetName(this.destination_id) + " took " + (this.endDate - this.startDate) + " days with a value of " + this.best.finder.GetBest());
+        }else{
+            Log.Info("Failed to find offload station for " + Industry.GetName(this.destination_id) + " wasted " + (this.endDate - this.startDate) + " days");
+        }
         return false;
     }
     
     function LoadMeta(){
         this.startDate = Date.GetCurrentDate();
         local radius = Station.GetCoverageRadius(Station.STATION_TRAIN);
-        local destination = Industry.GetLocation(destination_id);
+        local destination = Industry.GetLocation(this.destination_id);
 
-        local industry_type = Industry.GetIndustryType(destination_id);
-        local cargos = IndustryType.GetProducedCargo(industry_type);
+        local industry_type = Industry.GetIndustryType(this.destination_id);
+        local cargos = IndustryType.GetAcceptedCargo(industry_type);
 
         Log.Info("Radius of station: " + radius);
         Log.Info("Industry type: " + IndustryType.GetName(industry_type));
@@ -70,6 +93,9 @@
     }
     
     function StartSearch(){
+        local endpoints = List();
+        endpoints.AddItem(this.terminal, 0);
+
         local queue = TaskQueue();
 
         local horizontal = AITileList();
@@ -82,10 +108,12 @@
         horizontal.Valuate(Tile.IsFlatRectangle, this.length, 1);
         horizontal.KeepValue(1);
 
-        this.stationHp = RailFindStation(horizontal, this.length, 0, [this.terminal]);
+        this.stationHp = RailFindStation(horizontal, this.length, 0, endpoints);
+        // this.stationHp.debug = true;
         queue.EnqueueTask(this.stationHp);
 
-        this.stationHn = RailFindStation(horizontal, -1, 0, [this.terminal]);
+        this.stationHn = RailFindStation(horizontal, -1, 0, endpoints);
+        // this.stationHn.debug = true;
         queue.EnqueueTask(this.stationHn);
 
 
@@ -99,10 +127,12 @@
         vertical.Valuate(Tile.IsFlatRectangle, 1, this.length);
         vertical.KeepValue(1);
 
-        this.stationVp = RailFindStation(vertical, 0, this.length, [this.terminal]);
+        this.stationVp = RailFindStation(vertical, 0, this.length, endpoints);
+        // this.stationVp.debug = true;
         queue.EnqueueTask(this.stationVp);
 
-        this.stationVn = RailFindStation(vertical, 0, -1, [this.terminal]);
+        this.stationVn = RailFindStation(vertical, 0, -1, endpoints);
+        // this.stationVn.debug = true;
         queue.EnqueueTask(this.stationVn);
 
         this.PushTask(queue);
