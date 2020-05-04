@@ -1,11 +1,11 @@
 class RailPathBuilder extends Task {
-    path = [];
+    path = null;
     offset = 0;
     signs = null;
     railType = null;
 
 	constructor(path = []){
-        this.path = path;
+        this.path = clone path;
         this.offset = 0;
         this.signs = Signs();
 	}
