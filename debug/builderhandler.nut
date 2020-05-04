@@ -48,6 +48,9 @@ class BuilderHandler extends CommandHandler {
         }else if(command == "!finalize"){
             AISign.RemoveSign(sign_id);
             Finalize();
+        }else if(command == "!go"){
+            AISign.RemoveSign(sign_id);
+            this.GetParent().EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4));
         }
         return true;
     }
