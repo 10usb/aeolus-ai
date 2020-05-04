@@ -13,6 +13,9 @@
     offload_station = null;
     finalized = false;
 
+    startDate = null;
+    endDate = null;
+
 	constructor(source_id, destination_id, length){
         this.source_id = source_id;
         this.destination_id = destination_id;
@@ -25,6 +28,8 @@
     
     function Run(){
         if(this.loading_station == null){
+            this.startDate = Date.GetCurrentDate();
+
             this.loading_station = RailLoadingStation(this.source_id, Industry.GetLocation(this.destination_id), this.length, 35);
             this.PushTask(this.loading_station);
             return true;
@@ -45,16 +50,18 @@
             return true;
         }
 
-        if(!finalized){
+        if(!this.finalized){
             local path = offload_station.best.finder.GetPath();
             path.reverse();
             this.processor.Append(path.slice(1));
             this.processor.Finalize();
             this.PushTask(this.processor);
-            finalized = true;
+            this.finalized = true;
+            this.endDate = Date.GetCurrentDate();
             return true;
         }
 
+        Log.Info("Found route from " + Industry.GetName(source_id) + " to " + Industry.GetName(destination_id) + " took " + (this.endDate - this.startDate) + " days");
         return false;
     }
 }
