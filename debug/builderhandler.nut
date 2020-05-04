@@ -1,18 +1,12 @@
 class BuilderHandler extends CommandHandler {
     source_id = null;
     destination_id = null;
-    processor = null;
-    loading_station = null;
-    extender = null;
-    offload_station = null;
 
 	constructor(){
 	    Log.Info("Build commands");
         Log.Info(" - !source        Set source industry");
         Log.Info(" - !destination   Set destination industry");
-        Log.Info(" - !station       Let the search for the station begin");
-        Log.Info(" - !path          Builds path of the best option");
-        Log.Info(" - !endstation    Connect the end of the path to the start");
+        Log.Info(" - !go            Start connecting the source to the destination");
     }
     
     function OnCommand(command, sign_id){
@@ -36,48 +30,10 @@ class BuilderHandler extends CommandHandler {
                     Log.Info("Destination: " + Industry.GetName(industry_id));
                 }
             }
-        }else if(command == "!station"){
-            AISign.RemoveSign(sign_id);
-            BuildSourceStation();
-        }else if(command == "!path"){
-            AISign.RemoveSign(sign_id);
-            BuildPath();
-        }else if(command == "!endstation"){
-            AISign.RemoveSign(sign_id);
-            BuildEndStation();
-        }else if(command == "!finalize"){
-            AISign.RemoveSign(sign_id);
-            Finalize();
         }else if(command == "!go"){
             AISign.RemoveSign(sign_id);
             this.GetParent().EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4));
         }
         return true;
-    }
-
-    function BuildSourceStation(){
-        this.loading_station = RailLoadingStation(source_id, Industry.GetLocation(destination_id), 4, 35);
-        this.GetParent().EnqueueTask(this.loading_station);
-    }
-    
-    function BuildPath(){
-        local path = loading_station.best.finder.GetPath();
-        this.processor = RailPathBuilder();
-
-        this.extender = RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor);
-        this.GetParent().EnqueueTask(this.extender);
-    }
-
-    function BuildEndStation(){
-        this.offload_station = RailOffloadStation(destination_id, this.extender.GetTerminal()[1], 4);
-        this.GetParent().EnqueueTask(this.offload_station);
-    }
-    
-    function Finalize(){
-        local path = offload_station.best.finder.GetPath();
-        path.reverse();
-        this.processor.Append(path.slice(1));
-        this.processor.Finalize();
-        this.GetParent().EnqueueTask(this.processor);
     }
 }
