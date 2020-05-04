@@ -30,9 +30,11 @@
     function Run(){
         switch(this.state){
             case 0: return FindLoadingStation();
-            case 1: return ExtendPath();
-            case 2: return FindOffloadStation();
-            case 3: return FinalizePath();
+            case 1: return BuildLoadingStation();
+            case 2: return ExtendPath();
+            case 3: return FindOffloadStation();
+            case 4: return FinalizePath();
+            case 5: return BuildOffloadStation();
         }
 
         this.endDate = Date.GetCurrentDate();
@@ -45,6 +47,17 @@
 
         this.loading_station = RailLoadingStation(this.source_id, Industry.GetLocation(this.destination_id), this.length, 35);
         this.PushTask(this.loading_station);
+        this.state++;
+        return true;
+    }
+    
+    function BuildLoadingStation(){
+        local path = this.loading_station.best.finder.GetPath();
+        local x = Tile.GetX(path[0]);
+        local y = Tile.GetY(path[0]);
+
+        BuildStation(x, y, this.loading_station.best.offset);
+
         this.state++;
         return true;
     }
@@ -74,5 +87,39 @@
         this.PushTask(this.processor);
         this.state++;
         return true;
+    }
+    
+    function BuildOffloadStation(){
+        local path = this.offload_station.best.finder.GetPath();
+        local x = Tile.GetX(path[0]);
+        local y = Tile.GetY(path[0]);
+
+        BuildStation(x, y, this.offload_station.best.offset);
+
+        this.state++;
+        return true;
+    }
+
+    function BuildStation(x, y, offset){
+        local direction = null;
+        
+        if(offset.x > 0){
+            x -= offset.x - 1;
+            direction = Rail.RAILTRACK_NE_SW;
+        }else if(offset.x < 0){
+            direction = Rail.RAILTRACK_NE_SW;
+        }
+
+        if(offset.y > 0){
+            y -= offset.y - 1;
+            direction = Rail.RAILTRACK_NW_SE;
+        }else if(offset.y < 0){
+            direction = Rail.RAILTRACK_NW_SE;
+        }
+
+        local index = Tile.GetIndex(x, y);
+        if(!Rail.BuildRailStation(index, direction, 1, this.length, Station.STATION_NEW)){
+            Log.Error("Failed to build station");
+        }
     }
 }
