@@ -29,6 +29,7 @@
         this.length = length;
         this.size = size;
         this.state = 0;
+        this.best = null;
     }
 
     function GetName(){
@@ -170,7 +171,6 @@
     }
 
     function SelectBest(){
-        this.best = null;
         local value = -1;
 
         if(IsBetter(value, this.stationHp.finder.GetBest())){

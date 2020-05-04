@@ -24,6 +24,7 @@
         this.destination_id = destination_id;
         this.terminal = terminal;
         this.length = length;
+        this.best = null;
     }
 
     function GetName(){
@@ -148,7 +149,6 @@
     }
 
     function SelectBest(){
-        this.best = null;
         local value = -1;
 
         if(IsBetter(value, this.stationHp.finder.GetBest())){
