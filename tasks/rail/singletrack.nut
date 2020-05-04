@@ -20,6 +20,13 @@
         this.source_id = source_id;
         this.destination_id = destination_id;
         this.length = length;
+
+        // Because we do checks on them we want to make sure ther'e initially null
+        this.loading_station = null;
+        this.processor = null;
+        this.extender = null;
+        this.offload_station = null;
+        this.finalized = false;
     }
 
     function GetName(){
