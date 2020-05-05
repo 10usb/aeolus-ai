@@ -1,3 +1,10 @@
+/**
+ * This task is mainly used as debugging. It's able to build (not yet fully
+ * functional) from an array of tiles, the raw format what is obtained from an
+ * A-star path finding. In the future it might also be used to build temperal
+ * paths for trains to go over, while existing track segments get upgraded to
+ * be more effectient.
+ */
 class RailPathBuilder extends Task {
     path = null;
     offset = 0;
@@ -20,6 +27,7 @@ class RailPathBuilder extends Task {
     }
 
     function Finalize(){
+        // Nothing to do here as this rail-processor doesn't hold anything back
     }
 
     function Run(){

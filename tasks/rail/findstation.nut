@@ -1,3 +1,7 @@
+/**
+ * This task will performs a path search to find the most obtimal station
+ * location for each tile a station can be build on.
+ */
 class RailFindStation extends Task {
     tiles = null;
     offset = null;
