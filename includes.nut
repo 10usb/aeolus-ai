@@ -82,4 +82,5 @@ require("tasks/rail/loadingtation.nut");
 require("tasks/rail/offloadstation.nut");
 require("tasks/rail/pathbuilder.nut");
 require("tasks/rail/pathextender.nut");
+require("tasks/rail/pathoptimizer.nut");
 require("tasks/rail/singletrack.nut");
