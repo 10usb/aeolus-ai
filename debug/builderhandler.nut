@@ -32,7 +32,13 @@ class BuilderHandler extends CommandHandler {
             }
         }else if(command == "!go"){
             AISign.RemoveSign(sign_id);
-            this.GetParent().EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4));
+
+            local types = AIRailTypeList();
+            types.Valuate(Rail.IsRailTypeAvailable);
+            types.KeepValue(1);
+            local railType = types.Begin();
+
+            this.GetParent().EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4, railType));
         }
         return true;
     }

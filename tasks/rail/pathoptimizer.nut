@@ -5,7 +5,10 @@
  * the vectors inbetween, giving a more smooth rail.
  */
 class RailPathOptimizer extends Task {
-	constructor(){
+    railType = null;
+    
+	constructor(railType){
+        this.railType = railType;
 	}
 
     function GetName(){

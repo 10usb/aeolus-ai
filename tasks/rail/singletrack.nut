@@ -6,6 +6,7 @@
     source_id = null;
     destination_id = null;
     length = null;
+    railType = null;
     state = null;
 
     loading_station = null;
@@ -16,10 +17,11 @@
     startDate = null;
     endDate = null;
 
-	constructor(source_id, destination_id, length){
+	constructor(source_id, destination_id, length, railType){
         this.source_id = source_id;
         this.destination_id = destination_id;
         this.length = length;
+        this.railType = railType;
         this.state = 0;
     }
 
@@ -64,7 +66,7 @@
     
     function ExtendPath(){
         local path = this.loading_station.best.finder.GetPath();
-        this.processor = RailPathBuilder();
+        this.processor = RailPathBuilder(this.railType);
 
         this.extender = RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor);
         this.PushTask(this.extender);
@@ -118,6 +120,8 @@
         }
 
         local index = Tile.GetIndex(x, y);
+
+        Rail.SetCurrentRailType(this.railType);
         if(!Rail.BuildRailStation(index, direction, 1, this.length, Station.STATION_NEW)){
             Log.Error("Failed to build station");
         }
