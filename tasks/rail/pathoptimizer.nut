@@ -14,7 +14,7 @@ class RailPathOptimizer extends Task {
 	}
 
     function GetName(){
-        return "RailPathOptimizer"
+        return "RailPathOptimizer";
     }
 
     function Append(path){
