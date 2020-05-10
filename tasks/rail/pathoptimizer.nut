@@ -6,9 +6,11 @@
  */
 class RailPathOptimizer extends Task {
     railType = null;
+    preceding = null;
     
 	constructor(railType){
         this.railType = railType;
+        this.preceding = null;
 	}
 
     function GetName(){
@@ -16,6 +18,15 @@ class RailPathOptimizer extends Task {
     }
 
     function Append(path){
+        if(this.preceding){
+            this.preceding.extend(path);
+            path = this.preceding;
+        }
+
+        local vectors = RailVectorSegment.Parse(path);
+        RailVectorBuilder.BuildChain(vectors);
+
+        this.preceding = path.slice(-2);
     }
 
     function Finalize(){

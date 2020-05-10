@@ -15,7 +15,7 @@ function RailVectorSegment::Parse(path){
     local current = root;
     local index = 3;
 
-    this.signs = Signs();
+    //this.signs = Signs();
     while(current != null && index < path.len()){
         // this.signs.Build(path[index], "#");
 
