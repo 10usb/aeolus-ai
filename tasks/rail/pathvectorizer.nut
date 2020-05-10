@@ -41,13 +41,13 @@ class RailPathVectorizer extends Task {
 
         local limit = 100000;
         while(limit--> 0 && this.index < this.path.len()){
-            signs.Build(this.path[this.index], "#");
+            //signs.Build(this.path[this.index], "#");
     
             if(this.current.rail != null){
                 local match = this.current.rail.GetTileIndex(this.current.index, this.current.origin, this.current.rail.length + 1);
 
                 if(match == this.path[this.index]){
-                    signs.Build(match, "match");
+                    //signs.Build(match, "match");
     
                     this.current.rail.length++;
                 }else{

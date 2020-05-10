@@ -66,7 +66,7 @@
     
     function ExtendPath(){
         local path = this.loading_station.best.finder.GetPath();
-        //this.processor = RailPathBuilder(this.railType);
+        // this.processor = RailPathBuilder(this.railType);
         this.processor = RailPathOptimizer(this.railType);
 
         this.extender = RailPathExtender(path, Industry.GetLocation(this.destination_id), 35, this.processor);
