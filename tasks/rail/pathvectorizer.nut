@@ -9,12 +9,14 @@ class RailPathVectorizer extends Task {
     index = null;
     root = null;
     current = null;
+    signs = null;
 
 	constructor(){
-        path = [];
-        index = 0;
-        root = null;
-        current = null;
+        this.path = [];
+        this.index = 0;
+        this.root = null;
+        this.current = null;
+        this.signs = Signs();
 	}
 
     function GetName(){
@@ -37,38 +39,39 @@ class RailPathVectorizer extends Task {
             return true;
         }
 
-        local signs = Signs();
-
         local limit = 100000;
         while(limit--> 0 && this.index < this.path.len()){
-            //signs.Build(this.path[this.index], "#");
+            signs.Build(this.path[this.index], "#");
     
-            if(this.current.rail != null){
-                local match = this.current.rail.GetTileIndex(this.current.index, this.current.origin, this.current.rail.length + 1);
-
-                if(match == this.path[this.index]){
-                    //signs.Build(match, "match");
-    
-                    this.current.rail.length++;
-                }else{
-                    local next = RailVectorSegment.Create(this.path[this.index - 2], this.path[this.index - 1], this.path[this.index]);
-                    this.current.next = next;
-                    this.current = next;
-                }
+            if(this.CanExtend()){
+                this.current.rail.length++;
             }else{
                 local next = RailVectorSegment.Create(this.path[this.index - 2], this.path[this.index - 1], this.path[this.index]);
                 this.current.next = next;
                 this.current = next;
-            }
-            if(this.current.bridge){
-                this.index++;
+                
+                // Bridges has a ramp we need to skip
+                if(this.current.bridge) this.index++;
             }
     
             this.index++;
-            
-            signs.Clean();
         }
 
-        return this.index < this.path.len();
+        if(this.index < this.path.len()) return true;
+
+        this.signs.Clean();
+        return false;
+    }
+
+    function CanExtend(){
+        // Only rail can be extended
+        if(this.current.rail == null) return false;
+
+        // The terminal + 1 should be equal to the current to inspect index
+        local match = this.current.rail.GetTileIndex(this.current.index, this.current.origin, this.current.rail.length + 1);
+        if(match != this.path[this.index]) return false;
+
+        this.signs.Build(match, "match");
+        return true;
     }
 }
