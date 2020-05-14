@@ -7,47 +7,6 @@ class RailVectorSegment {
     next    = null;
 }
 
-// Parses an array of tiles into a linked list segments
-function RailVectorSegment::Parse(path){
-    if(path.len() < 3) return false;
-
-    local root = RailVectorSegment.Create(path[0], path[1], path[2]);
-    local current = root;
-    local index = 3;
-
-    //this.signs = Signs();
-    while(current != null && index < path.len()){
-        // this.signs.Build(path[index], "#");
-
-        if(current.rail != null){
-            local match = current.rail.GetTileIndex(current.index, current.origin, current.rail.length + 1);
-            if(match == path[index]){
-                // this.signs.Build(match, "match");
-
-                current.rail.length++;
-            }else{
-                local next = RailVectorSegment.Create(path[index - 2], path[index - 1], path[index]);
-                current.next = next;
-                current = next;
-            }
-        }else{
-            local next = RailVectorSegment.Create(path[index - 2], path[index - 1], path[index]);
-            current.next = next;
-            current = next;
-        }
-        if(current.bridge){
-            index++;
-        }
-
-        index++;
-        
-        // Controller.Sleep(10);
-        // this.signs.Clean();
-    }
-
-    return root;
-}
-
 function RailVectorSegment::Create(from, index, to){
     // this.signs.Build(from, "from");
     // this.signs.Build(index, "index");

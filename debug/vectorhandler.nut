@@ -44,11 +44,13 @@ class VectorHandler extends CommandHandler {
             this.signs.Build(index, "P" + path.len());
         }else if(command == "!path"){
             AISign.RemoveSign(sign_id);
-            this.vectors = RailVectorSegment.Parse(this.path);
+            this.vectors = RailPathVectorizer();
+            this.vectors.Append(this.path);
+            this.GetParent().EnqueueTask(this.vectors);
             Log.Info("Path vectorized");
         }else if(command == "!build"){
             AISign.RemoveSign(sign_id);
-            RailVectorBuilder.BuildChain(this.vectors);
+            RailVectorBuilder.BuildChain(this.vectors.GetRoot());
         }
         return true;
     }
