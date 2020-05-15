@@ -44,10 +44,22 @@ class VectorHandler extends CommandHandler {
             this.signs.Build(index, "P" + path.len());
         }else if(command == "!path"){
             AISign.RemoveSign(sign_id);
+            
             this.vectors = RailPathVectorizer();
             this.vectors.Append(this.path);
-            this.GetParent().EnqueueTask(this.vectors);
-            Log.Info("Path vectorized");
+
+            local queue = TaskQueue();
+            queue.EnqueueTask(this.vectors);
+            queue.EnqueueTask(PrintInfo("Path vectorized"));
+            this.GetParent().EnqueueTask(queue);
+        }else if(command == "!optimize"){
+            AISign.RemoveSign(sign_id);
+            local optimizer = RailVectorOptimizer(this.vectors.GetRoot());
+
+            local queue = TaskQueue();
+            queue.EnqueueTask(optimizer);
+            queue.EnqueueTask(PrintInfo("Vectors optimized"));
+            this.GetParent().EnqueueTask(queue);
         }else if(command == "!build"){
             AISign.RemoveSign(sign_id);
             RailVectorBuilder.BuildChain(this.vectors.GetRoot());

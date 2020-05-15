@@ -85,3 +85,4 @@ require("tasks/rail/pathextender.nut");
 require("tasks/rail/pathoptimizer.nut");
 require("tasks/rail/pathvectorizer.nut");
 require("tasks/rail/singletrack.nut");
+require("tasks/rail/vectoroptimizer.nut");
