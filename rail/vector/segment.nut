@@ -16,13 +16,13 @@ function RailVectorSegment::Create(from, index, to){
     local distance = Tile.GetDistanceManhattanToTile(index, to);
     
     // Bridge or tunnel
-    if(distance > 1) return CreateJump(segment, towards, distance);
+    if(distance > 1) return RailVectorSegment.CreateJump(segment, towards, distance);
 
     // Straight
-    if(Tile.GetComplementSlope(towards) == segment.origin) return CreateStraight(segment, towards);
+    if(Tile.GetComplementSlope(towards) == segment.origin) return RailVectorSegment.CreateStraight(segment, towards);
 
     // Taking a turn (diagonal)
-    return CreateTurn(segment, towards);
+    return RailVectorSegment.CreateTurn(segment, towards);
 }
 
 function RailVectorSegment::CreateJump(segment, towards, distance){
@@ -41,7 +41,7 @@ function RailVectorSegment::CreateJump(segment, towards, distance){
     return segment;
 }
 
-function RailVectorSegment::CreateStraight(){
+function RailVectorSegment::CreateStraight(segment, towards){
     local rail = RailVector();
     rail.direction = RailVector.DIRECTION_STRAIGHT;
     rail.pitch = RailVector.PITCH_LEVEL; // for now
