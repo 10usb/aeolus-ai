@@ -8,10 +8,6 @@ class RailVectorSegment {
 }
 
 function RailVectorSegment::Create(from, index, to){
-    // this.signs.Build(from, "from");
-    // this.signs.Build(index, "index");
-    // this.signs.Build(to, "to");
-
     local segment = RailVectorSegment();
     segment.index = index;
     segment.origin = Tile.GetDirection(index, from);
@@ -20,34 +16,46 @@ function RailVectorSegment::Create(from, index, to){
     local distance = Tile.GetDistanceManhattanToTile(index, to);
     
     // Bridge or tunnel
-    if(distance > 1){
-        // It has to be straight
-        if(Tile.GetComplementSlope(towards) != segment.origin) return null;
-        local bridge = RailVector();
-        bridge.direction = RailVector.DIRECTION_STRAIGHT;
-        bridge.pitch = RailVector.PITCH_LEVEL; // for now
-        bridge.length = distance;
+    if(distance > 1) return CreateJump(segment, towards, distance);
 
-        segment.rail = null;
-        segment.bridge = bridge;
-        segment.tunnel = 0;
-        segment.next = null;
-        return segment;
-    }
     // Straight
-    if(Tile.GetComplementSlope(towards) == segment.origin){
-        local rail = RailVector();
-        rail.direction = RailVector.DIRECTION_STRAIGHT;
-        rail.pitch = RailVector.PITCH_LEVEL; // for now
-        rail.length = 1;
+    if(Tile.GetComplementSlope(towards) == segment.origin) return CreateStraight(segment, towards);
 
-        segment.rail = rail;
-        segment.bridge = 0;
-        segment.tunnel = 0;
-        segment.next = null;
-        return segment;
-    }
+    // Taking a turn (diagonal)
+    return CreateTurn(segment, towards);
+}
 
+function RailVectorSegment::CreateJump(segment, towards, distance){
+    // It has to be straight
+    if(Tile.GetComplementSlope(towards) != segment.origin) return null;
+
+    local bridge = RailVector();
+    bridge.direction = RailVector.DIRECTION_STRAIGHT;
+    bridge.pitch = RailVector.PITCH_LEVEL;
+    bridge.length = distance;
+
+    segment.rail = null;
+    segment.bridge = bridge;
+    segment.tunnel = 0;
+    segment.next = null;
+    return segment;
+}
+
+function RailVectorSegment::CreateStraight(){
+    local rail = RailVector();
+    rail.direction = RailVector.DIRECTION_STRAIGHT;
+    rail.pitch = RailVector.PITCH_LEVEL; // for now
+    rail.length = 1;
+
+    segment.rail = rail;
+    segment.bridge = 0;
+    segment.tunnel = 0;
+    segment.next = null;
+    return segment;
+}
+
+function RailVectorSegment::CreateTurn(segment, towards){
+    // Are we going left or right
     local direction = RailVector.DIRECTION_STRAIGHT;
     switch(segment.origin){
         case Tile.SLOPE_NE:
@@ -80,7 +88,8 @@ function RailVectorSegment::Create(from, index, to){
         break;
     }
     
-    if(direction == RailVector.DIRECTION_STRAIGHT) return null;
+    // If this is true, then some idjit make a programming mistake 
+    if(direction == RailVector.DIRECTION_STRAIGHT) throw "Invalid segments";
     
     local rail = RailVector();
     rail.direction = direction;
