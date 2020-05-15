@@ -46,7 +46,7 @@ function RailVectorSegment::CreateStraight(segment, towards){
 
     local rail = RailVector();
     rail.direction = RailVector.DIRECTION_STRAIGHT;
-    if(slope == SLOPE_FLAT){
+    if(slope == Tile.SLOPE_FLAT){
         rail.pitch = RailVector.PITCH_LEVEL;
     }else if(slope == towards){
         rail.pitch = RailVector.PITCH_UP;
