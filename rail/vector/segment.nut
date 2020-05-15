@@ -42,9 +42,18 @@ function RailVectorSegment::CreateJump(segment, towards, distance){
 }
 
 function RailVectorSegment::CreateStraight(segment, towards){
+    local slope = Tile.GetSlope(segment.index);
+
     local rail = RailVector();
     rail.direction = RailVector.DIRECTION_STRAIGHT;
-    rail.pitch = RailVector.PITCH_LEVEL; // for now
+    if(slope == SLOPE_FLAT){
+        rail.pitch = RailVector.PITCH_LEVEL;
+    }else if(slope == towards){
+        rail.pitch = RailVector.PITCH_UP;
+    }else if(slope == segment.origin){
+        rail.pitch = RailVector.PITCH_DOWN;
+    }else throw "Building on slopes not supported";
+
     rail.length = 1;
 
     segment.rail = rail;
