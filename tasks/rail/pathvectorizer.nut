@@ -42,9 +42,11 @@ class RailPathVectorizer extends Task {
         local limit = 100000;
         while(limit--> 0 && this.index < this.path.len()){
             signs.Build(this.path[this.index], "#");
-    
+
             if(this.CanExtend()){
                 this.current.rail.length++;
+
+                this.signs.Build(this.path[this.index - 1], "[" + this.current.rail.length + "]");
             }else{
                 local next = RailVectorSegment.Create(this.path[this.index - 2], this.path[this.index - 1], this.path[this.index]);
                 this.current.next = next;
@@ -52,6 +54,10 @@ class RailPathVectorizer extends Task {
                 
                 // Bridges has a ramp we need to skip
                 if(this.current.bridge) this.index++;
+
+                if(this.current.rail){
+                    signs.Build(this.current.index, "P:" + this.current.rail.pitch);
+                }
             }
     
             this.index++;
@@ -71,7 +77,26 @@ class RailPathVectorizer extends Task {
         local match = this.current.rail.GetTileIndex(this.current.index, this.current.origin, this.current.rail.length + 1);
         if(match != this.path[this.index]) return false;
 
-        this.signs.Build(match, "match");
+        // For straight track that can go up and down check if the height matches
+        if(this.current.rail.direction == RailVector.DIRECTION_STRAIGHT){
+            switch(this.current.rail.pitch){
+                case RailVector.PITCH_LEVEL:
+                    // When level, the tiles should be flat
+                    if(Tile.GetSlope(this.path[this.index - 1]) != Tile.SLOPE_FLAT) return false;
+                    // When level, tiles should be at same height
+                    if(Tile.GetMaxHeight(this.current.index) != Tile.GetMaxHeight(this.path[this.index - 1])) return false;
+                break;
+                case RailVector.PITCH_UP:
+                    // When it go's up the max height should be climbing with the length
+                    if((Tile.GetMaxHeight(this.current.index) + this.current.rail.length) != Tile.GetMaxHeight(this.path[this.index - 1])) return false;
+                break;
+                case RailVector.PITCH_DOWN:
+                    // When it's down the height should drop with the length
+                    if((Tile.GetMinHeight(this.current.index) - this.current.rail.length) != Tile.GetMinHeight(this.path[this.index - 1])) return false;
+                break;
+            }
+        }
+
         return true;
     }
 }
