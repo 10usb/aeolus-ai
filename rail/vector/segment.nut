@@ -1,7 +1,7 @@
 class RailVectorSegment {
     index   = null;
     origin  = null;
-    rail  = null;
+    rail    = null;
     bridge  = null; // When larger the 1, length of the bridge
     tunnel  = null; // When larger the 1, length of the tunnel
     next    = null;
