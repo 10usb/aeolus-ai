@@ -4,18 +4,31 @@ class VectorHandler extends CommandHandler {
     vectors = null;
     signs   = null;
 
+    segments = null;
+    length   = null;
+    index    = null;
+    origin   = null;
+
 	constructor(){
 	    Log.Info("Vector commands");
-        Log.Info(" - !compass");
-        Log.Info(" - !pattern");
-	    Log.Info(" - !finder");
-        Log.Info(" - !add");
-        Log.Info(" - !path");
-        Log.Info(" - !build");
+        Log.Info(" - !compass   Build a vectors in each direction from each origin");
+        Log.Info(" - !pattern   Build a pattern from vectors");
+	    Log.Info(" - !finder    Start a path finder to use");
+        Log.Info(" - !add       Append a tile to the end of the path");
+        Log.Info(" - !path      Turn the path into vectors");
+        Log.Info(" - !optimize  optimize the vectors");
+        Log.Info(" - !build     Build the vectors");
+
+        Log.Info(" - !segment=? Add a segment with a given length");
+        Log.Info(" - !origin    Define the origin of the segment");
+        Log.Info(" - !towards   Define the tile it should point to");
+        Log.Info(" - !intersect Tries to intersect the to segments");
+
         Log.Info(" - !exit");
 
         this.path = [];
-		this.signs = Signs();
+        this.signs = Signs();
+        this.segments = [];
     }
     
     function OnCommand(command, sign_id){
@@ -63,6 +76,12 @@ class VectorHandler extends CommandHandler {
         }else if(command == "!build"){
             AISign.RemoveSign(sign_id);
             RailVectorBuilder.BuildChain(this.vectors.GetRoot());
+        }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
+            try {
+                length = command.slice(9).tointeger();
+            }catch(err){
+                length = 0;
+            }
         }
         return true;
     }
