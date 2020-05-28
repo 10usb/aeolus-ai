@@ -9,14 +9,10 @@ class BuilderHandler extends CommandHandler {
         Log.Info(" - !go            Start connecting the source to the destination");
     }
     
-    function OnCommand(command, sign_id){
+    function OnCommand(command, location){
         if(command == "!exit"){
-            AISign.RemoveSign(sign_id);
             return false;
         }else if(command == "!source" || command == "!destination"){
-            local location = AISign.GetLocation(sign_id);
-            AISign.RemoveSign(sign_id);
-
             local industry_id = Industry.GetIndustryID(location);
 
             if(!Industry.IsValidIndustry(industry_id)){
@@ -31,8 +27,6 @@ class BuilderHandler extends CommandHandler {
                 }
             }
         }else if(command == "!go"){
-            AISign.RemoveSign(sign_id);
-
             local types = AIRailTypeList();
             types.Valuate(Rail.IsRailTypeAvailable);
             types.KeepValue(1);

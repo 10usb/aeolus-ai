@@ -10,5 +10,5 @@ class CommandHandler {
         this._parent = task;
     }
 
-    function OnCommand(command, sign_id);
+    function OnCommand(command, location);
 }

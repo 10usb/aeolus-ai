@@ -19,21 +19,18 @@ class FinderHandler extends CommandHandler {
         this.build = build;
     }
     
-    function OnCommand(command, sign_id){
+    function OnCommand(command, location){
         if(command == "!start"){
-            start = sign_id;
-            AISign.SetName(sign_id, "OK");
+            start = AISign.BuildSign(location, "OK");
         }else if(command == "!end"){
-            finder.AddEndPoint(AISign.GetLocation(sign_id), value);
+            finder.AddEndPoint(location, value);
             value = 0;
-            AISign.RemoveSign(sign_id);
         }else if(command == "!exclude"){
-            finder.AddExclusion(AISign.GetLocation(sign_id));
-            AISign.RemoveSign(sign_id);
+            finder.AddExclusion(location);
         }else if(command == "!from"){
             if(start != null){
                 local index = AISign.GetLocation(start);
-                local towards = AISign.GetLocation(sign_id);
+                local towards = location;
 
                 if(Tile.GetDistanceManhattanToTile(index, towards) == 1){
                     finder.AddStartPoint(index, towards, value);
@@ -43,9 +40,7 @@ class FinderHandler extends CommandHandler {
                 AISign.RemoveSign(start);
                 start = null;
             }
-            AISign.RemoveSign(sign_id);
         }else if(command == "!go"){
-            AISign.RemoveSign(sign_id);
             Log.Info("Start");
 
             finder.Init();
@@ -77,7 +72,6 @@ class FinderHandler extends CommandHandler {
             }catch(err){
                 value = 0;
             }
-            AISign.RemoveSign(sign_id);
         }
         return true;
     }

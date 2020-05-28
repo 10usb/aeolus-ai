@@ -30,7 +30,9 @@ class Debugging extends Task {
             local name = AISign.GetName(sign_id);
 
             if(name.slice(0, 1) == "!"){
-                this.Process(name, sign_id);
+                this.Process(name, AISign.GetLocation(sign_id));
+                AISign.RemoveSign(sign_id);
+
                 previous = AISignList();
                 break;
             }
@@ -47,10 +49,10 @@ class Debugging extends Task {
         Log.Info(" - !builder       Start the builder");
     }
 
-    function Process(command, sign_id){
+    function Process(command, location){
         try {
             if(handler != null){
-                if(!handler.OnCommand(command, sign_id)){
+                if(!handler.OnCommand(command, location)){
                     handler = null;
                     PrintHelp();
                 }
@@ -61,15 +63,12 @@ class Debugging extends Task {
                 }else if(command == "!finder"){
                     handler = FinderHandler();
                     handler.SetParent(this.GetParent());
-                    AISign.RemoveSign(sign_id);
                 }else if(command == "!vector"){
                     handler = VectorHandler();
                     handler.SetParent(this.GetParent());
-                    AISign.RemoveSign(sign_id);
                 }else if(command == "!builder"){
                     handler = BuilderHandler();
                     handler.SetParent(this.GetParent());
-                    AISign.RemoveSign(sign_id);
                 }
             }
         }catch(err){

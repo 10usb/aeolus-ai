@@ -31,33 +31,25 @@ class VectorHandler extends CommandHandler {
         this.segments = [];
     }
     
-    function OnCommand(command, sign_id){
+    function OnCommand(command, location){
         if(finder != null){
-            if(!finder.OnCommand(command, sign_id)){
+            if(!finder.OnCommand(command, location)){
                 this.path = finder.path;
                 this.finder = null;
             }
         }else if(command == "!compass"){
-            this.Compass(sign_id);
-            AISign.RemoveSign(sign_id);
+            this.Compass(location);
         }else if(command == "!pattern"){
-            this.Pattern(sign_id);
-            AISign.RemoveSign(sign_id);
+            this.Pattern(location);
         }else if(command == "!finder"){
             this.finder = FinderHandler(false);
             this.finder.SetParent(this.GetParent());
-            AISign.RemoveSign(sign_id);
         }else if(command == "!exit"){
-            AISign.RemoveSign(sign_id);
             return false;
         }else if(command == "!add"){
-            local index = AISign.GetLocation(sign_id);
-            AISign.RemoveSign(sign_id);
-            this.path.push(index);
+            this.path.push(location);
             this.signs.Build(index, "P" + path.len());
         }else if(command == "!path"){
-            AISign.RemoveSign(sign_id);
-            
             this.vectors = RailPathVectorizer();
             this.vectors.Append(this.path);
 
@@ -66,7 +58,6 @@ class VectorHandler extends CommandHandler {
             queue.EnqueueTask(PrintInfo("Path vectorized"));
             this.GetParent().EnqueueTask(queue);
         }else if(command == "!optimize"){
-            AISign.RemoveSign(sign_id);
             local optimizer = RailVectorOptimizer(this.vectors.GetRoot());
 
             local queue = TaskQueue();
@@ -74,7 +65,6 @@ class VectorHandler extends CommandHandler {
             queue.EnqueueTask(PrintInfo("Vectors optimized"));
             this.GetParent().EnqueueTask(queue);
         }else if(command == "!build"){
-            AISign.RemoveSign(sign_id);
             RailVectorBuilder.BuildChain(this.vectors.GetRoot());
         }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
             try {
@@ -86,9 +76,7 @@ class VectorHandler extends CommandHandler {
         return true;
     }
     
-    function Compass(sign_id){
-        local index = AISign.GetLocation(sign_id);
-
+    function Compass(index){
         local types = AIRailTypeList();
         types.Valuate(Rail.IsRailTypeAvailable);
         types.KeepValue(1);
@@ -114,9 +102,7 @@ class VectorHandler extends CommandHandler {
         }
     }
     
-    function Pattern(sign_id){
-        local index = AISign.GetLocation(sign_id);
-
+    function Pattern(index){
         local types = AIRailTypeList();
         types.Valuate(Rail.IsRailTypeAvailable);
         types.KeepValue(1);
