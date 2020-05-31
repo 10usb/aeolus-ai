@@ -68,10 +68,20 @@ class VectorHandler extends CommandHandler {
             RailVectorBuilder.BuildChain(this.vectors.GetRoot());
         }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
             try {
-                length = command.slice(9).tointeger();
+                this.length = command.slice(9).tointeger();
             }catch(err){
-                length = 0;
+                this.length = 1;
             }
+            this.index = location;
+            AISign.BuildSign(this.index, "OK");
+        }else if(command == "!origin"){
+            Log.Info("Adding origin");
+            this.origin = location;
+        }else if(command == "!towards"){
+            local segment = RailVectorSegment.Create(this.origin, this.index, location);
+            segment.rail.length = length;
+
+            RailVectorBuilder.BuildChain(segment);
         }
         return true;
     }
