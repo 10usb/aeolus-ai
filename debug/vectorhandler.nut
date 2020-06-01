@@ -100,6 +100,7 @@ class VectorHandler extends CommandHandler {
         local terminal = towards.GetExit();
 
         local difference = from.GetVector().difference(terminal.GetVector());
+        Log.Info("Difference:" + difference);
 
         if(from.origin == Tile.GetComplementSlope(terminal.origin)){
             // When the origin is equal to the compliment the square can be on

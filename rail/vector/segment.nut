@@ -3,6 +3,17 @@ class RailVectorSegment extends MapEntry {
     bridge  = null; // When larger the 1, length of the bridge
     tunnel  = null; // When larger the 1, length of the tunnel
     next    = null;
+
+    constructor(){
+    }
+
+    function GetExit(){
+        if(this.rail != null){
+            return MapEntry.CreateFromTile(this.rail.GetTileIndex(this.index, this.origin), this.rail.GetTileIndex(this.index, this.origin, this.rail.length - 1));
+        }
+
+        return null;
+    }
 }
 
 function RailVectorSegment::Create(from, index, to){
