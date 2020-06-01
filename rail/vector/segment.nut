@@ -1,6 +1,4 @@
-class RailVectorSegment {
-    index   = null;
-    origin  = null;
+class RailVectorSegment extends MapEntry {
     rail    = null;
     bridge  = null; // When larger the 1, length of the bridge
     tunnel  = null; // When larger the 1, length of the tunnel

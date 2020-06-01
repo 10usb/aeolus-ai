@@ -11,6 +11,6 @@ class MapEntry {
     }
 }
 
-function MapEntry:CreateFromTile(from, index){
+function MapEntry::CreateFromTile(from, index){
     return MapEntry(index, Tile.GetDirection(index, from));
 }
