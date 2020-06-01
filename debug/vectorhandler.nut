@@ -72,16 +72,22 @@ class VectorHandler extends CommandHandler {
             }catch(err){
                 this.length = 1;
             }
-            this.index = location;
-            AISign.BuildSign(this.index, "OK");
+            this.index = AISign.BuildSign(location, "OK");;
         }else if(command == "!origin"){
             Log.Info("Adding origin");
             this.origin = location;
         }else if(command == "!towards"){
-            local segment = RailVectorSegment.Create(this.origin, this.index, location);
+            local segment = RailVectorSegment.Create(this.origin, AISign.GetLocation(this.index), location);
             segment.rail.length = length;
+            this.segments.push(segment);
 
-            RailVectorBuilder.BuildChain(segment);
+            AISign.RemoveSign(this.index);
+
+            this.signs.Build(segment.index, "L:" + segment.rail.length);
+            this.signs.Build(this.origin, "O");
+            this.signs.Build(location, "T");
+        }else if(command == "!intersect"){
+            
         }
         return true;
     }
