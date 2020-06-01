@@ -87,9 +87,27 @@ class VectorHandler extends CommandHandler {
             this.signs.Build(this.origin, "O");
             this.signs.Build(location, "T");
         }else if(command == "!intersect"){
-            
+            this.Intersect(this.segments[0], this.segments[1]);
         }
         return true;
+    }
+    
+    // To intersect to segments we use the most outwards entries of both and
+    // get the difference of x and y. Of this rectangle we take the square by
+    // using the shortes of x and y. This wil be the diagonal part, the
+    // remaining difference of x and y will be the straight part
+    function Intersect(from, towards){
+        local terminal = towards.GetExit();
+
+        local difference = from.GetVector().difference(terminal.GetVector());
+
+        if(from.origin == Tile.GetComplementSlope(terminal.origin)){
+            // When the origin is equal to the compliment the square can be on
+            // either sides, thus we need to test both. try-ing to maintain the
+            // current diagonal en straight state
+        }else if(from.origin != towards.origin){
+            
+        }
     }
     
     function Compass(index){

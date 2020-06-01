@@ -12,9 +12,11 @@ require("utils/storage.nut");
 require("utils/cache.nut");
 require("utils/preference.nut");
 
-require("utils/map/vector.nut");
+require("utils/vector2d.nut");
+
 require("utils/map/entry.nut");
 require("utils/map/matrix.nut");
+require("utils/map/vector.nut");
 
 // Data types
 require("data/airport.nut");

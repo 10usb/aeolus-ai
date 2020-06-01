@@ -9,6 +9,10 @@ class MapEntry {
         this.index	= index;
         this.origin	= origin;
     }
+
+    function GetVector(){
+        return Vector2D(Tile.GetX(this.index), Tile.GetY(this.index));
+    }
 }
 
 function MapEntry::CreateFromTile(from, index){
