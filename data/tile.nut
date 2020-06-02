@@ -1,4 +1,7 @@
 class Tile extends AITile {
+	static AXIS_INVALID = 0;
+	static AXIS_X = 1;
+	static AXIS_Y = 2;
 }
 
 // Copy these tile related method from Map to the Tile class for consistancy
@@ -97,4 +100,14 @@ function Tile::GetAngle(from, towards){
 	local tx = Tile.GetX(towards);
 	local ty = Tile.GetY(towards);
 	return atan2(ty - oy, tx - ox) * 360 / (PI * 2);
+}
+
+function Tile::GetAxis(slope){
+	switch(slope){
+		case Tile.SLOPE_NE: return Tile.AXIS_X;
+		case Tile.SLOPE_NW: return Tile.AXIS_Y;
+		case Tile.SLOPE_SW: return Tile.AXIS_X;
+		case Tile.SLOPE_SE: return Tile.AXIS_Y;
+	}
+	return Tile.AXIS_INVALID;
 }

@@ -100,11 +100,17 @@ class VectorHandler extends CommandHandler {
         local terminal = towards.GetExit();
 
         local difference = from.GetVector().difference(terminal.GetVector());
+
+        if(difference.x == 0 || difference.y == 0){
+            Log.Info("Idk");
+            return;
+        }
+
         Log.Info("Difference:" + difference);
 
         if(from.origin == Tile.GetComplementSlope(terminal.origin)){
             // When the origin is equal to the compliment the square can be on
-            // either sides, thus we need to test both. try-ing to maintain the
+            // either sides, thus we need to test both. prefering to maintain the
             // current diagonal en straight state
         }else if(from.origin != towards.origin){
             

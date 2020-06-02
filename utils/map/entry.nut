@@ -13,6 +13,10 @@ class MapEntry {
     function GetVector(){
         return Vector2D(Tile.GetX(this.index), Tile.GetY(this.index));
     }
+
+    function GetAxis(){
+        return Tile.GetAxis(this.origin);
+    }
 }
 
 function MapEntry::CreateFromTile(from, index){
