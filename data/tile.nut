@@ -111,3 +111,12 @@ function Tile::GetAxis(slope){
 	}
 	return Tile.AXIS_INVALID;
 }
+
+function Tile::GetAxisName(axis){
+	switch(axis){
+		case Tile.AXIS_INVALID: return "Invalid";
+		case Tile.AXIS_X: return "X-axis";
+		case Tile.AXIS_Y: return "Y-axis";
+	}
+	throw("Unknown Slope");
+}
