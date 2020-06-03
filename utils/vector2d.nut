@@ -11,10 +11,14 @@ class Vector2D {
         return Vector2D(vector.x - this.x, vector.y - this.y);
     }
 
+    function absolute(){
+        return Vector2D(abs(this.x), abs(this.y));
+    }
+
     function normalize(){
         local max = abs(x) > abs(y) ? abs(x) : abs(y);
-        x = x / max;
-        y = y / max;
+        this.x = x / max;
+        this.y = y / max;
         return this;
     }
 
