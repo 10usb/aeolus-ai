@@ -5,14 +5,20 @@
  class RailSegmentBuilder extends Task {
     railType = null;
     current = null;
+    close = null;
     
-	constructor(railType, root){
+	constructor(railType, root, close){
         this.railType = railType;
         this.current = root;
+        this.close = close;
 	}
 
     function GetName(){
         return "RailVectorBuilder";
+    }
+
+    function Finalize(){
+        this.close = true;
     }
 
     function Run(){
@@ -21,6 +27,11 @@
         while(this.current.next != null){
             this.Build();
             this.current = this.current.next;
+        }
+
+        if(this.close){
+            Log.Info("Closing...");
+            this.Build();
         }
         
         return false;
@@ -33,6 +44,8 @@
         }else if(this.current.bridge != null){
             //signs.Build(current.index, "bridge");
             RailVectorBuilder.BuildBridge(this.current.bridge, this.current.index, this.current.origin);
+        }else{
+            Log.Info("Building someting...");
         }
     }
 }
