@@ -7,12 +7,14 @@
 class RailPathOptimizer extends Task {
     railType = null;
     vectorizer = null;
+    builder = null;
     state = null;
     current = null;
     
 	constructor(railType){
         this.railType = railType;
         this.vectorizer = RailPathVectorizer();
+        this.builder = null;
         this.state = 0;
         this.current = null;
 	}
@@ -30,7 +32,8 @@ class RailPathOptimizer extends Task {
     }
 
     function Finalize(){
-        this.state = 3;
+        this.LoadBuilder();
+        this.builder.Finalize();
     }
 
     function Run(){
@@ -41,53 +44,18 @@ class RailPathOptimizer extends Task {
         }
 
         if(this.state == 2){
-            if(this.current == null){
-                this.current = this.vectorizer.GetRoot();
-            }
-
-            Rail.SetCurrentRailType(this.railType);
-
-            while(this.current.next != null){
-                if(this.current.rail != null){
-                    //signs.Build(current.index, "rail");
-                    RailVectorBuilder.BuildRail(this.current.rail, this.current.index, this.current.origin);
-                }else if(this.current.bridge != null){
-                    //signs.Build(current.index, "bridge");
-                    RailVectorBuilder.BuildBridge(this.current.bridge, this.current.index, this.current.origin);
-                }
-                this.current = this.current.next;
-            }
-            
+            this.LoadBuilder();
+            this.PushTask(this.builder);
             this.state = 0;
-            return false;
-        }
-
-        if(this.state == 3){
-            this.PushTask(this.vectorizer);
-            this.state = 4;
             return true;
         }
 
-        if(this.state == 4){
-            if(this.current == null){
-                this.current = this.vectorizer.GetRoot();
-            }
-
-            Rail.SetCurrentRailType(this.railType);
-
-            while(this.current != null){
-                if(this.current.rail != null){
-                    //signs.Build(current.index, "rail");
-                    RailVectorBuilder.BuildRail(this.current.rail, this.current.index, this.current.origin);
-                }else if(this.current.bridge != null){
-                    //signs.Build(current.index, "bridge");
-                    RailVectorBuilder.BuildBridge(this.current.bridge, this.current.index, this.current.origin);
-                }
-                this.current = this.current.next;
-            }
-            return false;
-        }
-
         return false;
+    }
+
+    function LoadBuilder(){
+        if(this.builder == null){
+            this.builder = RailSegmentBuilder(this.railType, this.vectorizer.GetRoot(), false);
+        }
     }
 }

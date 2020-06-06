@@ -30,7 +30,6 @@
         }
 
         if(this.close){
-            Log.Info("Closing...");
             this.Build();
         }
         
@@ -45,7 +44,7 @@
             //signs.Build(current.index, "bridge");
             RailVectorBuilder.BuildBridge(this.current.bridge, this.current.index, this.current.origin);
         }else{
-            Log.Info("Building someting...");
+            Log.Info("Building someting i guess...");
         }
     }
 }
