@@ -65,7 +65,12 @@ class VectorHandler extends CommandHandler {
             queue.EnqueueTask(PrintInfo("Vectors optimized"));
             this.GetParent().EnqueueTask(queue);
         }else if(command == "!build"){
-            RailVectorBuilder.BuildChain(this.vectors.GetRoot());
+            local types = AIRailTypeList();
+            types.Valuate(Rail.IsRailTypeAvailable);
+            types.KeepValue(1);
+            local railType = types.Begin();
+
+            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true));
         }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
             try {
                 this.length = command.slice(9).tointeger();
@@ -88,7 +93,13 @@ class VectorHandler extends CommandHandler {
             this.signs.Build(location, "T");
         }else if(command == "!intersect"){
             this.Intersect(this.segments[0], this.segments[1]);
-            RailVectorBuilder.BuildChain(this.segments[0]);
+
+            local types = AIRailTypeList();
+            types.Valuate(Rail.IsRailTypeAvailable);
+            types.KeepValue(1);
+            local railType = types.Begin();
+
+            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.segments[0], true));
             this.segments = [];
         }
         return true;
