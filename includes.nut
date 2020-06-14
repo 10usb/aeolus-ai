@@ -53,8 +53,8 @@ require("rail/vector/intersecter.nut");
 require("rail/vector/segment.nut");
 
 // Debugging
-require("debug/builderhandler.nut");
 require("debug/commandhandler.nut");
+require("debug/builderhandler.nut");
 require("debug/finderhandler.nut");
 require("debug/segmenthandler.nut");
 require("debug/vectorhandler.nut");

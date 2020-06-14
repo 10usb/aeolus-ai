@@ -1,52 +1,66 @@
 class SegmentHandler extends CommandHandler {
-    root     = null;
+    start    = null;
     origin   = null;
 
-
-    path    = null;
-    vectors = null;
-    signs   = null;
-
-    segments = null;
-    length   = null;
-    index    = null;
-    
+    root     = null;
+    current  = null;
 
 	constructor(){
 	    Log.Info("Segment commands");
-        Log.Info(" - !root      Define the tile the root segment starts");
+        Log.Info(" - !start     Define the starting tile");
         Log.Info(" - !origin    Define the origin for the root segment");
         Log.Info(" - !segment=? Add a segment with a given length");
         Log.Info(" - !optimize  Tries to optimize the segments");
         Log.Info(" - !exit");
 
-        this.root     = null;
+        this.start    = null;
         this.origin   = null;
+        this.root     = null;
+        this.current  = null;
     }
     
     function OnCommand(command, location){
         if(command == "!exit"){
             return false;
+        }else if(command == "!start"){
+            this.start = AISign.BuildSign(location, "OK");
+        }else  if(command == "!origin"){
+            this.origin = AISign.BuildSign(location, "O");
         }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
+            local length = null;
             try {
-                this.length = command.slice(9).tointeger();
+                length = command.slice(9).tointeger();
             }catch(err){
-                this.length = 1;
             }
-            this.index = AISign.BuildSign(location, "OK");;
-        }else if(command == "!origin"){
-            Log.Info("Adding origin");
-            this.origin = location;
-        }else if(command == "!towards"){
-            local segment = RailVectorSegment.Create(this.origin, AISign.GetLocation(this.index), location);
+            
+            if(length == null){
+                Log.Warn("Failed to parse length");
+                return true;
+            }
+
+            local segment = RailVectorSegment.Create(AISign.GetLocation(this.origin), AISign.GetLocation(this.start), location);
             segment.rail.length = length;
-            this.segments.push(segment);
 
-            AISign.RemoveSign(this.index);
+            local origin = segment.rail.GetTileIndex(segment.index, segment.origin, segment.rail.length - 1);
+            local next = segment.rail.GetTileIndex(segment.index, segment.origin, segment.rail.length);
+            
+            this.origin = AISign.BuildSign(origin, "O");
+            this.start = AISign.BuildSign(next, "N");
 
-            this.signs.Build(segment.index, "L:" + segment.rail.length);
-            this.signs.Build(this.origin, "O");
-            this.signs.Build(location, "T");
+            if(this.current == null){
+                this.root = segment;
+                this.current = segment;
+            }else{
+                this.current.next = segment;
+                this.current = segment;
+            }
+        }else if(command == "!build"){
+            local types = AIRailTypeList();
+            types.Valuate(Rail.IsRailTypeAvailable);
+            types.KeepValue(1);
+            local railType = types.Begin();
+
+            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.root, true));
         }else if(command == "!intersect"){
             RailVectorIntersecter.Intersect(this.segments[0], this.segments[1]);
 

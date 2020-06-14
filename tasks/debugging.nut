@@ -47,6 +47,7 @@ class Debugging extends Task {
         Log.Info(" - !finder        To find a path");
         Log.Info(" - !vector        Use vectors to build rail");
         Log.Info(" - !builder       Start the builder");
+        Log.Info(" - !segment       Segments & vectors");
     }
 
     function Process(command, location){
@@ -68,6 +69,9 @@ class Debugging extends Task {
                     handler.SetParent(this.GetParent());
                 }else if(command == "!builder"){
                     handler = BuilderHandler();
+                    handler.SetParent(this.GetParent());
+                }else if(command == "!segment"){
+                    handler = SegmentHandler();
                     handler.SetParent(this.GetParent());
                 }
             }
