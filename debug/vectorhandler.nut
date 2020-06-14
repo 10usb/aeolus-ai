@@ -18,12 +18,6 @@ class VectorHandler extends CommandHandler {
         Log.Info(" - !path      Turn the path into vectors");
         Log.Info(" - !optimize  optimize the vectors");
         Log.Info(" - !build     Build the vectors");
-
-        Log.Info(" - !segment=? Add a segment with a given length");
-        Log.Info(" - !origin    Define the origin of the segment");
-        Log.Info(" - !towards   Define the tile it should point to");
-        Log.Info(" - !intersect Tries to intersect the to segments");
-
         Log.Info(" - !exit");
 
         this.path = [];
@@ -37,6 +31,8 @@ class VectorHandler extends CommandHandler {
                 this.path = finder.path;
                 this.finder = null;
             }
+        }else if(command == "!exit"){
+            return false;
         }else if(command == "!compass"){
             this.Compass(location);
         }else if(command == "!pattern"){
@@ -44,8 +40,6 @@ class VectorHandler extends CommandHandler {
         }else if(command == "!finder"){
             this.finder = FinderHandler(false);
             this.finder.SetParent(this.GetParent());
-        }else if(command == "!exit"){
-            return false;
         }else if(command == "!add"){
             this.path.push(location);
             this.signs.Build(index, "P" + path.len());
@@ -71,37 +65,8 @@ class VectorHandler extends CommandHandler {
             local railType = types.Begin();
 
             this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true));
-        }else if(command.len() > 9 && command.slice(0, 9) == "!segment="){
-            try {
-                this.length = command.slice(9).tointeger();
-            }catch(err){
-                this.length = 1;
-            }
-            this.index = AISign.BuildSign(location, "OK");;
-        }else if(command == "!origin"){
-            Log.Info("Adding origin");
-            this.origin = location;
-        }else if(command == "!towards"){
-            local segment = RailVectorSegment.Create(this.origin, AISign.GetLocation(this.index), location);
-            segment.rail.length = length;
-            this.segments.push(segment);
-
-            AISign.RemoveSign(this.index);
-
-            this.signs.Build(segment.index, "L:" + segment.rail.length);
-            this.signs.Build(this.origin, "O");
-            this.signs.Build(location, "T");
-        }else if(command == "!intersect"){
-            RailVectorIntersecter.Intersect(this.segments[0], this.segments[1]);
-
-            local types = AIRailTypeList();
-            types.Valuate(Rail.IsRailTypeAvailable);
-            types.KeepValue(1);
-            local railType = types.Begin();
-
-            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.segments[0], true));
-            this.segments = [];
         }
+
         return true;
     }
     
