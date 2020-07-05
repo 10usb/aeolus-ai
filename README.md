@@ -1,11 +1,12 @@
 # Aeolus AI
-This is an attempt to create an AI for OpenTTD. After being annoyed by the other AI's for not being able to maintain profitable by obvious reasons.
+This is an attempt to create an AI for OpenTTD. I started this a while back, after getting annoyed by the other AI's for not being able to maintain profitable by obvious reasons. Now days it's alot better, but there still not very competitive. And do stuff like building a track over the Mount Everest instead of buildng around it. Thus needing twice as much travel time.
 
 ## Goals
+Over the time that has passed and many attempts and tests and playing with the other AI's I've build a list of what the AI should be able to do.
 - Impliment all transportation types
 - Build smooth rail by terraforming the terrain a bit
 - Build rail-networks
-- Optimizing rail when posible, not leaving bridges over nothing due to other obstruction have gone
+- Constantly optimizing rail when posible, not leaving bridges over nothing due to other obstruction have gone.
 - Having multiple personalities
     - Favor's some goods over others
     - Favor some transportation types over others
@@ -23,4 +24,6 @@ This is an attempt to create an AI for OpenTTD. After being annoyed by the other
 - Invest in coastal cities by expanding land into sea with islands
 
 ## What can it do
-At the moment it's able to build when instructed to by using the sign posts for commands. It once was able to construct airports with planes all by it's self and keep profitable with the maintanance setting on. At least with small airports, the step into large airports takes a toll of more then a couple of millions and there was a 10% chance it survived that. So without aid of buses tranfering enough passengers and mail to the airports until the cities have grown around it, it was still hopeless. Then some stuff got refactored in combination with some memory loss of mine..... and it's now broke. Lately most of my effort goes into making trains work.
+It once was able to construct airports with planes all by it's self and keep profitable with the maintanance setting on, at least with small airports. The step into large airports takes a toll of more then a couple of millions and there was a 10% chance it survived that transition. So without aid of buses tranfering enough passengers and mail to the airports until the cities have grown around it, it was still hopeless. Then some stuff got refactored in combination with some memory loss of mine..... and it's now broke.
+
+Lately most of my effort goes into making train logic work. It can't do this by it self at the moment. It needs to be instructed to do so with sign posts for commands. For example telling between which 2 industries it has to try to build a functional single track.
