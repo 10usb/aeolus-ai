@@ -18,12 +18,16 @@
     }
     
     function Run(){
-        while(current){
-            if(current.rail){
-                this.FlatIntersect(current);
-            }
+        if(this.current == null){
+            this.current = this.root;
+        }
 
-            current = current.next;
+        while(this.current){
+            if(this.current.rail){
+                this.FlatIntersect(this.current);
+            }
+            
+            this.current = this.current.next;
         }
 
         return false;
@@ -49,40 +53,73 @@
            || pointer.rail == null
            || pointer.rail.pitch != RailVector.PITCH_LEVEL
            || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
-          ) return;
+          ) {
+              Log.Info("1");
+              return;
+          }
 
         // The straight
-        pointer = segment.next;
+        pointer = pointer.next;
         if(pointer == null
             || pointer.rail == null
             || pointer.rail.pitch != RailVector.PITCH_LEVEL
             || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
-           ) return;
+           ) {
+            Log.Info("2");
+            return;
+        }
 
         // And the turn we might be able to connect to
-        pointer = segment.next;
+        pointer = pointer.next;
         if(pointer == null
            || pointer.rail == null
            || pointer.rail.pitch != RailVector.PITCH_LEVEL
            || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
-          ) return;
+          ) {
+            Log.Info("3");
+            return;
+        }
         
-        local reversed = pointer.Reverse();
-        
-        // Getting the tile 2 lengths will result in a +/- 1 in X aswell Y
-        reversed.rail.GetTileIndex(reversed.index, reversed.origin, 2);
-
-        // TODO check if we are moving towards or away from segment
-        
-        // TODO if the straight vector is moving along the x-axis, then get the
-        // terminal tile of the diagonal vector by using y-axis
-        // (difference / 2 + 1) or + 2 if the origin of the diagonal is not the
-        // compliment of the straigt vector compliment. Then the difference in
-        // y-axis of the diagonal may not be larger then the difference between
-        // the indexes of the diagonal and straight vectors
+        Log.Info("I1");
+        RailVectorIntersecter.Intersect(segment, pointer);
     }
     
     function FlatIntersectDiagonal(segment){
+        local pointer = segment.next;
 
+        // The next turn
+        if(pointer == null
+           || pointer.rail == null
+           || pointer.rail.pitch != RailVector.PITCH_LEVEL
+           || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
+          ) {
+            Log.Info("4");
+            return;
+        }
+
+        // The straight
+        pointer = pointer.next;
+        if(pointer == null
+            || pointer.rail == null
+            || pointer.rail.pitch != RailVector.PITCH_LEVEL
+            || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
+           ) {
+            Log.Info("5");
+            return;
+        }
+
+        // And the turn we might be able to connect to
+        pointer = pointer.next;
+        if(pointer == null
+           || pointer.rail == null
+           || pointer.rail.pitch != RailVector.PITCH_LEVEL
+           || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
+          ) {
+            Log.Info("6");
+            return;
+        }
+
+        Log.Info("I1");
+        RailVectorIntersecter.Intersect(segment, pointer);
     }
 }

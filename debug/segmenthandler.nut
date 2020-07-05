@@ -61,6 +61,13 @@ class SegmentHandler extends CommandHandler {
             local railType = types.Begin();
 
             this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.root, true));
+        }else if(command == "!optimize"){
+            local optimizer = RailVectorOptimizer(this.root);
+
+            local queue = TaskQueue();
+            queue.EnqueueTask(optimizer);
+            queue.EnqueueTask(PrintInfo("Optimized"));
+            this.GetParent().EnqueueTask(queue);
         }else if(command == "!intersect"){
             RailVectorIntersecter.Intersect(this.segments[0], this.segments[1]);
 
