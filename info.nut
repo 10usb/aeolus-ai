@@ -16,7 +16,7 @@ class Aeolus extends AIInfo {
 			easy_value = 1,
 			medium_value = 1,
 			hard_value = 1,
-			custom_value = 1,
+			custom_value = 0,
 			flags = AICONFIG_BOOLEAN
 		});
 		AddSetting({
@@ -38,7 +38,7 @@ class Aeolus extends AIInfo {
 			flags = AICONFIG_BOOLEAN
 		});
 		AddSetting({
-			name = "use_road",
+			name = "use_water",
 			description = "Enable water",
 			easy_value = 0,
 			medium_value = 0,
