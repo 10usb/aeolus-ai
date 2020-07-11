@@ -14,6 +14,32 @@ class RailVectorSegment extends MapEntry {
 
         return null;
     }
+
+    /**
+     * Makes a copy of only this segment and this segment also doesn't point to
+     * a next one even if the original did.
+     */
+    function Copy(){
+        local copy = RailVectorSegment();
+        copy.index = this.index;
+        copy.origin = this.origin;
+        if(this.rail) copy.rail = clone this.rail;
+        if(this.bridge) copy.bridge = clone this.bridge;
+        if(this.tunnel) copy.tunnel = clone this.tunnel;
+        return copy;
+    }
+
+    /**
+     * Replaces the inner values with that of the other segment
+     */
+    function ReplaceWith(other){
+        if(this.index != other.index) throw "Index not equal";
+        if(this.origin != other.origin) throw "Origin not equal";
+        this.rail = this.rail ? this.other : null;
+        this.bridge = this.bridge ? this.bridge : null;
+        this.tunnel = this.tunnel ? this.tunnel : null;
+        this.next = other.next;
+    }
 }
 
 function RailVectorSegment::Create(from, index, to){

@@ -81,7 +81,18 @@
         }
         
         Log.Info("I1");
-        RailVectorIntersecter.Intersect(segment, pointer);
+        local new = RailVectorIntersecter.Intersect(segment, pointer);
+        if(false /* "new" is buildable */){
+            segment.ReplaceWith(new);
+
+            // The exit of "new" should be equal to the exit of pointer, thus
+            // we can assume it fits to the next segment of pointer
+            if(segment.next != null){
+                segment.next.next = pointer.next;
+            }else{
+                segment.next = pointer.next;
+            }
+        }
     }
     
     function FlatIntersectDiagonal(segment){
@@ -119,7 +130,18 @@
             return;
         }
 
-        Log.Info("I1");
-        RailVectorIntersecter.Intersect(segment, pointer);
+        Log.Info("I2");
+        local new = RailVectorIntersecter.Intersect(segment, pointer);
+        if(false /* "new" is buildable */){
+            segment.ReplaceWith(new);
+
+            // The exit of "new" should be equal to the exit of pointer, thus
+            // we can assume it fits to the next segment of pointer
+            if(segment.next != null){
+                segment.next.next = pointer.next;
+            }else{
+                segment.next = pointer.next;
+            }
+        }
     }
 }
