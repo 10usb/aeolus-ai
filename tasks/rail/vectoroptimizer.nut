@@ -82,7 +82,7 @@
         
         Log.Info("I1");
         local new = RailVectorIntersecter.Intersect(segment, pointer);
-        if(false /* "new" is buildable */){
+        if(new != null /* && "new" is buildable */){
             segment.ReplaceWith(new);
 
             // The exit of "new" should be equal to the exit of pointer, thus

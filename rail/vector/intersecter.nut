@@ -35,40 +35,48 @@ class RailVectorIntersecter {
             if(extend == 0){
                 Log.Info("only diagonal remain:");
 
+                local copy = from.Copy();
+
                 // If the first is straigt we need to convert it to a diagonal
                 if(from.rail.direction == RailVector.DIRECTION_STRAIGHT){
                     // When the length of the current diagonal is even, then we need to swap direction
                     if((towards.rail.length & 1) == 0){
                         Log.Info("direction swapped");
-                        from.rail.direction= towards.rail.direction * -1;
+                        copy.rail.direction = towards.rail.direction * -1;
                     }else{
-                        from.rail.direction= towards.rail.direction;
+                        copy.rail.direction = towards.rail.direction;
                     }
                 }
 
-                from.rail.length = span * 2 + 1;
-                // second can be skiped so we point to the next of that one
-                from.next = towards.next;
-                // TODO: If the now next is a diagonal and in the same direction it can be merged
+                copy.rail.length = span * 2 + 1;
+                return copy;
             }else if(extend > 0){
                 if(axis == from.GetAxis()){
                     Log.Info("first diagonal, then straight");
                 }else{
                     Log.Info("first straight, then diagonal");
-                    from.rail.length = extend;
+
+                    local copyFrom = from.Copy();
+                    local copyTowards = towards.Copy();
+
+                    copyFrom.rail.length = extend;
 
                     // When the length of the current diagonal is even, then we need to swap direction
                     if((towards.rail.length & 1) == 0){
                         Log.Info("direction swapped");
-                        towards.rail.direction*= -1;
+                        copyTowards.rail.direction*= -1;
                     }
-                    towards.rail.length = span * 2 + 1;
-                    towards.origin = from.origin;
-                    towards.index = from.rail.GetTileIndex(from.index, from.origin);
+                    copyTowards.rail.length = span * 2 + 1;
+                    copyTowards.origin = from.origin;
+                    copyTowards.index = copyFrom.rail.GetTileIndex(from.index, from.origin);
 
-                    from.next = towards;
+                    copyFrom.next = copyTowards;
+
+                    return copyFrom;
                 }
             }
+
+            return null;
         }
     }
 }

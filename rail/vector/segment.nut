@@ -35,9 +35,9 @@ class RailVectorSegment extends MapEntry {
     function ReplaceWith(other){
         if(this.index != other.index) throw "Index not equal";
         if(this.origin != other.origin) throw "Origin not equal";
-        this.rail = this.rail ? this.other : null;
-        this.bridge = this.bridge ? this.bridge : null;
-        this.tunnel = this.tunnel ? this.tunnel : null;
+        this.rail = other.rail;
+        this.bridge = other.bridge;
+        this.tunnel = other.tunnel;
         this.next = other.next;
     }
 }
