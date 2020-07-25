@@ -17,6 +17,10 @@
         return "RailVectorBuilder";
     }
 
+    function GetNext(){
+        return this.current;
+    }
+
     function Finalize(){
         this.close = true;
     }

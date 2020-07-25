@@ -10,6 +10,7 @@ class RailPathOptimizer extends Task {
     builder = null;
     state = null;
     current = null;
+    finalized = null;
     
 	constructor(railType){
         this.railType = railType;
@@ -17,6 +18,7 @@ class RailPathOptimizer extends Task {
         this.builder = null;
         this.state = 0;
         this.current = null;
+        this.finalized = false;
 	}
 
     function GetName(){
@@ -34,6 +36,7 @@ class RailPathOptimizer extends Task {
     function Finalize(){
         this.LoadBuilder();
         this.builder.Finalize();
+        this.finalized = true;
     }
 
     function Run(){
@@ -45,7 +48,10 @@ class RailPathOptimizer extends Task {
 
         if(this.state == 2){
             this.LoadBuilder();
-            this.PushTask(this.builder);
+            local queue = TaskQueue();
+            queue.EnqueueTask(RailVectorOptimizer(this.builder.GetNext(), this.finalized));
+            queue.EnqueueTask(this.builder);
+            this.PushTask(queue);
             this.state = 0;
             return true;
         }

@@ -62,7 +62,7 @@ class SegmentHandler extends CommandHandler {
 
             this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.root, true));
         }else if(command == "!optimize"){
-            local optimizer = RailVectorOptimizer(this.root);
+            local optimizer = RailVectorOptimizer(this.root, true);
 
             local queue = TaskQueue();
             queue.EnqueueTask(optimizer);

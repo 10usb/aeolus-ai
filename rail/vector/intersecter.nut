@@ -10,15 +10,16 @@ class RailVectorIntersecter {
 
         if(difference.x == 0 || difference.y == 0){
             Log.Info("Idk");
-            return;
+            return [];
         }
 
-        Log.Info("Difference:" + difference);
 
         if(from.origin == Tile.GetComplementSlope(terminal.origin)){
             // When the origin is equal to the compliment the square can be on
             // either sides, thus we need to test both. prefering to maintain the
             // current diagonal en straight state
+            Log.Info("Difference:" + difference);
+            
         }else if(from.origin != terminal.origin){
             local absolute = difference.absolute();
             local span = min(absolute.x, absolute.y);
@@ -75,8 +76,8 @@ class RailVectorIntersecter {
                     return [copyFrom];
                 }
             }
-
-            return [];
         }
+        
+        return [];
     }
 }

@@ -8,9 +8,11 @@
  class RailVectorOptimizer extends Task {
     root = null;
     current = null;
+    trail = null;
 
-	constructor(root){
+	constructor(root, trail){
         this.root = root;
+        this.trail = trail;
     }
 
     function GetName(){
@@ -79,6 +81,8 @@
             Log.Info("3");
             return;
         }
+
+        if(pointer.next == null && !trail) return;
         
         
         foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
@@ -132,6 +136,8 @@
             Log.Info("6");
             return;
         }
+
+        if(pointer.next == null && !trail) return;
 
         
         foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
