@@ -49,7 +49,7 @@ class RailVectorIntersecter {
                 }
 
                 copy.rail.length = span * 2 + 1;
-                return copy;
+                return [copy];
             }else if(extend > 0){
                 if(axis == from.GetAxis()){
                     Log.Info("first diagonal, then straight");
@@ -72,11 +72,11 @@ class RailVectorIntersecter {
 
                     copyFrom.next = copyTowards;
 
-                    return copyFrom;
+                    return [copyFrom];
                 }
             }
 
-            return null;
+            return [];
         }
     }
 }

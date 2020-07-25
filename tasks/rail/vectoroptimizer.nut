@@ -82,8 +82,8 @@
         
         Log.Info("I1");
         local new = RailVectorIntersecter.Intersect(segment, pointer);
-        if(new != null /* && "new" is buildable */){
-            segment.ReplaceWith(new);
+        if(new.len() > 0 /* && "new" is buildable */){
+            segment.ReplaceWith(new[0]);
 
             // The exit of "new" should be equal to the exit of pointer, thus
             // we can assume it fits to the next segment of pointer
@@ -132,8 +132,8 @@
 
         Log.Info("I2");
         local new = RailVectorIntersecter.Intersect(segment, pointer);
-        if(false /* "new" is buildable */){
-            segment.ReplaceWith(new);
+        if(new.len() > 0 /* && "new" is buildable */){
+            segment.ReplaceWith(new[0]);
 
             // The exit of "new" should be equal to the exit of pointer, thus
             // we can assume it fits to the next segment of pointer
