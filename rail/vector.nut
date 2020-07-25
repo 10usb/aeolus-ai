@@ -41,6 +41,8 @@ class RailVector {
     // @param origin The side of the tile the vector is originating from
     // @return The tile index next inline
     function GetTileIndex(index, origin, length = -1){
+        if(length == 0) return index;
+
         local x = AIMap.GetTileX(index);
         local y = AIMap.GetTileY(index);
 
