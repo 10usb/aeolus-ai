@@ -26,6 +26,7 @@ class RailVectorSegment extends MapEntry {
         if(this.rail) copy.rail = clone this.rail;
         if(this.bridge) copy.bridge = clone this.bridge;
         if(this.tunnel) copy.tunnel = clone this.tunnel;
+        copy.next = null;
         return copy;
     }
 
