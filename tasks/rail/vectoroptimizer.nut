@@ -81,16 +81,17 @@
         }
         
         Log.Info("I1");
-        local new = RailVectorIntersecter.Intersect(segment, pointer);
-        if(new.len() > 0 /* && "new" is buildable */){
-            segment.ReplaceWith(new[0]);
+        foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
+            if(this.CanBuild(new)){
+                segment.ReplaceWith(new);
 
-            // The exit of "new" should be equal to the exit of pointer, thus
-            // we can assume it fits to the next segment of pointer
-            if(segment.next != null){
-                segment.next.next = pointer.next;
-            }else{
-                segment.next = pointer.next;
+                // The exit of "new" should be equal to the exit of pointer, thus
+                // we can assume it fits to the next segment of pointer
+                if(segment.next != null){
+                    segment.next.next = pointer.next;
+                }else{
+                    segment.next = pointer.next;
+                }
             }
         }
     }
@@ -131,17 +132,22 @@
         }
 
         Log.Info("I2");
-        local new = RailVectorIntersecter.Intersect(segment, pointer);
-        if(new.len() > 0 /* && "new" is buildable */){
-            segment.ReplaceWith(new[0]);
+        foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
+            if(this.CanBuild(new)){
+                segment.ReplaceWith(new);
 
-            // The exit of "new" should be equal to the exit of pointer, thus
-            // we can assume it fits to the next segment of pointer
-            if(segment.next != null){
-                segment.next.next = pointer.next;
-            }else{
-                segment.next = pointer.next;
+                // The exit of "new" should be equal to the exit of pointer, thus
+                // we can assume it fits to the next segment of pointer
+                if(segment.next != null){
+                    segment.next.next = pointer.next;
+                }else{
+                    segment.next = pointer.next;
+                }
             }
         }
+    }
+    
+    function CanBuild(segment){
+        return true;
     }
 }
