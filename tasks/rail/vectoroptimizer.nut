@@ -25,7 +25,7 @@
         }
 
         while(this.current){
-            if(this.current.rail){
+            if(this.current.rail && this.current.rail.pitch != RailVector.PITCH_LEVEL){
                 this.FlatIntersect(this.current);
             }
             
