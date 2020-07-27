@@ -24,15 +24,18 @@
             this.current = this.root;
         }
 
+        local changed = false;
         while(this.current){
-            if(this.current.rail && this.current.rail.pitch != RailVector.PITCH_LEVEL){
-                this.FlatIntersect(this.current);
+            if(this.current.rail && this.current.rail.pitch == RailVector.PITCH_LEVEL){
+                if(this.FlatIntersect(this.current))
+                    changed = true;
             }
             
             this.current = this.current.next;
         }
 
         return false;
+        //return changed;
     }
 
     /**
@@ -41,9 +44,9 @@
      */
     function FlatIntersect(segment){
         if(segment.rail.direction == RailVector.DIRECTION_STRAIGHT){
-            this.FlatIntersectStraight(segment);
+            return this.FlatIntersectStraight(segment);
         }else{
-            this.FlatIntersectDiagonal(segment);
+            return this.FlatIntersectDiagonal(segment);
         }
     }
     
@@ -57,7 +60,7 @@
            || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
           ) {
               Log.Info("1");
-              return;
+              return false;
           }
 
         // The straight
@@ -68,7 +71,7 @@
             || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
            ) {
             Log.Info("2");
-            return;
+            return false;
         }
 
         // And the turn we might be able to connect to
@@ -79,10 +82,10 @@
            || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
           ) {
             Log.Info("3");
-            return;
+            return false;
         }
 
-        if(pointer.next == null && !trail) return;
+        if(pointer.next == null && !trail) return false;
         
         
         foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
@@ -97,9 +100,10 @@
                 }else{
                     segment.next = pointer.next;
                 }
-                break;
+                return true;
             }
         }
+        return false;
     }
     
     function FlatIntersectDiagonal(segment){
@@ -112,7 +116,7 @@
            || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
           ) {
             Log.Info("4");
-            return;
+            return false;
         }
 
         // The straight
@@ -123,7 +127,7 @@
             || pointer.rail.direction == RailVector.DIRECTION_STRAIGHT
            ) {
             Log.Info("5");
-            return;
+            return false;
         }
 
         // And the turn we might be able to connect to
@@ -134,7 +138,7 @@
            || pointer.rail.direction != RailVector.DIRECTION_STRAIGHT
           ) {
             Log.Info("6");
-            return;
+            return false;
         }
 
         if(pointer.next == null && !trail) return;
@@ -152,9 +156,10 @@
                 }else{
                     segment.next = pointer.next;
                 }
-                break;
+                return true;
             }
         }
+        return false;
     }
     
     function CanBuild(segment){
