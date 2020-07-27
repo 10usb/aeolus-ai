@@ -36,6 +36,11 @@ class RailVectorIntersecter {
 
                 copyTowards.index = copyFrom.rail.GetTileIndex(copyFrom.index, copyFrom.origin);
                 copyTowards.rail.length = span * 2;
+                if((towards.rail.length & 1) == 1){
+                    Log.Info("direction swapped");
+                    copyTowards.rail.direction = towards.rail.direction * -1;
+                    copyTowards.origin = copyFrom.origin;
+                }
                 copyFrom.next = copyTowards;
                 
                 return [copyFrom];
