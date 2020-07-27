@@ -15,11 +15,47 @@ class RailVectorIntersecter {
 
 
         if(from.origin == Tile.GetComplementSlope(terminal.origin)){
-            // When the origin is equal to the compliment the square can be on
-            // either sides, thus we need to test both. prefering to maintain the
-            // current diagonal en straight state
+            // When the origin is equal to the compliment, the square can be on
+            // either sides. Thus we need to test both sides. Prefering to
+            // maintain the current diagonal en straight state
             Log.Info("Difference:" + difference);
-            
+
+            local absolute = difference.absolute();
+            local span = min(absolute.x, absolute.y);
+            local extend = max(absolute.x, absolute.y) - span;
+
+            Log.Info("span:" + span);
+            Log.Info("extend:" + extend);
+
+            if(from.rail.direction == RailVector.DIRECTION_STRAIGHT){
+                Log.Info("first straight, then diagonal");
+
+                local copyFrom = from.Copy();
+                local copyTowards = towards.Copy();
+                copyFrom.rail.length = extend + 1;
+
+                copyTowards.index = copyFrom.rail.GetTileIndex(copyFrom.index, copyFrom.origin);
+                copyTowards.rail.length = span * 2;
+                copyFrom.next = copyTowards;
+                
+                return [copyFrom];
+
+                Log.Info("second diagonal, then straight");
+            }else{
+                Log.Info("first diagonal, then straight");
+
+                local copyFrom = from.Copy();
+                local copyTowards = towards.Copy();
+                copyFrom.rail.length = span * 2;
+                
+                copyTowards.index = copyFrom.rail.GetTileIndex(copyFrom.index, copyFrom.origin);
+                copyTowards.rail.length = extend + 1;
+                copyFrom.next = copyTowards;
+                
+                return [copyFrom];
+
+                Log.Info("second straight, then diagonal");
+            }
         }else if(from.origin != terminal.origin){
             local absolute = difference.absolute();
             local span = min(absolute.x, absolute.y);
