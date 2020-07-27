@@ -1,6 +1,7 @@
 /**
  * The task will automaticly build vector segments except the last one, leaving
  * that one open for optimization
+ * TODO: Added option to not build the last 30 tiles or so, when not finalized
  */
  class RailSegmentBuilder extends Task {
     railType = null;
