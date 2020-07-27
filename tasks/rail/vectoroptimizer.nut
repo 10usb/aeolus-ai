@@ -165,10 +165,15 @@
             tiles.AddItem(index, 0);
         }
 
+        local count = tiles.Count();
+
         tiles.Valuate(Tile.IsBuildable);
+        tiles.RemoveValue(0);
+        if(tiles.Count() != count) return false;
+
+        tiles.Valuate(Tile.IsCoastTile);
         tiles.RemoveValue(1);
-        if(tiles.Count() > 0)
-            return false;
+        if(tiles.Count() != count) return false;
 
         if(segment.next == null) return true;
 
