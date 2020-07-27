@@ -41,12 +41,12 @@ class RailPathVectorizer extends Task {
 
         local limit = 100000;
         while(limit--> 0 && this.index < this.path.len()){
-            signs.Build(this.path[this.index], "#");
+            //signs.Build(this.path[this.index], "#");
 
             if(this.CanExtend()){
                 this.current.rail.length++;
 
-                this.signs.Build(this.path[this.index - 1], "[" + this.current.rail.length + "]");
+                //this.signs.Build(this.path[this.index - 1], "[" + this.current.rail.length + "]");
             }else{
                 local next = RailVectorSegment.Create(this.path[this.index - 2], this.path[this.index - 1], this.path[this.index]);
                 this.current.next = next;
@@ -56,7 +56,7 @@ class RailPathVectorizer extends Task {
                 if(this.current.bridge) this.index++;
 
                 if(this.current.rail){
-                    signs.Build(this.current.index, "P:" + this.current.rail.pitch);
+                    //signs.Build(this.current.index, "P:" + this.current.rail.pitch);
                 }
             }
     
