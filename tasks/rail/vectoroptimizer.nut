@@ -170,18 +170,41 @@
             tiles.AddItem(index, 0);
         }
 
+        // Get the count to compare against, as one invalid removed makes the equation false
         local count = tiles.Count();
 
+        // Make sure the tiles are buildable
         tiles.Valuate(Tile.IsBuildable);
         tiles.RemoveValue(0);
         if(tiles.Count() != count) return false;
 
+        // Although costal tiles aren't flat this is faster
         tiles.Valuate(Tile.IsCoastTile);
         tiles.RemoveValue(1);
         if(tiles.Count() != count) return false;
 
-        if(segment.next == null) return true;
+        // Check is the rail parts of a tile are flat
+        if(!this.IsFlat(segment)) return false;
 
+        if(segment.next == null) return true;
         return this.CanBuild(segment.next);
+    }
+    
+    function IsFlat(segment){
+        // Checking the flatness of straight tile is easy, we just get the slope of it, and it needs to be flat
+        if(segment.rail.direction == RailVector.DIRECTION_STRAIGHT){
+            for(local offset = 0; offset < segment.rail.length; offset++){
+                local index = segment.rail.GetTileIndex(segment.index, segment.origin, offset);
+                if(Tile.GetSlope(index) != Tile.SLOPE_FLAT) return false;
+            }
+            return true;
+        }
+
+        // TODO check only the corners that need to be flat
+        for(local offset = 0; offset < segment.rail.length; offset++){
+            local index = segment.rail.GetTileIndex(segment.index, segment.origin, offset);
+            if(Tile.GetSlope(index) != Tile.SLOPE_FLAT) return false;
+        }
+        return true;
     }
 }
