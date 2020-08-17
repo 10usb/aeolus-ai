@@ -93,8 +93,8 @@ function RailVectorSegment::CreateStraight(segment, towards){
     rail.length = 1;
 
     segment.rail = rail;
-    segment.bridge = 0;
-    segment.tunnel = 0;
+    segment.bridge = null;
+    segment.tunnel = null;
     segment.next = null;
     return segment;
 }
@@ -142,8 +142,8 @@ function RailVectorSegment::CreateTurn(segment, towards){
     rail.length = 1;
 
     segment.rail = rail;
-    segment.bridge = 0;
-    segment.tunnel = 0;
+    segment.bridge = null;
+    segment.tunnel = null;
     segment.next = null;
     return segment;
 }
