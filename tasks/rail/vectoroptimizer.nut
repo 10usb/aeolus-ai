@@ -88,7 +88,7 @@
         if(pointer.next == null && !trail) return false;
         
         
-        foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
+        foreach(new in RailVectorIntersecter.Intersect(segment, pointer.GetExit())){
             if(this.CanBuild(new)){
                 Log.Info("I1");
                 segment.ReplaceWith(new);
@@ -144,7 +144,7 @@
         if(pointer.next == null && !trail) return;
 
         
-        foreach(new in RailVectorIntersecter.Intersect(segment, pointer)){
+        foreach(new in RailVectorIntersecter.Intersect(segment, pointer.GetExit())){
             if(this.CanBuild(new)){
                 Log.Info("I2");
                 segment.ReplaceWith(new);

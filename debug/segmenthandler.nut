@@ -69,7 +69,7 @@ class SegmentHandler extends CommandHandler {
             queue.EnqueueTask(PrintInfo("Optimized"));
             this.GetParent().EnqueueTask(queue);
         }else if(command == "!intersect"){
-            RailVectorIntersecter.Intersect(this.segments[0], this.segments[1]);
+            RailVectorIntersecter.Intersect(this.segments[0], this.segments[1].GetExit());
 
             local types = AIRailTypeList();
             types.Valuate(Rail.IsRailTypeAvailable);
