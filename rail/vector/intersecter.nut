@@ -126,11 +126,11 @@ class RailVectorIntersecter {
                 if(difference.x == 0) throw("Invalid difference");
                 return difference.x > 0 ? RailVector.DIRECTION_LEFT : RailVector.DIRECTION_RIGHT;
             case Tile.SLOPE_NE:
-                if(difference.x == 0) throw("Invalid difference");
-                return difference.x > 0 ? RailVector.DIRECTION_LEFT : RailVector.DIRECTION_RIGHT;
+                if(difference.y == 0) throw("Invalid difference");
+                return difference.y > 0 ? RailVector.DIRECTION_LEFT : RailVector.DIRECTION_RIGHT;
             case Tile.SLOPE_SW:
-                if(difference.x == 0) throw("Invalid difference");
-                return difference.x < 0 ? RailVector.DIRECTION_LEFT : RailVector.DIRECTION_RIGHT;
+                if(difference.y == 0) throw("Invalid difference");
+                return difference.y < 0 ? RailVector.DIRECTION_LEFT : RailVector.DIRECTION_RIGHT;
         }
         throw("Unknown Slope");
     }
