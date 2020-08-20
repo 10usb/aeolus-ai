@@ -120,3 +120,14 @@ function Tile::GetAxisName(axis){
 	}
 	throw("Unknown Slope");
 }
+
+function Tile::GetCorners(slope){
+	local list = List();
+
+	if((slope & Tile.SLOPE_N) != 0) list.AddItem(Tile.CORNER_N, 0);
+	if((slope & Tile.SLOPE_E) != 0) list.AddItem(Tile.CORNER_E, 0);
+	if((slope & Tile.SLOPE_S) != 0) list.AddItem(Tile.CORNER_S, 0);
+	if((slope & Tile.SLOPE_W) != 0) list.AddItem(Tile.CORNER_E, 0);
+
+	return list;
+}
