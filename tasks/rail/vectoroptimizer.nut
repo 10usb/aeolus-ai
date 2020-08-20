@@ -34,8 +34,7 @@
             this.current = this.current.next;
         }
 
-        return false;
-        //return changed;
+        return changed;
     }
 
     /**
@@ -200,11 +199,30 @@
             return true;
         }
 
-        // TODO check only the corners that need to be flat
-        for(local offset = 0; offset < segment.rail.length; offset++){
-            local index = segment.rail.GetTileIndex(segment.index, segment.origin, offset);
-            if(Tile.GetSlope(index) != Tile.SLOPE_FLAT) return false;
+        local height = 0;
+        foreach(corner, value in Tile.GetCorners(segment.origin)){
+            height+= Tile.GetCornerHeight(segment.index,  corner);
         }
+
+        // 2 corners at different level should be uneven
+        if(height & 1) return false;
+
+        // Now normalize to 1
+        height = height / 2;
+        
+        // TODO check only the corners that need to be flat
+        for(local offset = 1; offset < segment.rail.length; offset++){
+            local index = segment.rail.GetTileIndex(segment.index, segment.origin, offset);
+
+            if(Tile.GetSlope(index) == Tile.SLOPE_FLAT) continue;
+
+            local origin = segment.rail.GetTileOrigin(segment.origin, offset);
+            
+            foreach(corner, value in Tile.GetCorners(origin)){
+                if(Tile.GetCornerHeight(index,  corner) != height) return false;
+            }
+        }
+
         return true;
     }
 }
