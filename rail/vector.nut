@@ -13,22 +13,24 @@ class RailVector {
 
 
     // Returns the origin the tile needs to have to connect to the end of this vector
-    function GetTileOrigin(origin){
+    function GetTileOrigin(origin, length = -1){
+        if(length < 0) length = this.length;
+
         switch(this.direction){
             case RailVector.DIRECTION_LEFT:
                 switch(origin){
-                    case Tile.SLOPE_NE: return this.length & 1 ? Tile.SLOPE_NW : Tile.SLOPE_NE;
-                    case Tile.SLOPE_NW: return this.length & 1 ? Tile.SLOPE_SW : Tile.SLOPE_NW;
-                    case Tile.SLOPE_SW: return this.length & 1 ? Tile.SLOPE_SE : Tile.SLOPE_SW;
-                    case Tile.SLOPE_SE: return this.length & 1 ? Tile.SLOPE_NE : Tile.SLOPE_SE;
+                    case Tile.SLOPE_NE: return length & 1 ? Tile.SLOPE_NW : Tile.SLOPE_NE;
+                    case Tile.SLOPE_NW: return length & 1 ? Tile.SLOPE_SW : Tile.SLOPE_NW;
+                    case Tile.SLOPE_SW: return length & 1 ? Tile.SLOPE_SE : Tile.SLOPE_SW;
+                    case Tile.SLOPE_SE: return length & 1 ? Tile.SLOPE_NE : Tile.SLOPE_SE;
                 }
             break;
             case RailVector.DIRECTION_RIGHT:
                 switch(origin){
-                    case Tile.SLOPE_NE: return this.length & 1 ? Tile.SLOPE_SE : Tile.SLOPE_NE;
-                    case Tile.SLOPE_NW: return this.length & 1 ? Tile.SLOPE_NE : Tile.SLOPE_NW;
-                    case Tile.SLOPE_SW: return this.length & 1 ? Tile.SLOPE_NW : Tile.SLOPE_SW;
-                    case Tile.SLOPE_SE: return this.length & 1 ? Tile.SLOPE_SW : Tile.SLOPE_SE;
+                    case Tile.SLOPE_NE: return length & 1 ? Tile.SLOPE_SE : Tile.SLOPE_NE;
+                    case Tile.SLOPE_NW: return length & 1 ? Tile.SLOPE_NE : Tile.SLOPE_NW;
+                    case Tile.SLOPE_SW: return length & 1 ? Tile.SLOPE_NW : Tile.SLOPE_SW;
+                    case Tile.SLOPE_SE: return length & 1 ? Tile.SLOPE_SW : Tile.SLOPE_SE;
                 }
             break;
             case RailVector.DIRECTION_STRAIGHT: return origin;
