@@ -27,15 +27,28 @@
     }
 
     function Run(){
+        local pointer = this.current;
+        while(pointer.next != null) pointer = pointer.next;
+        local tail = pointer.rail.GetTileIndex(pointer.index, pointer.origin);
+
+
         Rail.SetCurrentRailType(this.railType);
 
-        while(this.current.next != null){
-            this.Build();
-            this.current = this.current.next;
-        }
-
         if(this.close){
-            this.Build();
+            while(this.current != null){
+                this.Build();
+                this.current = this.current.next;
+            }
+        }else{
+            while(this.current.next != null){
+                if(this.current.rail != null){
+                    local index = this.current.rail.GetTileIndex(this.current.index, this.current.origin);
+                    if(Tile.GetDistance(index, tail) < 20) break;
+                }
+
+                this.Build();
+                this.current = this.current.next;
+            }
         }
         
         return false;
