@@ -145,6 +145,11 @@ class RailVectorIntersecter {
         diagonal.rail.pitch = RailVector.PITCH_LEVEL;
         diagonal.rail.length = span * 2 + 1;
 
+        if(diagonal.rail.GetTileOrigin(from.origin) != Tile.GetComplementSlope(towards.origin)){
+            Log.Error("Can't build");
+            return [];
+        }
+
         if(extend == 0){
             diagonal.index = from.index;
             diagonal.origin = from.origin;
