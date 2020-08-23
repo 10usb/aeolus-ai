@@ -64,7 +64,7 @@ class VectorHandler extends CommandHandler {
             types.KeepValue(1);
             local railType = types.Begin();
 
-            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true));
+            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true, 0));
         }
 
         return true;

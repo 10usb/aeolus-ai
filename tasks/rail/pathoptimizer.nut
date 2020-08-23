@@ -47,7 +47,9 @@ class RailPathOptimizer extends Task {
         }
 
         if(this.state == 2){
-            this.LoadBuilder();
+            if(this.builder == null){
+                this.builder = RailSegmentBuilder(this.railType, this.vectorizer.GetRoot(), false, 20);
+            }
             local queue = TaskQueue();
             queue.EnqueueTask(RailVectorOptimizer(this.builder.GetNext(), this.finalized));
             queue.EnqueueTask(this.builder);
@@ -57,11 +59,5 @@ class RailPathOptimizer extends Task {
         }
 
         return false;
-    }
-
-    function LoadBuilder(){
-        if(this.builder == null){
-            this.builder = RailSegmentBuilder(this.railType, this.vectorizer.GetRoot(), false);
-        }
     }
 }

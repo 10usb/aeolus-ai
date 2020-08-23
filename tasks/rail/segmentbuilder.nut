@@ -7,11 +7,13 @@
     railType = null;
     current = null;
     close = null;
+    leaveOpen = null;
     
-	constructor(railType, root, close){
+	constructor(railType, root, close, leaveOpen){
         this.railType = railType;
         this.current = root;
         this.close = close;
+        this.leaveOpen = leaveOpen;
 	}
 
     function GetName(){
@@ -43,7 +45,7 @@
             while(this.current.next != null){
                 if(this.current.rail != null){
                     local index = this.current.rail.GetTileIndex(this.current.index, this.current.origin);
-                    if(Tile.GetDistance(index, tail) < 20) break;
+                    if(Tile.GetDistance(index, tail) < this.leaveOpen) break;
                 }
 
                 this.Build();
