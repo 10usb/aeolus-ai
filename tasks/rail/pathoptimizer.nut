@@ -49,7 +49,7 @@ class RailPathOptimizer extends Task {
         if(this.state == 2){
             this.LoadBuilder();
             local queue = TaskQueue();
-            //queue.EnqueueTask(RailVectorOptimizer(this.builder.GetNext(), this.finalized));
+            queue.EnqueueTask(RailVectorOptimizer(this.builder.GetNext(), this.finalized));
             queue.EnqueueTask(this.builder);
             this.PushTask(queue);
             this.state = 0;
