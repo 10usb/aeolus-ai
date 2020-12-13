@@ -48,12 +48,20 @@ class Aeolus extends AIInfo {
 		});
 		AddSetting({
 			name = "debug",
-			description = "I like candy",
-			easy_value = 1,
-			medium_value = 1,
-			hard_value = 1,
+			description = "Enable candy",
+			min_value = 0,
+			max_value = 3,
+			easy_value = 0,
+			medium_value = 0,
+			hard_value = 0,
 			custom_value = 0,
-			flags = AICONFIG_BOOLEAN | AICONFIG_INGAME
+			flags = CONFIG_INGAME
+		});
+		AddLabels("debug", {
+			_0 = "No",
+			_1 = "I like candy",
+			_2 = "More candy please",
+			_3 = "I need alchohol"
 		});
  	}
 }
