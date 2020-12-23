@@ -25,6 +25,10 @@ class RailPathFinder {
 }
 
 function RailPathFinder::AddStartPoint(index, towards, value){
+    // Make sure the start tile is buildable
+    if(!Tile.IsBuildable(index)) return;
+    // TODO check if the towards side is flat
+
     this.startpoints.rawset(index, {
         towards = towards,
         value = value

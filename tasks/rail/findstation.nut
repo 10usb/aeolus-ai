@@ -33,6 +33,9 @@ class RailFindStation extends Task {
 
             foreach(index, _ in this.tiles){
                 local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);
+                // is the terminal of the station is not builable the trains can't leave the station
+                if(!Tile.IsBuildable(start)) continue;
+
                 local towards = index;
                 if(this.offset.x > 0){
                     towards = Tile.GetTranslatedIndex(index, this.offset.x - 1, this.offset.y);
