@@ -13,8 +13,6 @@ class RailPathNode {
     // This is an extra value to accelerate the finding 
     extra       = 0;
     // Can this node be replaces by an other
-    fixed       = false;
-    // Can this node be replaces by an other
     bridge      = false;
 
 	constructor(index, forerunner, value){

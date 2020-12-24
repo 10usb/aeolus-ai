@@ -69,8 +69,6 @@ function RailPathFinder::Init(){
     foreach(index, point in this.startpoints){
         local node = RailPathNode(index, null, point.value);
         node.towards = Tile.GetDirection(index, point.towards);
-        // TODO remove the need for an fixed option if there is any
-        node.fixed = true;
         this.nodes.rawset(index, node);
         this.queue.Add(node);
         
@@ -115,7 +113,7 @@ function RailPathFinder::Step(){
             continue;
         }
 
-        // We need to make this check to know it a bridge could ne build
+        // We need to make this check to know it a bridge could be build
         if(this.nodes.rawin(index)){
             local x = AIMap.GetTileX(index) - node.x;
             local y = AIMap.GetTileY(index) - node.y;
@@ -200,7 +198,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
     if(this.nodes.rawin(index)){
         local current = this.nodes.rawget(index);
 
-        if(!current.fixed && cost < current.value){
+        if(cost < current.value){
             local distance = this.GetDistance(index);
             if(distance > this.radius) return;
 
