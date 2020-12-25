@@ -4,6 +4,7 @@ class FinderHandler extends CommandHandler {
     value = 0;
     path = null;
     build = true;
+    exclusions = null;
 
 	constructor(build = true){
 	    Log.Info("Finder commands");
@@ -26,7 +27,7 @@ class FinderHandler extends CommandHandler {
             finder.AddEndPoint(location, value);
             value = 0;
         }else if(command == "!exclude"){
-            finder.AddExclusion(location);
+            finder.AddExclusion(location, this.exclusions);
         }else if(command == "!from"){
             if(start != null){
                 local index = AISign.GetLocation(start);
@@ -39,6 +40,7 @@ class FinderHandler extends CommandHandler {
                 
                 AISign.RemoveSign(start);
                 start = null;
+                exclusions = index;
             }
         }else if(command == "!go"){
             Log.Info("Start");

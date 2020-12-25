@@ -27,14 +27,17 @@ class RailPathFinder {
 function RailPathFinder::AddStartPoint(index, towards, value){
     // Make sure the start tile is buildable
     if(!Tile.IsBuildable(index)) return;
-    // TODO check if the towards side is flat
+    // TODO check if the towards side is level
 
-    this.startpoints.rawset(index, {
+    local meta = {
         towards = towards,
-        value = value
-    });
-    // TODO This should be start node specific
-    this.exclusions.AddItem(towards, 0);
+        value = value,
+        exclusions = AIList()
+    };
+    this.startpoints.rawset(index, meta);
+
+    // The tile it's poining to can used
+    meta.exclusions.AddItem(towards, 0);
 
     if(debug){
         this.signs.Build(index, "start: " + value);
@@ -47,10 +50,11 @@ function RailPathFinder::AddEndPoint(index, value){
     if(debug) this.signs.Build(index, "end: " + value);
 }
 
-// TODO This should be start node specific
-function RailPathFinder::AddExclusion(index){
-    this.exclusions.AddItem(index, 0);
-    if(debug) this.signs.Build(index, "EXCLUDED");
+function RailPathFinder::AddExclusion(index, start){
+    if(this.startpoints.rawin(start)){
+        this.startpoints.rawget(start).exclusions.AddItem(index, 0);
+        if(debug) this.signs.Build(index, "EXCLUDED");
+    }
 }
 
 function RailPathFinder::Init(){
@@ -69,6 +73,7 @@ function RailPathFinder::Init(){
     foreach(index, point in this.startpoints){
         local node = RailPathNode(index, null, point.value);
         node.towards = Tile.GetDirection(index, point.towards);
+        node.start = point;
         this.nodes.rawset(index, node);
         this.queue.Add(node);
         
@@ -102,7 +107,7 @@ function RailPathFinder::Step(){
     // Test candidates
     foreach(index, slope in node.GetCandidates()){
         // When the tile it excluded do nothing with it
-        if(this.exclusions.HasItem(index))
+        if(this.exclusions.HasItem(index) || node.start.exclusions.HasItem(index))
             continue;
 
         // When the tile is not buildable it might still be crossable
@@ -198,18 +203,24 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
     if(this.nodes.rawin(index)){
         local current = this.nodes.rawget(index);
 
-        if(cost < current.value){
+        // If the node is pointing to a invalid forerunner because it was changed
+        local invalid = current.forerunner != null && current.start != current.forerunner.start;
+
+        if(invalid || cost < current.value){
             local distance = this.GetDistance(index);
             if(distance > this.radius) return;
 
-            local node = RailPathNode(index, forerunner, cost);
-            node.extra = (distance * 8).tointeger();
+            current.forerunner = forerunner;
+            current.value = cost;
+            current.towards = Tile.GetDirection(index, forerunner.index);
+            current.extra = (distance * 8).tointeger();
+            current.bridge = false;
+            current.start = forerunner.start;
 
-            this.nodes.rawset(node.index, node);
-            this.queue.Add(node);
-            if(this.debug) this.signs.Build(node.index, "" + node.value);
+            this.queue.Add(current);
+            if(this.debug) this.signs.Build(current.index, "" + current.value);
 
-            return node;
+            return current;
         }
         return null;
     }else{
@@ -218,6 +229,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
 
         local node = RailPathNode(index, forerunner, cost);
         node.extra = (distance * 8).tointeger();
+        node.start = forerunner.start;
 
         this.nodes.rawset(node.index, node);
         this.queue.Add(node);

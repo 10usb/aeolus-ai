@@ -12,8 +12,10 @@ class RailPathNode {
 	value		= 0;
     // This is an extra value to accelerate the finding 
     extra       = 0;
-    // Can this node be replaces by an other
+    // Is it a bridge yes/no
     bridge      = false;
+    // Index of the start node it's pointig to
+    start      = null;
 
 	constructor(index, forerunner, value){
         this.index	    = index;
@@ -23,6 +25,7 @@ class RailPathNode {
         this.value      = value;
         this.extra      = 0;
         this.bridge     = false;
+        this.start      = 0;
 
 		if(forerunner){
 			this.towards = Tile.GetDirection(this.index, forerunner.index);
