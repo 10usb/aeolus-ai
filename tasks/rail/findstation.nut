@@ -41,8 +41,13 @@ class RailFindStation extends Task {
                     // is the terminal of the station is not builable the trains can't leave the station
                     if(!Tile.IsBuildable(start)) continue;
 
-
                     this.finder.AddStartPoint(start, towards, 0);
+
+                    // Add the station as exclusion
+                    for(local offset = 0; offset < this.length - 1; offset++){
+                        local ptr = Tile.GetTranslatedIndex(index, offset, 0);
+                        this.finder.AddExclusion(ptr, start);
+                    }
                 }else if(this.offset.y > 0){
                     local start = Tile.GetTranslatedIndex(index, 0, this.length);
                     local towards = Tile.GetTranslatedIndex(index, 0, this.length - 1);
@@ -51,6 +56,12 @@ class RailFindStation extends Task {
                     if(!Tile.IsBuildable(start)) continue;
 
                     this.finder.AddStartPoint(start, towards, 0);
+                    
+                    // Add the station as exclusion
+                    for(local offset = 0; offset < this.length - 1; offset++){
+                        local ptr = Tile.GetTranslatedIndex(index, 0, offset);
+                        this.finder.AddExclusion(ptr, start);
+                    }
                 }else{
                     local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);
                     local towards = index;
@@ -60,8 +71,13 @@ class RailFindStation extends Task {
                     if(!Tile.IsBuildable(start)) continue;
 
                     this.finder.AddStartPoint(start, towards, 0);
+                    
+                    // Add the station as exclusion
+                    for(local offset = 1; offset < this.length; offset++){
+                        local ptr = Tile.GetTranslatedIndex(index, offset * this.offset.x, offset * this.offset.y);
+                        this.finder.AddExclusion(ptr, start);
+                    }
                 }
-                
             }
             this.state++;
             return true;
