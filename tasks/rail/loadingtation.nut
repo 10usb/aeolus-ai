@@ -135,10 +135,10 @@
         horizontal.Valuate(Tile.IsFlatRectangle, this.length, 1);
         horizontal.KeepValue(1);
 
-        this.stationHp = RailFindStation(horizontal, this.length, 0, this.endpoints);
+        this.stationHp = RailFindStation(horizontal, 1, 0, this.length, this.endpoints);
         queue.EnqueueTask(this.stationHp);
 
-        this.stationHn = RailFindStation(horizontal, -1, 0, this.endpoints);
+        this.stationHn = RailFindStation(horizontal, -1, 0, this.length, this.endpoints);
         queue.EnqueueTask(this.stationHn);
 
 
@@ -152,10 +152,10 @@
         vertical.Valuate(Tile.IsFlatRectangle, 1, this.length);
         vertical.KeepValue(1);
 
-        this.stationVp = RailFindStation(vertical, 0, this.length, this.endpoints);
+        this.stationVp = RailFindStation(vertical, 0, 1, this.length, this.endpoints);
         queue.EnqueueTask(this.stationVp);
 
-        this.stationVn = RailFindStation(vertical, 0, -1, this.endpoints);
+        this.stationVn = RailFindStation(vertical, 0, -1, this.length, this.endpoints);
         queue.EnqueueTask(this.stationVn);
 
         this.PushTask(queue);

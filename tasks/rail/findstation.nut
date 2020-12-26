@@ -5,18 +5,20 @@
 class RailFindStation extends Task {
     tiles = null;
     offset = null;
+    length = null;
     endpoints = null;
     finder = null;
     state = null;
     steps = null;
     debug = false;
 
-	constructor(tiles, ox, oy, endpoints){
+	constructor(tiles, ox, oy, length, endpoints){
         this.tiles = tiles;
         this.offset = {
             x = ox,
             y = oy
         };
+        this.length = length;
         this.endpoints = endpoints;
         this.state = 0;
         this.steps = 0;
@@ -32,17 +34,34 @@ class RailFindStation extends Task {
             this.finder.debug = this.debug;
 
             foreach(index, _ in this.tiles){
-                local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);
-                // is the terminal of the station is not builable the trains can't leave the station
-                if(!Tile.IsBuildable(start)) continue;
-
-                local towards = index;
                 if(this.offset.x > 0){
-                    towards = Tile.GetTranslatedIndex(index, this.offset.x - 1, this.offset.y);
+                    local start = Tile.GetTranslatedIndex(index, this.length, 0);
+                    local towards = Tile.GetTranslatedIndex(index, this.length - 1, 0);
+                
+                    // is the terminal of the station is not builable the trains can't leave the station
+                    if(!Tile.IsBuildable(start)) continue;
+
+
+                    this.finder.AddStartPoint(start, towards, 0);
                 }else if(this.offset.y > 0){
-                    towards = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y - 1);
+                    local start = Tile.GetTranslatedIndex(index, 0, this.length);
+                    local towards = Tile.GetTranslatedIndex(index, 0, this.length - 1);
+                                    
+                    // is the terminal of the station is not builable the trains can't leave the station
+                    if(!Tile.IsBuildable(start)) continue;
+
+                    this.finder.AddStartPoint(start, towards, 0);
+                }else{
+                    local start = Tile.GetTranslatedIndex(index, this.offset.x, this.offset.y);
+                    local towards = index;
+
+                                    
+                    // is the terminal of the station is not builable the trains can't leave the station
+                    if(!Tile.IsBuildable(start)) continue;
+
+                    this.finder.AddStartPoint(start, towards, 0);
                 }
-                this.finder.AddStartPoint(start, towards, 0);
+                
             }
             this.state++;
             return true;
