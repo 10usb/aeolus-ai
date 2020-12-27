@@ -79,6 +79,7 @@ require("tasks/air/aircraftreplacer.nut");
 
 // Rail Tasks
 require("tasks/rail/finddestinationindustry.nut");
+require("tasks/rail/finddepot.nut");
 require("tasks/rail/findstation.nut");
 require("tasks/rail/loadingtation.nut");
 require("tasks/rail/offloadstation.nut");
