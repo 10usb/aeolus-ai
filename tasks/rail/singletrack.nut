@@ -107,14 +107,14 @@
         local direction = null;
         
         if(offset.x > 0){
-            x -= offset.x - 1;
+            x -= this.length - 1;
             direction = Rail.RAILTRACK_NE_SW;
         }else if(offset.x < 0){
             direction = Rail.RAILTRACK_NE_SW;
         }
 
         if(offset.y > 0){
-            y -= offset.y - 1;
+            y -= this.length - 1;
             direction = Rail.RAILTRACK_NW_SE;
         }else if(offset.y < 0){
             direction = Rail.RAILTRACK_NW_SE;
