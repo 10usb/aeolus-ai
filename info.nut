@@ -7,7 +7,7 @@ class Aeolus extends AIInfo {
 	function UseAsRandomAI () { return false; }
 	function CreateInstance() { return "Controller"; }
 	function GetShortName()   { return "AEOL"; }
-	function GetAPIVersion()  { return "1.5"; }
+	function GetAPIVersion()  { return "1.9"; }
 
 	function GetSettings(){
 		AddSetting({
