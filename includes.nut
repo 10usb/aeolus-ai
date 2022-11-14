@@ -33,6 +33,7 @@ require("data/list.nut");
 require("data/opportunity.nut");
 require("data/personalitytrait.nut");
 require("data/rail.nut");
+require("data/road.nut");
 require("data/station.nut");
 require("data/tile.nut");
 require("data/town.nut");
@@ -90,3 +91,6 @@ require("tasks/rail/pathvectorizer.nut");
 require("tasks/rail/segmentbuilder.nut");
 require("tasks/rail/singletrack.nut");
 require("tasks/rail/vectoroptimizer.nut");
+
+// Road Tasks
+require("tasks/road/innercity.nut");

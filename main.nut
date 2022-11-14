@@ -23,6 +23,8 @@ function Controller::Start(){
 
 	scheduler.EnqueueTask(Debugging());
 
+	scheduler.EnqueueTask(Road_InnerCity());
+
 	// Main loop and it should never end...
 	scheduler.Run();
 }
