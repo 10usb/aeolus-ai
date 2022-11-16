@@ -48,18 +48,22 @@
     }
 
     function SelectTown(){
-        if(Finance.GetAvailableMoney() < 10000)
-            return this.Sleep(10);
-
+        if(towns.Count() <= 0){
+            state = INITIALIZE;
+            return true;
+        }
         town_id = towns.Begin();
         Log.Info("Selected town: " + Town.GetName(town_id));
         towns.RemoveTop(1);
-        state = BUILD_STATIONS;
         stations = [];
+        state = BUILD_STATIONS;
         return true;
     }
 
     function BuildStation(){
+        if(Finance.GetAvailableMoney() < 10000)
+            return this.Sleep(10);
+
         Log.Info("Trying to build station in " + Town.GetName(town_id));
 
         local tiles = Town.GetTiles(town_id, true, 2);
