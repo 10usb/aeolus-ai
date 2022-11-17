@@ -52,9 +52,10 @@
             state = INITIALIZE;
             return true;
         }
-        town_id = towns.Begin();
+        town_id = Lists.RandPriority(towns);
+        towns.RemoveItem(town_id);
+        // TODO check if town already has inner city busses
         Log.Info("Selected town: " + Town.GetName(town_id));
-        towns.RemoveTop(1);
         stations = [];
         state = BUILD_STATIONS;
         return true;
@@ -85,7 +86,7 @@
         }
 
         tiles.Valuate(Tile.GetCargoAcceptance, Cargo.GetPassengerId(), 1, 1, 3);
-        tiles.RemoveBelowValue(50  * stations.len());
+        tiles.RemoveBelowValue(40  * stations.len());
         tiles.Sort(List.SORT_BY_VALUE, false);
 	    tiles.KeepTop(Math.max(5, tiles.Count() / 4));
         tiles.Valuate(Lists.RandRangeItem, 1, 1000);
