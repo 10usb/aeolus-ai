@@ -35,6 +35,7 @@ function Task::Sleep(ticks){
 }
 
 function Task::IsSleepy(){
+	if(_child != null) return _child.IsSleepy();
 	if(Controller.GetTick() < _ticks){
 		return false;
 	}
@@ -45,6 +46,7 @@ function Task::IsSleepy(){
 }
 
 function Task::SleepAmount(){
+	if(_child != null) return _child.SleepAmount();
 	return (_ticks + _sleep) - Controller.GetTick();
 }
 
@@ -57,6 +59,7 @@ function Task::Wait(days){
 }
 
 function Task::IsWaiting(){
+	if(_child != null) return _child.IsWaiting();
 	if(_date == null) return false;
 
 	if(AIDate.GetCurrentDate() < _date.start){
@@ -71,10 +74,12 @@ function Task::IsWaiting(){
 }
 
 function Task::WaitAmount(){
+	if(_child != null) return _child.WaitAmount();
 	return _date.till - AIDate.GetCurrentDate();
 }
 
 function Task::WakeUp(){
+	if(_child != null) return _child.WakeUp();
 	if(_sleep > 0 || _date != null){
 		_ticks = 0;
 		_sleep = 0;
