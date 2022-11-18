@@ -57,4 +57,5 @@ function TaskQueue::WakeUp(){
 function TaskQueue::EnqueueTask(task){
     task._parent = this;
     tasks.push(task);
+    return task;
 }
