@@ -188,18 +188,28 @@ class Road_InnerCity extends Task {
         engines.Sort(AIList.SORT_BY_VALUE, false);
         local engine_id = engines.Begin();
 
-        local cost = Engine.GetPrice(engine_id) * 1.2;
-        if(!Finance.GetMoney(cost)){
-            Log.Warning("Waiting for money ENGINE");
-            return this.Wait(3);
+        local station_list = List();
+        foreach(station in stations){
+            station_list.AddItem(station, 0);
         }
 
-        Log.Info("Building vehicle");
-        local vehicle_id = Vehicle.BuildVehicle(depot_tile, engine_id);
+        local queue = TaskQueue();
+
         foreach(station in stations){
-            AIOrder.AppendOrder(vehicle_id, station, AIOrder.OF_NONE);
+            local destinations = List();
+            destinations.AddList(station_list);
+            destinations.RemoveItem(station);
+
+            local task = Road_BuildVehicle(
+                engine_id,
+                depot_tile,
+                station,
+                destinations
+            );
+            queue.EnqueueTask(task);
         }
-        AIVehicle.StartStopVehicle(vehicle_id);
+
+        this.PushTask(queue);
         
         state = SELECT_TOWN;
         return true;
