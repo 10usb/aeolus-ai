@@ -50,11 +50,25 @@
     function SelectTown(){
         if(towns.Count() <= 0){
             state = INITIALIZE;
-            return true;
+            return this.Sleep(100);
         }
         town_id = Lists.RandPriority(towns);
         towns.RemoveItem(town_id);
-        // TODO check if town already has inner city busses
+
+
+        local tiles = Town.GetTiles(town_id, true, 2);
+        tiles.Valuate(Road.IsRoadStationTile);
+        tiles.KeepValue(1);
+        tiles.Valuate(Station.GetStationID);
+
+        local temp = Lists.Flip(tiles);
+        temp.Valuate(Station.IsValidStation);
+        temp.KeepValue(1);
+        if(temp.Count() > 0){
+            Log.Warning("Town already populated: " + Town.GetName(town_id));
+            return true;
+        }
+
         Log.Info("Selected town: " + Town.GetName(town_id));
         stations = [];
         state = BUILD_STATIONS;
