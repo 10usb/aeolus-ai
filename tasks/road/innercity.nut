@@ -14,13 +14,14 @@ class Road_InnerCity extends Task {
     town_id = 0;
     stations = null;
     depot_tile = null;
+    task = null;
 
 	constructor(){
 		this.state = INITIALIZE;
 	}
 
     function GetName(){
-        return "Road_InnerCity"
+        return "Road_InnerCity";
     }
 
     function Run(){
@@ -71,46 +72,21 @@ class Road_InnerCity extends Task {
 
         Log.Info("Selected town: " + Town.GetName(town_id));
         stations = [];
+
+        task = Road_BuildTownStation(town_id, Cargo.GetPassengerId());
+        this.PushTask(task);
+
         state = BUILD_STATIONS;
         return true;
     }
 
     function BuildStation(){
-        if(Finance.GetAvailableMoney() < 10000)
-            return this.Sleep(10);
-
-        Log.Info("Trying to build station in " + Town.GetName(town_id));
-
-        local tiles = Town.GetTiles(town_id, true, 2);
-        Log.Info("Build list of town tiles");
-
-        local station_tiles = List();
-        station_tiles.AddList(tiles);
-        station_tiles.Valuate(Road.IsRoadStationTile);
-        station_tiles.RemoveValue(0);
-        Log.Info("Found " + station_tiles.Count() + " other station tiles in this town");
-
-        tiles.Valuate(Road.IsRoadTile);
-        tiles.RemoveValue(0);
-
-        if(station_tiles.Count() > 0){
-            Log.Info("Searching for tiles not close to other stations");
-            tiles.Valuate(Road_InnerCity.GetMinDistance, station_tiles);
-            tiles.KeepAboveValue(7);
-        }
-
-        tiles.Valuate(Tile.GetCargoAcceptance, Cargo.GetPassengerId(), 1, 1, 3);
-        tiles.RemoveBelowValue(40  * stations.len());
-        tiles.Sort(List.SORT_BY_VALUE, false);
-	    tiles.KeepTop(Math.max(5, tiles.Count() / 4));
-        tiles.Valuate(Lists.RandRangeItem, 1, 1000);
-        tiles.Sort(List.SORT_BY_VALUE, false);
-
-        foreach(tile, _ in tiles){
-            if(this.BuildDriveThroughRoadStation(tile)){
-                stations.push(tile);
-                return true;
-            }
+        // If succesfull build try an other one
+        if(task.station_tile != null){
+            stations.push(task.station_tile);
+            task = Road_BuildTownStation(town_id, Cargo.GetPassengerId());
+            this.PushTask(task);
+            return true;
         }
 
         state = BUILD_DEPOT;
@@ -121,15 +97,6 @@ class Road_InnerCity extends Task {
         Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
         return Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(0, 1), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW)
             || Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(1, 0), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW);
-    }
-
-    function GetMinDistance(tile, station_tiles){
-        local tiles = List();
-        tiles.AddList(station_tiles);
-        // This should be min(deltaX, deltaY)
-        tiles.Valuate(Tile.GetDistanceManhattanToTile, tile);
-        tiles.Sort(List.SORT_BY_VALUE, true);
-        return tiles.GetValue(tiles.Begin());
     }
 
     function BuildDepot(){
@@ -143,6 +110,18 @@ class Road_InnerCity extends Task {
             state = SELECT_TOWN;
             return true;
         }
+
+        
+        local price = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 1.2;
+        local available = Finance.GetAvailableMoney();
+
+        if(price > available){
+            Log.Warning("Waiting for money DEPOT");
+            return this.Wait(3);
+        }
+        
+        if(!Finance.GetMoney(price))
+            return true;
 
         local tiles = Town.GetTiles(town_id, true, 2);
         tiles.Valuate(Tile.IsBuildableRectangle, 2, 2);
@@ -208,15 +187,25 @@ class Road_InnerCity extends Task {
     }
 
     function BuildVehicle(){
-        Log.Info("Building vehicle");
-
         local engines = AIEngineList(AIVehicle.VT_ROAD);
         engines.Valuate(Engine.GetCargoType)
         engines.KeepValue(Cargo.GetPassengerId());
         engines.Sort(AIList.SORT_BY_VALUE, false);
-        engines.KeepTop(1);
+        local engine_id = engines.Begin();
 
-        local vehicle_id = Vehicle.BuildVehicle(depot_tile, engines.Begin());
+        local price = Engine.GetPrice(engine_id) * 1.2;
+        local available = Finance.GetAvailableMoney();
+        
+        if(price > available){
+            Log.Warning("Waiting for money ENGINE " + price + " / " + available);
+            return this.Wait(3);
+        }
+
+        if(!Finance.GetMoney(price))
+            return true;
+
+        Log.Info("Building vehicle");
+        local vehicle_id = Vehicle.BuildVehicle(depot_tile, engine_id);
         foreach(station in stations){
             AIOrder.AppendOrder(vehicle_id, station, AIOrder.OF_NONE);
         }
