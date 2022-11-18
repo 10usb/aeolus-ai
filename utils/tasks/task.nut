@@ -21,7 +21,7 @@ function Task::Execute(){
 function Task::PushTask(task, result = true){
 	_child = task;
 	_result = result;
-	return true;
+	return task;
 }
 
 function Task::GetParent(){
