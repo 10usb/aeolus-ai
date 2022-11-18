@@ -112,16 +112,11 @@ class Road_InnerCity extends Task {
         }
 
         
-        local price = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 1.2;
-        local available = Finance.GetAvailableMoney();
-
-        if(price > available){
+        local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 1.2;
+        if(!Finance.GetMoney(cost)){
             Log.Warning("Waiting for money DEPOT");
             return this.Wait(3);
         }
-        
-        if(!Finance.GetMoney(price))
-            return true;
 
         local tiles = Town.GetTiles(town_id, true, 2);
         tiles.Valuate(Tile.IsBuildableRectangle, 2, 2);
@@ -193,16 +188,11 @@ class Road_InnerCity extends Task {
         engines.Sort(AIList.SORT_BY_VALUE, false);
         local engine_id = engines.Begin();
 
-        local price = Engine.GetPrice(engine_id) * 1.2;
-        local available = Finance.GetAvailableMoney();
-        
-        if(price > available){
-            Log.Warning("Waiting for money ENGINE " + price + " / " + available);
+        local cost = Engine.GetPrice(engine_id) * 1.2;
+        if(!Finance.GetMoney(cost)){
+            Log.Warning("Waiting for money ENGINE");
             return this.Wait(3);
         }
-
-        if(!Finance.GetMoney(price))
-            return true;
 
         Log.Info("Building vehicle");
         local vehicle_id = Vehicle.BuildVehicle(depot_tile, engine_id);

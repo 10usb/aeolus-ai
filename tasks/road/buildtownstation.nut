@@ -102,16 +102,11 @@
      Attempt to build a station on one of the potential tiles.
     */
     function BuildStation(){
-        local price = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 1.2;
-        local available = Finance.GetAvailableMoney();
-
-        if(price > available){
+        local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 1.2;
+        if(!Finance.GetMoney(cost)){
             Log.Warning("Waiting for money STATION");
             return this.Wait(3);
         }
-
-        if(!Finance.GetMoney(price))
-            return true;
 
         foreach(tile, _ in tiles){
             if(this.BuildDriveThroughRoadStation(tile)){
