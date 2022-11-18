@@ -2,7 +2,7 @@
  * This task only tries to connect busses and post-trucks
  * within the border of a city
  */
- class Road_InnerCity extends Task {
+class Road_InnerCity extends Task {
 	static INITIALIZE			= 0;
     static SELECT_TOWN          = 1;
 	static BUILD_STATIONS       = 2;
