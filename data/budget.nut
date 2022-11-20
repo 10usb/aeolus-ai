@@ -77,10 +77,8 @@ function Budget::Take(budget_id, amount){
 	local budget = budgets.rawget(budget_id);
 	if(amount > budget.amount) return false;
 
-	// When there is 0 or more available, then we have
-	// enough margin to take the budget part from it
-	local available = Finance.GetAvailableMoney();
-	if(available < 0) return false;
+	local available = Finance.GetAvailableMoney() + budget.amount;
+	if(available < amount) return false;
 
 	budget.amount-= amount;
 	return Finance.GetMoney(amount);
