@@ -28,8 +28,7 @@ function Budget::RemoveBudget(budget_id){
 	if(!budgets.rawin(budget_id)) throw("Budget not exists");
 
 	local budget = budgets.rawget(budget_id);
-	AILog.Info("Budget closed at " + budget.used + " / " + budget.amount + " (" + (budget.used * 100 / budget.amount) + "%)");
-
+	AILog.Info("Budget closed at " + budget.amount + " / " + budget.total + " (" + (budget.amount * 100 / budget.total) + "%)");
 
 	budgets.rawdelete(budget_id);
 }
@@ -43,12 +42,64 @@ function Budget::Create(amount){
 	budgets.rawset(id, {
 		id = id,
 		amount = amount.tointeger(),
-		used = 0,
+		total = amount.tointeger(),
 		created = AIDate.GetCurrentDate()
 	});
 	return id;
 }
 
+function Budget::GetAmount(budget_id){
+	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+	return budgets.rawget(budget_id).amount;
+}
+
+function Budget::Add(budget_id, amount){
+	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+
+	local budget = budgets.rawget(budget_id);
+	budget.amount+= amount.tointeger();
+	budget.total+= amount.tointeger();
+}
+
+/**
+ * Takes the amount from the budget if we are not in a
+ * virtual dept.
+ */
+function Budget::Take(budget_id, amount){
+	// normalize input
+	amount = amount.tointeger();
+
+	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+
+	local budget = budgets.rawget(budget_id);
+	if(amount > budget.amount) return false;
+
+	// When there is 0 or more available, then we have
+	// enough margin to take the budget part from it
+	local available = Finance.GetAvailableMoney();
+	if(available < 0) return false;
+
+	budget.amount-= amount;
+	return Finance.GetMoney(amount);
+}
+
+/**
+ * Return the remaining amount of money after an estimated cost was taken
+ */
+function Budget::Return(budget_id, amount){
+	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+
+	local budget = budgets.rawget(budget_id);
+	budget.amount+= amount.tointeger();
+}
+
+/**
+ @deprecated
+ */
 function Budget::Start(budget_id){
 	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
 	if(!budgets.rawin(budget_id)) throw("Budget not exists");
@@ -59,34 +110,17 @@ function Budget::Start(budget_id){
 	Budget.accounting.instance = AIAccounting();
 }
 
+/**
+ @deprecated
+ */
 function Budget::Stop(budget_id){
 	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
 	if(!budgets.rawin(budget_id)) throw("Budget not exists");
 
 	local budget = budgets.rawget(budget_id);
 	if(Budget.accounting.instance != null){
-		budget.used+= Budget.accounting.instance.GetCosts();
+		budget.used-= Budget.accounting.instance.GetCosts();
 		Budget.accounting.instance = null;
 	}
 	//AILog.Info("Budget " + budget.used + " / " + budget.amount + " (" + (budget.used * 100 / budget.amount) + "%)");
-}
-
-function Budget::GetAmount(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-	return budgets.rawget(budget_id).amount;
-}
-
-function Budget::GetUsed(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-	return budgets.rawget(budget_id).used;
-}
-
-function Budget::GetRemain(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-
-	local budget = budgets.rawget(budget_id);
-	return budget.amount - budget.used;
 }
