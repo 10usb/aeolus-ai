@@ -81,6 +81,9 @@ class Road_InnerCity extends Task {
     }
 
     function BuildStation(){
+        if(task.depot_tile != null)
+            depot_tile = task.depot_tile;
+
         // If succesfull build try an other one
         if(task.station_tile != null){
             stations.push(task.station_tile);
@@ -89,17 +92,6 @@ class Road_InnerCity extends Task {
             return true;
         }
 
-        state = BUILD_DEPOT;
-        return true;
-    }
-
-    function BuildDriveThroughRoadStation(tile) {
-        Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
-        return Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(0, 1), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW)
-            || Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(1, 0), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW);
-    }
-
-    function BuildDepot(){
         if(stations.len() < 2){
             Log.Warning("Failed to build enough stations in " + Town.GetName(town_id));
 
@@ -111,74 +103,8 @@ class Road_InnerCity extends Task {
             return true;
         }
 
-        
-        local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 1.2;
-        if(!Finance.GetMoney(cost)){
-            Log.Warning("Waiting for money DEPOT");
-            return this.Wait(3);
-        }
-
-        local tiles = Town.GetTiles(town_id, true, 2);
-        tiles.Valuate(Tile.IsBuildableRectangle, 2, 2);
-        tiles.KeepValue(1);
-        tiles.Valuate(Road_InnerCity.RoadAccess);
-        tiles.KeepAboveValue(0);
-        tiles.Valuate(Tile.GetDistanceSquareToTile, Town.GetLocation(town_id));
-        tiles.Sort(AIList.SORT_BY_VALUE, true);
-        Log.Info("Found " + tiles.Count() + " potential tiles for a depot");
-
-        local tile;
-        do {
-            if(tiles.Count() <= 0){
-                Log.Warning("Failed to build depot in " + Town.GetName(town_id));
-
-                foreach(tile in stations){
-                    AIRoad.RemoveRoadStation(tile);
-                }
-                
-                state = SELECT_TOWN;
-                return true;
-            }
-            tile = tiles.Begin();
-            tiles.RemoveTop(1);
-        }while(!TryBuildDepot(tile));
-
-        depot_tile = tile;
         state = BUILD_VEHICLE;
         return true;
-    }
-
-    function RoadAccess(tile){
-        local tiles = AITileList();
-        tiles.AddRectangle(Tile.GetTranslatedIndex(tile, 0, -1), Tile.GetTranslatedIndex(tile, 0, 1));
-        tiles.AddRectangle(Tile.GetTranslatedIndex(tile, -1, 0), Tile.GetTranslatedIndex(tile, 1, 0));
-        tiles.Valuate(AIRoad.IsRoadTile);
-        return Lists.GetSum(tiles);
-    }
-
-    function TryBuildDepot(tile){
-        if(Tile.GetSlope(tile) != Tile.SLOPE_FLAT){
-            local matrix = MapMatrix();
-            matrix.AddRectangle(tile, 1, 1);
-            if(!matrix.MakeLevel()) return false;
-        }
-
-        local tiles = AITileList();
-        tiles.AddRectangle(Tile.GetTranslatedIndex(tile, 0, -1), Tile.GetTranslatedIndex(tile, 0, 1));
-        tiles.AddRectangle(Tile.GetTranslatedIndex(tile, -1, 0), Tile.GetTranslatedIndex(tile, 1, 0));
-        tiles.Valuate(AIRoad.IsRoadTile);
-
-        foreach(front, _ in tiles){
-            if(!Road.BuildRoadDepot(tile, front))
-                continue;
-
-            Road.BuildRoad(tile, front);
-
-            if(Road.AreRoadTilesConnected(tile, front))
-                return true;
-        }
-
-        return false;
     }
 
     function BuildVehicle(){

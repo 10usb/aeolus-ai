@@ -7,15 +7,18 @@
     static FIND_POTENTIAL       = 1;
 	static BUILD_STATION        = 2;
 	static ENSURE_DEPOT         = 3;
+	static FINALIZE             = 4;
 
 	state = 0;
     town_id = null;
     cargo_id = null;
     station_tile = null;
+    depot_tile = null;
 
     town_tiles = null;
     station_tiles = null;
     tiles = null;
+    depot_task = null;
 
 	constructor(town_id, cargo_id){
         this.town_id = town_id
@@ -34,6 +37,7 @@
             case FIND_POTENTIAL: return FindPotential();
             case BUILD_STATION: return BuildStation();
             case ENSURE_DEPOT: return EnsureDepot();
+            case FINALIZE: return Finalize();
         }
 
         return false;
@@ -130,6 +134,13 @@
      isn't one closer by.
     */
     function EnsureDepot(){
+        depot_task = PushTask(Road_BuildDepot(station_tile));
+        state = FINALIZE;
+        return true;
+    }
+
+    function Finalize(){
+        depot_tile = depot_task.depot_tile;
         return false;
     }
 }
