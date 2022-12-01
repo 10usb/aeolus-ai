@@ -23,8 +23,9 @@
 	constructor(town_id, cargo_id){
         this.town_id = town_id
         this.cargo_id = cargo_id;
-        this.station_tile = null;
-		this.state = DETECT_OTHERS;
+        station_tile = null;
+		state = DETECT_OTHERS;
+        depot_tile = null;
 	}
 
     function GetName(){

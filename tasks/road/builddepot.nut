@@ -47,7 +47,7 @@ class Road_BuildDepot extends Task {
 
 			test = Tile.GetTranslatedIndex(tile, 1, 0);
 			if(Tile.IsBuildable(test)) break;
-			if(Road.AreRoadTilesConnected(tile, test))queue.push(test);
+			if(Road.AreRoadTilesConnected(tile, test)) queue.push(test);
 
 			test = Tile.GetTranslatedIndex(tile, -1, 0);
 			if(Tile.IsBuildable(test)) break;
@@ -55,11 +55,11 @@ class Road_BuildDepot extends Task {
 
 			test = Tile.GetTranslatedIndex(tile, 0, 1);
 			if(Tile.IsBuildable(test)) break;
-			if(Road.AreRoadTilesConnected(tile, test))queue.push(test);
+			if(Road.AreRoadTilesConnected(tile, test)) queue.push(test);
 
 			test = Tile.GetTranslatedIndex(tile, 0, -1);
 			if(Tile.IsBuildable(test)) break;
-			if(Road.AreRoadTilesConnected(tile, test))queue.push(test);
+			if(Road.AreRoadTilesConnected(tile, test)) queue.push(test);
 		}
 		
 		front_tile = tile;
