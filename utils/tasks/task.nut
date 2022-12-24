@@ -58,6 +58,14 @@ function Task::Wait(days){
 	return true;
 }
 
+function Task::WaitUntil(date){
+	_date  = {
+		start = AIDate.GetCurrentDate(),
+		till = date
+	};
+	return true;
+}
+
 function Task::IsWaiting(){
 	if(_child != null) return _child.IsWaiting();
 	if(_date == null) return false;

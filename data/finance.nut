@@ -32,7 +32,7 @@ function Finance::GetAvailableMoney(){
 	available-= (Finance.GetMonthlyExpenses() * 1.5).tointeger();
 
 	local budgets = Budget.GetList();
-	budgets.Valuate(Budget.GetRemain);
+	budgets.Valuate(Budget.GetAmount);
 	available-= Lists.GetSum(budgets);
 	return available;
 }

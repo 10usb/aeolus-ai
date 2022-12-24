@@ -11,8 +11,13 @@ class CreatePersonality extends Task {
 		
 		// Find something todo
 		//this.GetParent().EnqueueTask(FindOpportunities());
+		local budget_id = Company.GetInvestmentBudget();
+		Budget.Add(budget_id, Finance.GetAvailableMoney() * 0.9);
+
+
 		this.GetParent().EnqueueTask(RepayLoan());
 		this.GetParent().EnqueueTask(Road_InnerCity());
+		this.GetParent().EnqueueTask(Tasks_Finance());
 		
 		return false;
 	}

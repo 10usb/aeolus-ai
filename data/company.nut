@@ -79,3 +79,14 @@ function Company::GetTownPreference(){
 
 	return Cache.GetValue("preferance.towns");
 }
+
+function Company::GetInvestmentBudget(){
+	local budget_id = Storage.ValueExists("company.investment") ? Storage.GetValue("company.investment") : Storage.SetValue("company.investment", 0)
+	
+	if(!Budget.IsValidBudget(budget_id)){
+		budget_id = Budget.Create(0, "Company Investment");
+		Storage.SetValue("company.investment", budget_id);
+	}
+
+	return budget_id;
+}

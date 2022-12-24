@@ -34,7 +34,7 @@ class AirBuildOpportunity extends Thread {
 		this.state = INITIALIZE;
 
 		local extra = Math.min(Finance.GetAvailableMoney() * 0.2, (Finance.GetAvailableMoney() - Opportunity.GetMinimumPrice(opportunity_id)) / 2);
-		this.budget_id = Budget.Create(Opportunity.GetMinimumPrice(opportunity_id) + extra);
+		this.budget_id = Budget.Create(Opportunity.GetMinimumPrice(opportunity_id) + extra, "Opportunity");
 	}
 }
 

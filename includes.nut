@@ -67,6 +67,7 @@ require("tasks/printinfo.nut");
 require("tasks/createpersonality.nut");
 require("tasks/wakeup.nut");
 require("tasks/repayloan.nut");
+require("tasks/finance.nut");
 require("tasks/findopportunities.nut");
 require("tasks/findopportunities/passengerplanes.nut");
 

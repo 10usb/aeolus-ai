@@ -7,12 +7,14 @@
     depot_tile = null;
     station = null;
     destinations = [];
+    budget_id = null;
 
-	constructor(engine_id, depot_tile, station, destinations){
+	constructor(engine_id, depot_tile, station, destinations, budget_id){
         this.engine_id = engine_id;
         this.depot_tile = depot_tile;
         this.station = station;
         this.destinations = destinations;
+        this.budget_id = budget_id;
 	}
 
     function GetName(){
@@ -21,7 +23,8 @@
 
     function Run(){
         local cost = Engine.GetPrice(engine_id) * 1.2;
-        if(!Finance.GetMoney(cost)){
+        if(!Budget.Take(budget_id, cost)){
+            Budget.Request(budget_id, cost);
             Log.Warning("Waiting for money ENGINE");
             return this.Wait(3);
         }

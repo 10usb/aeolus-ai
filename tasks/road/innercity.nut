@@ -5,9 +5,11 @@
 class Road_InnerCity extends Task {
 	static INITIALIZE			= 0;
     static SELECT_TOWN          = 1;
-	static BUILD_STATIONS       = 2;
-	static BUILD_DEPOT          = 3;
-	static BUILD_VEHICLE        = 4;
+	static INITIATE_BUILD       = 3;
+	static BUILD_STATIONS       = 4;
+	static BUILD_DEPOT          = 5;
+	static BUILD_VEHICLE        = 6;
+	static CLOSE                = 7;
 
 	state = 0;
     towns = null;
@@ -15,6 +17,7 @@ class Road_InnerCity extends Task {
     stations = null;
     depot_tile = null;
     task = null;
+    budget_id = null;
 
 	constructor(){
 		this.state = INITIALIZE;
@@ -28,9 +31,11 @@ class Road_InnerCity extends Task {
         switch(state){
             case INITIALIZE: return Initialize();
             case SELECT_TOWN: return SelectTown();
+            case INITIATE_BUILD: return InitiateBuild();
             case BUILD_STATIONS: return BuildStation();
             case BUILD_DEPOT: return BuildDepot();
             case BUILD_VEHICLE: return BuildVehicle();
+            case CLOSE: return Close();
         }
 
         return false;
@@ -71,9 +76,41 @@ class Road_InnerCity extends Task {
         }
 
         Log.Info("Selected town: " + Town.GetName(town_id));
+        state = INITIATE_BUILD;
+        return true;
+    }
+
+    function InitiateBuild(){
+        local cost = 0;
+        // Cost of 2 stations with a depot
+        cost+= Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 2;
+        cost+= Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 2;
+
+        local engines = AIEngineList(AIVehicle.VT_ROAD);
+        engines.Valuate(Engine.GetCargoType)
+        engines.KeepValue(Cargo.GetPassengerId());
+        engines.Sort(AIList.SORT_BY_VALUE, false);
+        local engine_id = engines.Begin();
+
+        // Cost of 2 trucks
+        local cost = Engine.GetPrice(engine_id) * 2;
+
+        // Add 25% buffer
+        cost*= 1.25;
+
+		local budget_id = Company.GetInvestmentBudget();
+
+        if(Budget.GetAmount(budget_id) < cost){
+            //Log.Warning("Waiting for money INVESTMENT");
+            return this.Wait(10);
+        }
+
+        this.budget_id = Budget.Create(0, "Inner city busses at " + Town.GetName(town_id));
+        Budget.Transfer(budget_id, this.budget_id, cost);
+
         stations = [];
 
-        task = Road_BuildTownStation(town_id, Cargo.GetPassengerId());
+        task = Road_BuildTownStation(town_id, Cargo.GetPassengerId(), this.budget_id);
         this.PushTask(task);
 
         state = BUILD_STATIONS;
@@ -87,9 +124,36 @@ class Road_InnerCity extends Task {
         // If succesfull build try an other one
         if(task.station_tile != null){
             stations.push(task.station_tile);
-            task = Road_BuildTownStation(town_id, Cargo.GetPassengerId());
-            this.PushTask(task);
-            return true;
+
+            if(stations.len() < 2){
+                task = Road_BuildTownStation(town_id, Cargo.GetPassengerId(), this.budget_id);
+                this.PushTask(task);
+                return true;
+            }else if(stations.len() < 5){
+                local cost = 0;
+                // Cost of a station with a depot
+                cost+= Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP);
+                cost+= Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT);
+
+                local engines = AIEngineList(AIVehicle.VT_ROAD);
+                engines.Valuate(Engine.GetCargoType)
+                engines.KeepValue(Cargo.GetPassengerId());
+                engines.Sort(AIList.SORT_BY_VALUE, false);
+                local engine_id = engines.Begin();
+
+                // Cost of a truck
+                local cost = Engine.GetPrice(engine_id);
+
+                // Add 25% buffer
+                cost*= 1.25;
+
+                local budget_id = Company.GetInvestmentBudget();
+                if(Budget.Transfer(budget_id, this.budget_id, cost)){
+                    task = Road_BuildTownStation(town_id, Cargo.GetPassengerId(), this.budget_id);
+                    this.PushTask(task);
+                    return true;
+                }
+            }
         }
 
         if(stations.len() < 2){
@@ -99,6 +163,7 @@ class Road_InnerCity extends Task {
                 AIRoad.RemoveRoadStation(tile);
             }
             
+            Budget.RemoveBudget(budget_id);
             state = SELECT_TOWN;
             return true;
         }
@@ -130,13 +195,20 @@ class Road_InnerCity extends Task {
                 engine_id,
                 depot_tile,
                 station,
-                destinations
+                destinations,
+                this.budget_id
             );
             queue.EnqueueTask(task);
         }
 
         this.PushTask(queue);
         
+        state = CLOSE;
+        return true;
+    }
+
+    function Close(){
+        Budget.RemoveBudget(budget_id);
         state = SELECT_TOWN;
         return true;
     }

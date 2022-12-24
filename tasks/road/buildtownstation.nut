@@ -12,6 +12,7 @@
 	state = 0;
     town_id = null;
     cargo_id = null;
+    budget_id = null;
     station_tile = null;
     depot_tile = null;
 
@@ -20,9 +21,10 @@
     tiles = null;
     depot_task = null;
 
-	constructor(town_id, cargo_id){
+	constructor(town_id, cargo_id, budget_id){
         this.town_id = town_id
         this.cargo_id = cargo_id;
+        this.budget_id = budget_id;
         station_tile = null;
 		state = DETECT_OTHERS;
         depot_tile = null;
@@ -108,7 +110,8 @@
     */
     function BuildStation(){
         local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 1.2;
-        if(!Finance.GetMoney(cost)){
+        if(!Budget.Take(budget_id, cost)){
+            Budget.Request(budget_id, cost);
             Log.Warning("Waiting for money STATION");
             return this.Wait(3);
         }
