@@ -26,14 +26,19 @@ function FindOpportunities::RunEmpty(){
 function FindOpportunities::FindNew(){
 	local personality_trait = PersonalityTrait.GetFavored();
 
-	if(personality_trait == PersonalityTrait.PT_PASSENGER_PLANES){
-		EnqueueTask(FindOpportunities_PassengerPlanes());
-		return true;
-	}else{
-		Log.Info("Decreasing favor " + PersonalityTrait.GetName(personality_trait));
-		PersonalityTrait.DecreaseFavor(personality_trait);
-		return true;
+	switch(personality_trait){
+		case PersonalityTrait.PT_INNER_CITY | Vehicle.VT_ROAD:
+			EnqueueTask(Road_FindInnerCity());
+		break;
+		case PersonalityTrait.PT_INVALID:
+			Log.Error("Failed in having a personality");
+			return false;
+		default:
+			Log.Info("Decreasing favor " + PersonalityTrait.GetName(personality_trait));
+			PersonalityTrait.DecreaseFavor(personality_trait);
 	}
+	
+	return true;
 }
 
 function FindOpportunities::RunOld(){

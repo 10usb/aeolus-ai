@@ -94,6 +94,7 @@ require("tasks/rail/singletrack.nut");
 require("tasks/rail/vectoroptimizer.nut");
 
 // Road Tasks
+require("tasks/road/findinnercity.nut");
 require("tasks/road/innercity.nut");
 require("tasks/road/builddepot.nut");
 require("tasks/road/buildtownstation.nut");

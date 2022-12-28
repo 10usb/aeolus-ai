@@ -10,14 +10,14 @@ class CreatePersonality extends Task {
 		this.BuildHQ();
 		
 		// Find something todo
-		//this.GetParent().EnqueueTask(FindOpportunities());
 		local budget_id = Company.GetInvestmentBudget();
 		Budget.Add(budget_id, Finance.GetAvailableMoney() * 0.9);
 
-
+		this.GetParent().EnqueueTask(FindOpportunities());
 		this.GetParent().EnqueueTask(RepayLoan());
-		this.GetParent().EnqueueTask(Road_InnerCity());
 		this.GetParent().EnqueueTask(Tasks_Finance());
+
+		//this.GetParent().EnqueueTask(Road_InnerCity());
 		
 		return false;
 	}
@@ -42,8 +42,14 @@ class CreatePersonality extends Task {
 	function PersonalityTraits(){
 		PersonalityTrait.preferance.Init(PersonalityTraitList());
 
+		Log.Info("PersonalityTraits");
 		foreach(id, value in PersonalityTrait.preferance.GetValues()){
-			Log.Info(value + " => " + PersonalityTrait.GetName(id));
+			Log.Info(" - " + value + " => " + PersonalityTrait.GetName(id));
+		}
+
+		Log.Info("Cargo");
+		foreach(id, value in Company.GetCargoPreference().GetValues()){
+			Log.Info(" - " + value + " => " + Cargo.GetName(id));
 		}
 	}
 
