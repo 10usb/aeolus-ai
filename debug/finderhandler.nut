@@ -14,7 +14,7 @@ class FinderHandler extends CommandHandler {
         Log.Info(" - !end              Add an end tile");
         Log.Info(" - !exclude   Exclude a tile for being processed");
         Log.Info(" - !go                 Start the finding process");
-        finder = RailPathFinder();
+        finder = RoadPathFinder();
         finder.debug = true;
 
         this.build = build;

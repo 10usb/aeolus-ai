@@ -53,6 +53,9 @@ require("rail/vector/builder.nut");
 require("rail/vector/intersecter.nut");
 require("rail/vector/segment.nut");
 
+// Road
+require("road/path/finder.nut");
+
 // Debugging
 require("debug/commandhandler.nut");
 require("debug/builderhandler.nut");
