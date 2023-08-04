@@ -136,21 +136,24 @@ function RoadPathFinder::Step(){
             }
         }
         
-        // Get cost value
-        local cost = 10 + node.value;
+        // Get penalty value
+        local penalty = 0;
         
         if(node.towards != 0){
-            if(tilted && Tile.GetComplementSlope(slope) == node.towards) cost+= 100;
+            if(tilted && Tile.GetComplementSlope(slope) == node.towards)
+                penalty+= 30;
         }
 
         // If it's an endpoint
         if(endpoints.HasItem(index)){   
-            if(this.MarkEndpoint(index, node, cost)) return false;
+            if(this.MarkEndpoint(index, node, penalty)) return false;
         }else{
             // Compare cost to an already existing node
             // If less then replace and add to the queue
             local complement = Tile.GetComplementSlope(slope) == node.towards;
-            this.Enqueue(index, node, cost, complement, MapVector.Create(node.index, index));
+            if(!complement)
+                penalty+= 5;
+            this.Enqueue(index, node, penalty, complement, MapVector.Create(node.index, index));
         }
     }
 
@@ -196,7 +199,7 @@ function RoadPathFinder::CheckBridge(forerunner, to){
 
         if(valid){
             // this.signs.Build(ramp, "VALID");
-            local cost = forerunner.value + 300 + length * 20;
+            local cost = 300 + length * 20;
             local node = this.Enqueue(index, forerunner, cost, false, vector);
             if(node != null){
                 node.bridge = true;
@@ -207,7 +210,9 @@ function RoadPathFinder::CheckBridge(forerunner, to){
     }
 }
 
-function RoadPathFinder::Enqueue(index, forerunner, cost, complement, vector){
+function RoadPathFinder::Enqueue(index, forerunner, penalty, complement, vector){
+    local cost = forerunner.value + 10 + penalty;
+
     if(this.nodes.rawin(index)){
         local current = this.nodes.rawget(index);
 
@@ -235,23 +240,17 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, complement, vector){
         local distance = this.GetDistance(index);
         if(distance > this.radius) return;
 
+
         local node = RoadPathNode(index, forerunner, cost);
         node.extra = (distance * 20).tointeger();
         node.start = forerunner.start;
 
         this.nodes.rawset(node.index, node);
-        if(complement){
-            if(this.queue.Count() <= 0){
+        if(complement && penalty <=0){
+            if(node.extra < forerunner.extra){
                 this.next = node;
             }else{
-                local other = this.queue.Poll();
-                this.queue.Add(other);
-
-                if((node.value + node.extra) < (other.value + other.extra)){
-                    this.next = node;
-                }else{
-                    this.queue.Add(node);
-                }
+                this.queue.Add(node);
             }
         }else{
             this.queue.Add(node);
@@ -269,6 +268,7 @@ function RoadPathFinder::GetDistance(index){
 }
 
 function RoadPathFinder::MarkEndpoint(index, forerunner, cost){
+    cost = forerunner.value + 10 + cost;
     if(this.nodes.rawin(index)){
         local current = this.nodes.rawget(index);
 

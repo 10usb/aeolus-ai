@@ -55,39 +55,6 @@ function RoadPathNode::GetCandidates(){
             if(this.towards == Tile.SLOPE_NE) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
             if(this.towards == Tile.SLOPE_NW) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
         }
-        // // If one corner is lowered then we can only turn to the side not lowered
-        // else if((slope & this.towards) == this.towards)
-        // {
-        //     // If we remove the side we're pointing to and add the opposite
-        //     // corner of the one lowered we get the left or right turn
-        //     local side = slope ^ this.towards;
-
-        //     if(slope == Tile.SLOPE_NWS) side = side | Tile.SLOPE_W;
-        //     else if(slope == Tile.SLOPE_WSE) side = side | Tile.SLOPE_S;
-        //     else if(slope == Tile.SLOPE_SEN) side = side | Tile.SLOPE_E;
-        //     else if(slope == Tile.SLOPE_ENW) side = side | Tile.SLOPE_N;
-
-        //     if(side == Tile.SLOPE_NE) list.AddItem(AIMap.GetTileIndex(this.x - 1, this.y), Tile.SLOPE_NE); // SLOPE_NE
-        //     if(side == Tile.SLOPE_NW) list.AddItem(AIMap.GetTileIndex(this.x, this.y - 1), Tile.SLOPE_NW); // SLOPE_NW
-        //     if(side == Tile.SLOPE_SW) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
-        //     if(side == Tile.SLOPE_SE) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
-        // }
-        // // If one corner is raised then we can only turn to the side not raised
-        // else if(!(slope & this.towards))
-        // {
-        //     // Same as above but now with inverted values
-        //     local side = Tile.GetComplementSlope(slope) ^ this.towards;
-
-        //     if(slope == Tile.SLOPE_E) side = side | Tile.SLOPE_W;
-        //     else if(slope == Tile.SLOPE_N) side = side | Tile.SLOPE_S;
-        //     else if(slope == Tile.SLOPE_W) side = side | Tile.SLOPE_E;
-        //     else if(slope == Tile.SLOPE_S) side = side | Tile.SLOPE_N;
-
-        //     if(side == Tile.SLOPE_NE) list.AddItem(AIMap.GetTileIndex(this.x - 1, this.y), Tile.SLOPE_NE); // SLOPE_NE
-        //     if(side == Tile.SLOPE_NW) list.AddItem(AIMap.GetTileIndex(this.x, this.y - 1), Tile.SLOPE_NW); // SLOPE_NW
-        //     if(side == Tile.SLOPE_SW) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
-        //     if(side == Tile.SLOPE_SE) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
-        // }
     }
 
 	return list;

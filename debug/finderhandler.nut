@@ -57,6 +57,7 @@ class FinderHandler extends CommandHandler {
             Log.Info("Cleaned");
 
             this.path = finder.GetPath();
+            Log.Info("Path size" + this.path.len());
 
             local types = AIRailTypeList();
             types.Valuate(Rail.IsRailTypeAvailable);
@@ -65,7 +66,10 @@ class FinderHandler extends CommandHandler {
 
             local builder = RailPathBuilder(railType);
             builder.Append(path);
-            if(this.build) this.GetParent().EnqueueTask(builder);
+            if(this.build){
+                Log.Info("Building path");
+                this.GetParent().EnqueueTask(builder);
+            }
 
             return false;
         }else if(command.len() > 7 && command.slice(0, 7) == "!value="){
