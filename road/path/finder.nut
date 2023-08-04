@@ -118,16 +118,10 @@ function RoadPathFinder::Step(){
             continue;
 
         // When the tile is not buildable it might still be crossable
-        if(!Tile.IsBuildable(index)){
-            if(!(Road.IsRoadTile(index) && !Rail.IsRailTile(index))){
-                if(node.forerunner != null && Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
-                    this.CheckBridge(node.forerunner, node.index);
-                }
-                continue;
-            }
-        }
+        if(!CanBuild(node, tilted, index, slope))
+            continue;
 
-        // We need to make this check to know it a bridge could be build
+        // We need to make this check to know if a bridge could be build
         if(this.nodes.rawin(index)){
             local x = AIMap.GetTileX(index) - node.x;
             local y = AIMap.GetTileY(index) - node.y;
@@ -155,11 +149,40 @@ function RoadPathFinder::Step(){
             local complement = Tile.GetComplementSlope(slope) == node.towards;
             if(!complement)
                 penalty+= 5;
-            this.Enqueue(index, node, penalty, complement, MapVector.Create(node.index, index));
+            this.Enqueue(index, node, 10, penalty, complement, MapVector.Create(node.index, index));
         }
     }
 
     return true;
+}
+
+function RoadPathFinder::CanBuild(forerunner, tilted, index, slope){
+    // If the tile is empty then ok
+    if(Tile.IsBuildable(index)) return true;
+
+    
+    // When it's not a road tile we can build on it
+    if(!Road.HasRoadType(index, Road.ROADTYPE_ROAD))
+        return false;
+
+    if(AIBridge.IsBridgeTile(index)){
+        // Get the end + 1
+        local end = AIBridge.GetOtherBridgeEnd(index);
+        local vector = MapVector.Create(index, end).Normalize();
+        local length = Tile.GetDistanceManhattanToTile(index, end);
+        end = vector.GetTileIndex(length + 1);
+
+        local cost = length * 5;
+        local node = this.Enqueue(end, forerunner, cost, 0, true, MapVector.Create(forerunner.index, end));
+        if(node != null){
+            node.bridge = true;
+        }
+
+        return false;
+    }
+
+    if(!Road.IsRoadTile(index)) return false;
+    return !Rail.IsRailTile(index);
 }
 
 function RoadPathFinder::CheckBridge(forerunner, to){
@@ -201,19 +224,21 @@ function RoadPathFinder::CheckBridge(forerunner, to){
 
         if(valid){
             // this.signs.Build(ramp, "VALID");
-            local cost = 200 + length * 20;
-            local node = this.Enqueue(index, forerunner, cost, false, vector);
+            local penalty = 200 + length * 20;
+            local node = this.Enqueue(index, forerunner, 0, penalty, false, vector);
             if(node != null){
                 node.bridge = true;
             }
+            return true;
         }
 
         break;
     }
+    return false;
 }
 
-function RoadPathFinder::Enqueue(index, forerunner, penalty, complement, vector){
-    local cost = forerunner.value + 10 + penalty;
+function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, vector){
+    cost = forerunner.value + cost + penalty;
 
     if(this.nodes.rawin(index)){
         local current = this.nodes.rawget(index);
