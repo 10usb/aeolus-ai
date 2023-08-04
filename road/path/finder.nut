@@ -119,10 +119,12 @@ function RoadPathFinder::Step(){
 
         // When the tile is not buildable it might still be crossable
         if(!Tile.IsBuildable(index)){
-            if(node.forerunner != null && Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
-                this.CheckBridge(node.forerunner, node.index);
+            if(!(Road.IsRoadTile(index) && !Rail.IsRailTile(index))){
+                if(node.forerunner != null && Tile.GetComplementSlope(slope) == node.towards && Tile.IsCrossable(index)){
+                    this.CheckBridge(node.forerunner, node.index);
+                }
+                continue;
             }
-            continue;
         }
 
         // We need to make this check to know it a bridge could be build
@@ -137,7 +139,7 @@ function RoadPathFinder::Step(){
         }
         
         // Get penalty value
-        local penalty = 0;
+        local penalty = Road.IsRoadTile(index) ? -5 : 0;
         
         if(node.towards != 0){
             if(tilted && Tile.GetComplementSlope(slope) == node.towards)
@@ -199,7 +201,7 @@ function RoadPathFinder::CheckBridge(forerunner, to){
 
         if(valid){
             // this.signs.Build(ramp, "VALID");
-            local cost = 300 + length * 20;
+            local cost = 200 + length * 20;
             local node = this.Enqueue(index, forerunner, cost, false, vector);
             if(node != null){
                 node.bridge = true;
