@@ -1,17 +1,25 @@
 class Signs {
-	signs = null;
+	list = null;
 
 	constructor(){
-		signs = [];
+		list = AIList();
 	}
 
 	function Build(tile, text){
-		signs.push(AISign.BuildSign(tile, text));
+		if(list.HasItem(tile)){
+			local sign_id = list.GetValue(tile);
+			AISign.SetName(sign_id, text)
+			
+		}else{
+			local sign_id = AISign.BuildSign(tile, text)
+			list.AddItem(tile, sign_id);
+		}
 	}
 	
 	function Clean(){
-		foreach(sign in signs){
-			AISign.RemoveSign(sign);
+		foreach(tile, sign_id in list){
+			AISign.RemoveSign(sign_id);
 		}
+		list = AIList();
 	}
 }
