@@ -18,7 +18,11 @@ function Tile::GetTranslatedIndex(index, x, y){
 }
 
 function Tile::IsCrossable(index){
-    return AIRoad.IsRoadTile(index) || AIRail.IsRailTile(index) || Tile.IsWaterTile(index);
+    return AIRoad.IsRoadTile(index)
+		|| AIRail.IsRailTile(index)
+		|| Tile.IsWaterTile(index)
+		//|| Tile.IsRiverTile(index)
+		|| AIMarine.IsCanalTile(index);
 }
 
 function Tile::IsFlat(index){

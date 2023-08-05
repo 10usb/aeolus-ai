@@ -27,7 +27,7 @@ class RoadPathFinder {
 
 function RoadPathFinder::AddStartPoint(index, towards, value){
     // Make sure the start tile is buildable
-    if(!Tile.IsBuildable(index)) return;
+    if(!Tile.IsBuildable(index) && !Road.IsRoadTile(index)) return;
     // TODO check if the towards side is level
 
     local meta = {
@@ -165,6 +165,7 @@ function RoadPathFinder::CanBuild(forerunner, tilted, index, slope){
     if(!Road.HasRoadType(index, Road.ROADTYPE_ROAD))
         return false;
 
+    // TODO make sure the forerunner can enter the ramp
     if(AIBridge.IsBridgeTile(index)){
         // Get the end + 1
         local end = AIBridge.GetOtherBridgeEnd(index);
@@ -253,7 +254,7 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
             current.forerunner = forerunner;
             current.value = cost;
             current.towards = Tile.GetDirection(index, forerunner.index);
-            current.extra = (distance * 20).tointeger();
+            current.extra = (distance * 12).tointeger();
             current.bridge = false;
             current.start = forerunner.start;
 
@@ -269,7 +270,7 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
 
 
         local node = RoadPathNode(index, forerunner, cost);
-        node.extra = (distance * 20).tointeger();
+        node.extra = (distance * 12).tointeger();
         node.start = forerunner.start;
 
         this.nodes.rawset(node.index, node);
