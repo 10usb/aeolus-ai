@@ -165,18 +165,21 @@ function RoadPathFinder::CanBuild(forerunner, tilted, index, slope){
     if(!Road.HasRoadType(index, Road.ROADTYPE_ROAD))
         return false;
 
-    // TODO make sure the forerunner can enter the ramp
     if(AIBridge.IsBridgeTile(index)){
         // Get the end + 1
         local end = AIBridge.GetOtherBridgeEnd(index);
-        local vector = MapVector.Create(index, end).Normalize();
-        local length = Tile.GetDistanceManhattanToTile(index, end);
-        end = vector.GetTileIndex(length + 1);
+        local direction = Tile.GetDirection(index, end);
 
-        local cost = length * 5;
-        local node = this.Enqueue(end, forerunner, cost, 0, true, MapVector.Create(forerunner.index, end));
-        if(node != null){
-            node.bridge = true;
+        if(direction == slope){
+            local vector = MapVector.Create(index, end).Normalize();
+            local length = Tile.GetDistanceManhattanToTile(index, end);
+            end = vector.GetTileIndex(length + 1);
+
+            local cost = length * 5;
+            local node = this.Enqueue(end, forerunner, cost, 0, true, MapVector.Create(forerunner.index, end));
+            if(node != null){
+                node.bridge = true;
+            }
         }
 
         return false;
@@ -276,7 +279,8 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
         this.nodes.rawset(node.index, node);
         if(complement && penalty <=0){
             if(node.extra < forerunner.extra){
-                this.next = node;
+                if(this.next==null || !this.next.bridge)
+                    this.next = node;
             }else{
                 this.queue.Add(node);
             }
