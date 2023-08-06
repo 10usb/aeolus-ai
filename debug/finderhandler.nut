@@ -59,12 +59,12 @@ class FinderHandler extends CommandHandler {
             this.path = finder.GetPath();
             Log.Info("Path size" + this.path.len());
 
-            local types = AIRailTypeList();
-            types.Valuate(Rail.IsRailTypeAvailable);
-            types.KeepValue(1);
-            local railType = types.Begin();
+            // local types = AIRailTypeList();
+            // types.Valuate(Rail.IsRailTypeAvailable);
+            // types.KeepValue(1);
+            // local railType = types.Begin();
 
-            local builder = RailPathBuilder(railType);
+            local builder = Tasks_RoadPathBuilder(Road.ROADTYPE_ROAD);
             builder.Append(path);
             if(this.build){
                 Log.Info("Building path");
