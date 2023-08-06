@@ -14,7 +14,7 @@ class Tasks_RoadPathBuilder extends Task {
 	constructor(roadType){
         this.roadType = roadType;
         this.path = [];
-        this.offset = 1;
+        this.offset = 2;
         this.signs = Signs();
 	}
 
@@ -47,11 +47,11 @@ class Tasks_RoadPathBuilder extends Task {
 
             local distance = Tile.GetDistanceManhattanToTile(index, to);
 
-            if(distance > 1){
+            if(distance > 1 && !AIBridge.IsBridgeTile(index)){
                 local bridges = AIBridgeList_Length(distance + 1);
                 foreach(bridge_id, _ in bridges){
                     Log.Info(AIBridge.GetName(bridge_id, Vehicle.VT_ROAD) + ": " + AIBridge.GetMinLength(bridge_id) + "-" + AIBridge.GetMaxLength(bridge_id));
-                    if(AIBridge.BuildBridge(Vehicle.VT_ROAD, bridges.Begin(), index, to))
+                    if(AIBridge.BuildBridge(Vehicle.VT_ROAD, bridge_id, index, to))
                         break;
                 }
             }
