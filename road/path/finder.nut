@@ -110,6 +110,7 @@ function RoadPathFinder::Step(){
         node = this.queue.Poll();
 
     local tilted = Tile.GetSlope(node.index) != Tile.SLOPE_FLAT;
+    local hasRoad = Road.HasRoadType(node.index, Road.ROADTYPE_ROAD);
     
     // Test candidates
     foreach(index, slope in node.GetCandidates()){
@@ -147,8 +148,17 @@ function RoadPathFinder::Step(){
             // Compare cost to an already existing node
             // If less then replace and add to the queue
             local complement = Tile.GetComplementSlope(slope) == node.towards;
+            if(hasRoad && !Road.HasRoadType(index, Road.ROADTYPE_ROAD)){
+                complement = false;
+                penalty+= 5;
+            }
+
             if(!complement)
                 penalty+= 5;
+
+            if(Tile.IsFarmTile(index))
+                penalty+= 30;
+                
             this.Enqueue(index, node, 10, penalty, complement, MapVector.Create(node.index, index));
         }
     }
