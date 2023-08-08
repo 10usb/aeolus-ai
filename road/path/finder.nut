@@ -1,5 +1,4 @@
 require("node.nut");
-require("queue.nut");
 
 class RoadPathFinder {
     signs		= null;
@@ -17,7 +16,7 @@ class RoadPathFinder {
 
 	constructor(){
 		this.signs       = Signs();
-        this.queue       = RailPathQueue();
+        this.queue       = AIPriorityQueue();
         this.nodes       = {};
         this.startpoints = {};
         this.endpoints   = AIList();
@@ -76,7 +75,7 @@ function RoadPathFinder::Init(){
         node.towards = Tile.GetDirection(index, point.towards);
         node.start = point;
         this.nodes.rawset(index, node);
-        this.queue.Add(node);
+        this.queue.Insert(node, node.value + node.extra);
         
         local radius = this.GetDistance(index); 
         if(this.radius == null || radius < this.radius){
@@ -107,7 +106,7 @@ function RoadPathFinder::Step(){
 	local node = this.next;
     this.next = null;
     if(node == null)
-        node = this.queue.Poll();
+        node = this.queue.Pop();
 
     local tilted = Tile.GetSlope(node.index) != Tile.SLOPE_FLAT;
     local hasRoad = Road.HasRoadType(node.index, Road.ROADTYPE_ROAD);
@@ -271,7 +270,7 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
             current.bridge = false;
             current.start = forerunner.start;
 
-            this.queue.Add(current);
+            this.queue.Insert(current, current.value + current.extra);
             if(this.debug) this.signs.Build(current.index, "" + current.value);
 
             return current;
@@ -292,10 +291,10 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
                 if(this.next==null || !this.next.bridge)
                     this.next = node;
             }else{
-                this.queue.Add(node);
+                this.queue.Insert(node, node.value + node.extra);
             }
         }else{
-            this.queue.Add(node);
+            this.queue.Insert(node, node.value + node.extra);
         }
         
         if(this.debug) this.signs.Build(node.index, "" + node.value);
