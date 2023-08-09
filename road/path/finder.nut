@@ -108,27 +108,48 @@ function RoadPathFinder::Step(){
     if(node == null)
         node = this.queue.Pop();
 
-    local tilted = Tile.GetSlope(node.index) != Tile.SLOPE_FLAT;
+
+    local slope   = Tile.GetSlope(node.index);
+    local tilted  = slope != Tile.SLOPE_FLAT;
+    // If the current tile doesn't go up/down from it's origin it would create a ramp
+    local ramp    = tilted && slope != node.towards && Tile.GetComplementSlope(slope) != node.towards;
     local hasRoad = Road.HasRoadType(node.index, Road.ROADTYPE_ROAD);
     
+    
     // Test candidates
-    foreach(index, slope in node.GetCandidates()){
-        // When the tile it excluded do nothing with it
+    foreach(candidate in node.GetCandidates()){
+        local index = candidate.index;
+        local direction = candidate.direction;
+
+        // When the tile is excluded, do nothing with it
         if(this.exclusions.HasItem(index) || node.start.exclusions.HasItem(index))
             continue;
 
         // When the tile is not buildable it might still be crossable
-        if(!CanBuild(node, tilted, index, slope))
+        if(!CanBuild(node, tilted, index, direction))
             continue;
-
+        
         // We need to make this check to know if a bridge could be build
         if(this.nodes.rawin(index)){
-            local x = AIMap.GetTileX(index) - node.x;
-            local y = AIMap.GetTileY(index) - node.y;
+            local dx = AIMap.GetTileX(index) - node.x;
+            local dy = AIMap.GetTileY(index) - node.y;
 
-            local jump = AIMap.GetTileIndex(node.x + x + x, node.y + y + y);
+            local jump = AIMap.GetTileIndex(node.x + dx + dx, node.y + dy + dy);
             if(Tile.IsCrossable(jump)){
                 this.CheckBridge(node, index);
+            }
+        }
+
+        // While the game setting might allow ramps, I don't like it.
+        if(tilted){
+            if(ramp){
+                // Eventhough it must have a ramp if it exist we're not going to be stupid
+                if(!Road.AreRoadTilesConnected(node.index, index))
+                    continue;
+            }else if(Tile.GetComplementSlope(direction) != node.towards){
+                continue;
+            }else if(!Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index)){
+                continue;
             }
         }
         
@@ -136,7 +157,7 @@ function RoadPathFinder::Step(){
         local penalty = Road.IsRoadTile(index) ? -5 : 0;
         
         if(node.towards != 0){
-            if(tilted && Tile.GetComplementSlope(slope) == node.towards)
+            if(tilted && Tile.GetComplementSlope(direction) == node.towards)
                 penalty+= 30;
         }
 
@@ -146,7 +167,7 @@ function RoadPathFinder::Step(){
         }else{
             // Compare cost to an already existing node
             // If less then replace and add to the queue
-            local complement = Tile.GetComplementSlope(slope) == node.towards;
+            local complement = Tile.GetComplementSlope(direction) == node.towards;
             if(hasRoad && !Road.HasRoadType(index, Road.ROADTYPE_ROAD)){
                 complement = false;
                 penalty+= 5;
@@ -168,7 +189,6 @@ function RoadPathFinder::Step(){
 function RoadPathFinder::CanBuild(forerunner, tilted, index, slope){
     // If the tile is empty then ok
     if(Tile.IsBuildable(index)) return true;
-
     
     // When it's not a road tile we can build on it
     if(!Road.HasRoadType(index, Road.ROADTYPE_ROAD))

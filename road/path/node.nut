@@ -31,31 +31,36 @@ class RoadPathNode {
 			this.towards = Tile.GetDirection(this.index, forerunner.index);
 		}
 	}
-}
 
-// Returns only the tiles to wich a rail can be build depending on the slope this tile has
-function RoadPathNode::GetCandidates(){
-	local list		= AIList();
-    local slope = Tile.GetSlope(this.index);
+    /**
+     * Get the possible candidates in order of left, right, straight
+     */
+    function GetCandidates(){
+        local list = [];
 
-    // If the tile is flat then all direction are posible
-    if(slope == Tile.SLOPE_FLAT)
-    {
-        if(this.towards != Tile.SLOPE_NE) list.AddItem(AIMap.GetTileIndex(this.x - 1, this.y), Tile.SLOPE_NE); // SLOPE_NE
-        if(this.towards != Tile.SLOPE_NW) list.AddItem(AIMap.GetTileIndex(this.x, this.y - 1), Tile.SLOPE_NW); // SLOPE_NW
-        if(this.towards != Tile.SLOPE_SW) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
-        if(this.towards != Tile.SLOPE_SE) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
-    }
-    else if(this.towards != null){
-        // If the opposite side is raised or lowered only straight is posible
-        if(slope == this.towards || Tile.GetComplementSlope(slope) == this.towards)
-        {
-            if(this.towards == Tile.SLOPE_SW) list.AddItem(AIMap.GetTileIndex(this.x - 1, this.y), Tile.SLOPE_NE); // SLOPE_NE
-            if(this.towards == Tile.SLOPE_SE) list.AddItem(AIMap.GetTileIndex(this.x, this.y - 1), Tile.SLOPE_NW); // SLOPE_NW
-            if(this.towards == Tile.SLOPE_NE) list.AddItem(AIMap.GetTileIndex(this.x + 1, this.y), Tile.SLOPE_SW); // SLOPE_SW
-            if(this.towards == Tile.SLOPE_NW) list.AddItem(AIMap.GetTileIndex(this.x, this.y + 1), Tile.SLOPE_SE); // SLOPE_SE
+        switch(this.towards){
+            case Tile.SLOPE_NW:
+                list.push({ index=AIMap.GetTileIndex(this.x - 1, this.y), direction=Tile.SLOPE_NE });
+                list.push({ index=AIMap.GetTileIndex(this.x + 1, this.y), direction=Tile.SLOPE_SW });                
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y + 1), direction=Tile.SLOPE_SE });
+            break;
+            case Tile.SLOPE_NE:
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y + 1), direction=Tile.SLOPE_SE });
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y - 1), direction=Tile.SLOPE_NW });
+                list.push({ index=AIMap.GetTileIndex(this.x + 1, this.y), direction=Tile.SLOPE_SW });
+            break;
+            case Tile.SLOPE_SE:
+                list.push({ index=AIMap.GetTileIndex(this.x + 1, this.y), direction=Tile.SLOPE_SW });
+                list.push({ index=AIMap.GetTileIndex(this.x - 1, this.y), direction=Tile.SLOPE_NE });
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y - 1), direction=Tile.SLOPE_NW });
+            break;
+            case Tile.SLOPE_SW:
+                list.push({ index=AIMap.GetTileIndex(this.x - 1, this.y), direction=Tile.SLOPE_NE });
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y - 1), direction=Tile.SLOPE_NW });
+                list.push({ index=AIMap.GetTileIndex(this.x, this.y + 1), direction=Tile.SLOPE_SE });
+            break;
         }
-    }
 
-	return list;
+        return list;
+    }
 }
