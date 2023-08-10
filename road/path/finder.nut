@@ -140,6 +140,9 @@ function RoadPathFinder::Step(){
             }
         }
 
+        // Get penalty value
+        local penalty = Road.IsRoadTile(index) ? -5 : 0;
+
         // While the game setting might allow ramps, I don't like it.
         if(tilted){
             if(ramp){
@@ -151,34 +154,32 @@ function RoadPathFinder::Step(){
             }else if(!Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index)){
                 continue;
             }
-        }
-        
-        // Get penalty value
-        local penalty = Road.IsRoadTile(index) ? -5 : 0;
-        
-        if(node.towards != 0){
-            if(tilted && Tile.GetComplementSlope(direction) == node.towards)
-                penalty+= 30;
+
+            penalty+= 30;
         }
 
-        // If it's an endpoint
+        local complement = Tile.GetComplementSlope(direction) == node.towards;
+
+        // When going off-road
+        if(hasRoad && !Road.HasRoadType(index, Road.ROADTYPE_ROAD)){
+            complement = false;
+            penalty+= 5;
+        }
+
+        // When going not straight
+        if(!complement)
+            penalty+= 5;
+
+        // To avoid crossing farmland
+        if(Tile.IsFarmTile(index))
+            penalty+= 30;
+
+        // If it's an endpoint mark it
         if(endpoints.HasItem(index)){   
             if(this.MarkEndpoint(index, node, penalty)) return false;
         }else{
             // Compare cost to an already existing node
             // If less then replace and add to the queue
-            local complement = Tile.GetComplementSlope(direction) == node.towards;
-            if(hasRoad && !Road.HasRoadType(index, Road.ROADTYPE_ROAD)){
-                complement = false;
-                penalty+= 5;
-            }
-
-            if(!complement)
-                penalty+= 5;
-
-            if(Tile.IsFarmTile(index))
-                penalty+= 30;
-                
             this.Enqueue(index, node, 10, penalty, complement, MapVector.Create(node.index, index));
         }
     }
