@@ -13,6 +13,8 @@ class RoadPathFinder {
     railType    = null;
     debug       = false;
     next        = null;
+    explore     = true;
+    entries     = null;
 
 	constructor(){
 		this.signs       = Signs();
@@ -70,6 +72,10 @@ function RoadPathFinder::Init(){
 
     this.radius = null;
 
+    
+    this.explore = true;
+    this.entries = AIList();
+
     foreach(index, point in this.startpoints){
         local node = RoadPathNode(index, null, point.value);
         node.towards = Tile.GetDirection(index, point.towards);
@@ -81,6 +87,8 @@ function RoadPathFinder::Init(){
         if(this.radius == null || radius < this.radius){
             this.radius = radius;
         }
+
+        this.entries.AddItem(index, 0);
     }
 
     this.radius = (this.radius * 1.2).tointeger();
@@ -108,13 +116,15 @@ function RoadPathFinder::Step(){
     if(node == null)
         node = this.queue.Pop();
 
-
     local slope   = Tile.GetSlope(node.index);
     local tilted  = slope != Tile.SLOPE_FLAT;
     // If the current tile doesn't go up/down from it's origin it would create a ramp
     local ramp    = tilted && slope != node.towards && Tile.GetComplementSlope(slope) != node.towards;
     local hasRoad = Road.HasRoadType(node.index, Road.ROADTYPE_ROAD);
     
+    if(this.explore && this.GetDistance2(node.index) > 10){
+        this.explore = false;
+    }
     
     // Test candidates
     foreach(candidate in node.GetCandidates()){
@@ -158,7 +168,7 @@ function RoadPathFinder::Step(){
             penalty+= 30;
         }
 
-        local complement = Tile.GetComplementSlope(direction) == node.towards;
+        local complement = !this.explore && Tile.GetComplementSlope(direction) == node.towards;
 
         // When going off-road
         if(hasRoad && !Road.HasRoadType(index, Road.ROADTYPE_ROAD)){
@@ -327,6 +337,12 @@ function RoadPathFinder::GetDistance(index){
     this.distance.Valuate(Tile.GetDistanceManhattanToTile, index);
     this.distance.Sort(AIList.SORT_BY_VALUE, false);
     return this.distance.GetValue(this.distance.Begin());
+}
+
+function RoadPathFinder::GetDistance2(index){
+    this.entries.Valuate(Tile.GetDistanceManhattanToTile, index);
+    this.entries.Sort(AIList.SORT_BY_VALUE, true);
+    return this.entries.GetValue(this.entries.Begin());
 }
 
 function RoadPathFinder::MarkEndpoint(index, forerunner, cost){
