@@ -34,6 +34,9 @@ class DefaultHandler extends CommandHandler {
             case "segments":
                 this.debugging.SetHandler(SegmentHandler());
             break;
+            case "constructor":
+                this.debugging.SetHandler(DebugConstructorHandler());
+            break;
             case "test":
                 this.debugging.SetHandler(DebugTestHandler());
             break;

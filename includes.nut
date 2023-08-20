@@ -63,6 +63,7 @@ require("debug/builderhandler.nut");
 require("debug/finderhandler.nut");
 require("debug/segmenthandler.nut");
 require("debug/vectorhandler.nut");
+require("debug/constructorhandler.nut");
 require("debug/testhandler.nut");
 require("debug/defaulthandler.nut");
 
