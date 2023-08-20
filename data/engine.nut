@@ -69,7 +69,7 @@ function Engine::GetEstimatedDistance(engine_id, days, efficiency){
 	if(Engine.GetVehicleType(engine_id) == AIVehicle.VT_AIR){
 		return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 33.2).tointeger();
 	}
-	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 44.3).tointeger();
+	return (AIEngine.GetMaxSpeed(engine_id) * efficiency * days / 28.0).tointeger();
 }
 
 function Engine::GetEstimatedDistanceIndex(engine_id, days = 100, efficiency = 0.95, factor = 3){
@@ -80,7 +80,9 @@ function Engine::GetEstimatedDays(engine_id, distance, efficiency){
 	if(Engine.GetVehicleType(engine_id) == AIVehicle.VT_AIR){
 		return (distance * 33.2 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
 	}
-	return (distance * 44.3 / efficiency / AIEngine.GetMaxSpeed(engine_id)).tointeger();
+
+	// A tile needs to have a factor of 28, so the 28km/h becomes equal to 1 tile/day
+	return (distance * 28.0 / efficiency / AIEngine.GetMaxSpeed(engine_id) + 0.5).tointeger();
 }
 
 function Engine::GetCapacity(engine_id, cargo_id, length = 0, wagon_id = -1){

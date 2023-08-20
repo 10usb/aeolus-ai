@@ -23,6 +23,14 @@ class Reference {
         }
         return "{" + type + ":" + id + "}";
     }
+
+    function GetLocation(){
+        switch(type){
+            case INDUSTRY: return Industry.GetLocation(id);
+            case TOWN: return Town.GetLocation(id);
+            case INDUSTATIONSTRY: return Station.GetLocation(id);
+        }
+    }
 }
 
 function Reference::FromTile(tile){

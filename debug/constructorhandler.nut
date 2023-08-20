@@ -31,7 +31,30 @@ class DebugConstructorHandler extends CommandHandler {
 
     function Analyze(){
         Log.Info("Source: " + source);
+        // Print source cargo
+
         Log.Info("Destination: " + destination);
+        // Print accepted cargo
+        
+        local distance = Tile.GetDistance(source.GetLocation(), destination.GetLocation());
+        Log.Info("RealDistance: " + distance);
+        local distance = Tile.GetDistanceManhattanToTile(source.GetLocation(), destination.GetLocation());
+        Log.Info("ManhattanDistance: " + distance);
+
+        local trucks = AIEngineList(Vehicle.VT_ROAD);
+        trucks.Valuate(Engine.GetEstimatedDays, distance, 0.90);
+
+        foreach(engine_id, days in trucks){
+             Log.Info(Engine.GetName(engine_id) + ": " + days);
+        }
+
+        // 
+        // Calculate expected travel time for road, rail & air
+        // Select best option based on travel time (80 days = optimal)
+        // Calculate expected income
+        // Calculate expected construction cost
+        // Calculate expected operating cost
+        // Calculate expected repay time
     }
 
     function Build(){
