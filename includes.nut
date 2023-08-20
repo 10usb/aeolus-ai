@@ -13,6 +13,7 @@ require("utils/cache.nut");
 require("utils/preference.nut");
 
 require("utils/vector2d.nut");
+require("utils/reference.nut");
 
 require("utils/map/entry.nut");
 require("utils/map/matrix.nut");
@@ -62,6 +63,7 @@ require("debug/builderhandler.nut");
 require("debug/finderhandler.nut");
 require("debug/segmenthandler.nut");
 require("debug/vectorhandler.nut");
+require("debug/testhandler.nut");
 require("debug/defaulthandler.nut");
 
 // Tasks

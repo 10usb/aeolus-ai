@@ -81,5 +81,6 @@ class Debugging extends Task {
         Log.Info("Setting gandler");
         this.handler = handler;
         this.handler.SetParent(this.GetParent());
+        this.handler.PrintHelp();
     }
 }

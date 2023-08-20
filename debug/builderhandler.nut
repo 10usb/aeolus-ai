@@ -2,13 +2,6 @@ class BuilderHandler extends CommandHandler {
     source_id = null;
     destination_id = null;
 
-	constructor(){
-	    Log.Info("Build commands");
-        Log.Info(" - !source        Set source industry");
-        Log.Info(" - !destination   Set destination industry");
-        Log.Info(" - !go            Start connecting the source to the destination");
-    }
-
     function PrintHelp(){
 	    Log.Info("Build commands");
         Log.Info(" - !source        Set source industry");

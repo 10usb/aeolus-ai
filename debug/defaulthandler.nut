@@ -17,18 +17,28 @@ class DefaultHandler extends CommandHandler {
     }
     
     function OnCommand(command, argument, location){
-        if(command == "clear"){
-            local signs = AISignList();
-            Lists.Valuate(signs, AISign.RemoveSign);
-        }else if(command == "finder"){
-            this.debugging.SetHandler(FinderHandler());
-        }else if(command == "vector"){
-            this.debugging.SetHandler(VectorHandler());
-        }else if(command == "builder"){
-            this.debugging.SetHandler(BuilderHandler());
-        }else if(command == "segments"){
-            this.debugging.SetHandler(SegmentHandler());
-        }else return false;
+        switch(command){
+            case "clear":
+                local signs = AISignList();
+                Lists.Valuate(signs, AISign.RemoveSign);
+            break;
+            case "finder":
+                this.debugging.SetHandler(FinderHandler());
+            break;
+            case "vector":
+                this.debugging.SetHandler(VectorHandler());
+            break;
+            case "builder":
+                this.debugging.SetHandler(BuilderHandler());
+            break;
+            case "segments":
+                this.debugging.SetHandler(SegmentHandler());
+            break;
+            case "test":
+                this.debugging.SetHandler(DebugTestHandler());
+            break;
+            default: return false;
+        }
 
         return true;
     }
