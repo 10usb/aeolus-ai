@@ -10,5 +10,7 @@ class CommandHandler {
         this._parent = task;
     }
 
+    function PrintHelp();
+
     function OnCommand(command, location);
 }

@@ -20,7 +20,7 @@ class FinderHandler extends CommandHandler {
         this.build = build;
     }
     
-    function OnCommand(command, location){
+    function OnCommand(command, argument, location){
         if(command == "!start"){
             start = AISign.BuildSign(location, "OK");
         }else if(command == "!end"){

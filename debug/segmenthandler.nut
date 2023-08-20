@@ -19,7 +19,7 @@ class SegmentHandler extends CommandHandler {
         this.current  = null;
     }
     
-    function OnCommand(command, location){
+    function OnCommand(command, argument, location){
         if(command == "!exit"){
             return false;
         }else if(command == "!start"){

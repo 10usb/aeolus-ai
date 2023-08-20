@@ -25,7 +25,7 @@ class VectorHandler extends CommandHandler {
         this.segments = [];
     }
     
-    function OnCommand(command, location){
+    function OnCommand(command, argument, location){
         if(finder != null){
             if(!finder.OnCommand(command, location)){
                 this.path = finder.path;
