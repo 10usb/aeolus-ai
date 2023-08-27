@@ -58,7 +58,7 @@ function Engine::GetWagonLength(engine_id, cargo_id, max_distance = 0){
 			distance+= speed;
 		}
 
-		if( (distance / 230) < (max_distance > 0 ? max_distance : Math.min(sqrt(AIEngine.GetMaxSpeed(engine_id)), AIEngine.GetMaxSpeed(engine_id) / 10)) ) break;
+		if( (distance / 250) < (max_distance > 0 ? max_distance : Math.min(sqrt(AIEngine.GetMaxSpeed(engine_id)), AIEngine.GetMaxSpeed(engine_id) / 10)) ) break;
 		length--;
 	}
 
