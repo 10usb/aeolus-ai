@@ -21,14 +21,14 @@ class FinderHandler extends CommandHandler {
     }
     
     function OnCommand(command, argument, location){
-        if(command == "!start"){
+        if(command == "start"){
             start = AISign.BuildSign(location, "OK");
-        }else if(command == "!end"){
+        }else if(command == "end"){
             finder.AddEndPoint(location, value);
             value = 0;
-        }else if(command == "!exclude"){
+        }else if(command == "exclude"){
             finder.AddExclusion(location, this.exclusions);
-        }else if(command == "!from"){
+        }else if(command == "from"){
             if(start != null){
                 local index = AISign.GetLocation(start);
                 local towards = location;
@@ -42,7 +42,7 @@ class FinderHandler extends CommandHandler {
                 start = null;
                 exclusions = index;
             }
-        }else if(command == "!go"){
+        }else if(command == "go"){
             Log.Info("Start");
 
             finder.Init();
