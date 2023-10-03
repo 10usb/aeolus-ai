@@ -47,8 +47,15 @@ class Tasks_Road_TownTracer extends Task {
         this.explored = AIList();
         this.matches = AIList();
 
-        
-        this.Enqueue(this.center);
+        local core = AITileList();
+        core.AddRectangle(Tile.GetTranslatedIndex(this.center, -2, -2), Tile.GetTranslatedIndex(this.center, 2, 2));
+
+        core.Valuate(Road.IsRoadTile);
+        core.KeepValue(1);
+
+        foreach(tile, _ in core){
+            this.Enqueue(tile);
+        }
 
         this.state = EXPLORE;
         return true;
@@ -62,7 +69,7 @@ class Tasks_Road_TownTracer extends Task {
     function Explore(){
         Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
 
-        local limit = 5;
+        local limit = 10;
 
         while(limit--){
             if(!Step()){
@@ -80,66 +87,34 @@ class Tasks_Road_TownTracer extends Task {
         local tile =  queue[0];
         queue.remove(0);
 
-        if(Road.IsRoadTile(tile)){
-            this.Follow(tile);
-        }else if(Tile.GetDistanceManhattanToTile(tile, this.center) < 2){
-            this.Find(tile);
-        }
+        CheckNeighbor(tile, 1, 0);
+        CheckNeighbor(tile, -1, 0);
+        CheckNeighbor(tile, 0, 1);
+        CheckNeighbor(tile, 0, -1);
 
         return true;
     }
 
-    function Find(tile){
-        this.signs.Build(tile, "E");
+    function CheckNeighbor(tile, deltaX, deltaY){
+        local neighbor = Tile.GetTranslatedIndex(tile, deltaX, deltaY);
+        
+        // If it was already added to the queue once
+        if(this.explored.HasItem(neighbor))
+            return;
 
-        local test = null;
-        test = Tile.GetTranslatedIndex(tile, 1, 0);
-        if(!this.explored.HasItem(test))
-            this.Enqueue(test);
+        // If it's within reasonable distance from the start
+        if(Tile.GetDistanceManhattanToTile(neighbor, this.center) > this.distance)
+            return false;
 
-        test = Tile.GetTranslatedIndex(tile, -1, 0);
-        if(!this.explored.HasItem(test))
-            this.Enqueue(test);
-
-        test = Tile.GetTranslatedIndex(tile, 0, 1);
-        if(!this.explored.HasItem(test))
-            this.Enqueue(test);
-
-        test = Tile.GetTranslatedIndex(tile, 0, -1);
-        if(!this.explored.HasItem(test))
-            this.Enqueue(test);
+        if(this.CanFollow(tile, neighbor))
+            this.Enqueue(neighbor);
     }
 
-    function Follow(tile){
-        local test = null;
-        test = Tile.GetTranslatedIndex(tile, 1, 0);
-        if(this.CanFollow(tile, test))
-            this.Enqueue(test);
-
-        test = Tile.GetTranslatedIndex(tile, -1, 0);
-        if(this.CanFollow(tile, test))
-            this.Enqueue(test);
-
-        test = Tile.GetTranslatedIndex(tile, 0, 1);
-        if(this.CanFollow(tile, test))
-            this.Enqueue(test);
-
-        test = Tile.GetTranslatedIndex(tile, 0, -1);
-        if(this.CanFollow(tile, test))
-            this.Enqueue(test);
-    }
-
-    function CanFollow(tile, test){
-        if(this.explored.HasItem(test))
-            return false;
-
-        if(Tile.GetDistanceManhattanToTile(test, this.center) > this.distance)
+    function CanFollow(tile, neighbor){
+        if(!Road.AreRoadTilesConnected(tile, neighbor))
             return false;
         
-        if(!Road.AreRoadTilesConnected(tile, test))
-            return false;
-        
-        this.signs.Build(tile, "F "+ Tile.GetCargoAcceptance(test, this.cargo_id, 1, 1, 3));
-        return Tile.GetCargoAcceptance(test, this.cargo_id, 1, 1, 3) > 8;
+        this.signs.Build(tile, "F "+ Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3));
+        return Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3) > 8;
     }
 }
