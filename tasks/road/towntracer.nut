@@ -7,6 +7,7 @@
 class Tasks_Road_TownTracer extends Task {
     static INIT      	= 0;
     static EXPLORE      = 1;
+    static FINALIZE     = 2;
     
     state = 0;
     town_id = null;
@@ -27,13 +28,14 @@ class Tasks_Road_TownTracer extends Task {
     }
 
     function GetName(){
-        return "Tasks_Road_TownTracer"
+        return "Tasks_Road_TownTracer";
     }
 
     function Run(){
         switch(state){
             case INIT: return Init();
             case EXPLORE: return Explore();
+            case FINALIZE: return Finalize();
         }
 
         return false;
@@ -61,24 +63,39 @@ class Tasks_Road_TownTracer extends Task {
         return true;
     }
 
-    function Enqueue(tile){
-        this.queue.push(tile);
-        this.explored.AddItem(tile, 0);
-    }
-
     function Explore(){
         Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
 
-        local limit = 10;
+        // We can do around 200 steps in 10 ticks
+        local limit = 200;
 
         while(limit--){
             if(!Step()){
-                Log.Error("== Done ==");
-                return false;
+                this.state = FINALIZE;
+                return true;
             }
         }
 
         return true;
+    }
+
+    function Finalize(){
+        Log.Error("== Done ==");
+
+        local stations = AIList();
+        stations.AddList(this.matches);
+        stations.RemoveBelowValue(40);
+
+        foreach(tile, accept in stations){
+            this.signs.Build(tile, "" + accept);
+        }
+
+        return false;
+    }
+
+    function Enqueue(tile){
+        this.queue.push(tile);
+        this.explored.AddItem(tile, 0);
     }
 
     function Step(){
@@ -87,15 +104,23 @@ class Tasks_Road_TownTracer extends Task {
         local tile =  queue[0];
         queue.remove(0);
 
-        CheckNeighbor(tile, 1, 0);
-        CheckNeighbor(tile, -1, 0);
-        CheckNeighbor(tile, 0, 1);
-        CheckNeighbor(tile, 0, -1);
+        local flat = Tile.IsFlat(tile);
+        if(flat){
+            local tracks = Road.GetRoadTracks(tile);
+            if(tracks == Rail.RAILTRACK_NE_SW || tracks == Rail.RAILTRACK_NW_SE){
+                this.matches.AddItem(tile, Tile.GetCargoAcceptance(tile, this.cargo_id, 1, 1, 3));
+            }
+        }
+
+        CheckNeighbor(tile, 1, 0, flat);
+        CheckNeighbor(tile, -1, 0, flat);
+        CheckNeighbor(tile, 0, 1, flat);
+        CheckNeighbor(tile, 0, -1, flat);
 
         return true;
     }
 
-    function CheckNeighbor(tile, deltaX, deltaY){
+    function CheckNeighbor(tile, deltaX, deltaY, flat){
         local neighbor = Tile.GetTranslatedIndex(tile, deltaX, deltaY);
         
         // If it was already added to the queue once
@@ -106,6 +131,10 @@ class Tasks_Road_TownTracer extends Task {
         if(Tile.GetDistanceManhattanToTile(neighbor, this.center) > this.distance)
             return false;
 
+        if(flat && Tile.IsFlat(neighbor) && Tile.IsBuildable(neighbor)){
+            this.matches.AddItem(neighbor, Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3));
+        }
+
         if(this.CanFollow(tile, neighbor))
             this.Enqueue(neighbor);
     }
@@ -114,7 +143,6 @@ class Tasks_Road_TownTracer extends Task {
         if(!Road.AreRoadTilesConnected(tile, neighbor))
             return false;
         
-        this.signs.Build(tile, "F "+ Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3));
         return Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3) > 8;
     }
 }
