@@ -2,6 +2,11 @@ class Tile extends AITile {
 	static AXIS_INVALID = 0;
 	static AXIS_X = 1;
 	static AXIS_Y = 2;
+
+	static SIDE_NW = 1;
+	static SIDE_NE = 2;
+	static SIDE_SW = 4;
+	static SIDE_SE = 8;
 }
 
 // Copy these tile related method from Map to the Tile class for consistancy
