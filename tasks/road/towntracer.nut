@@ -84,10 +84,22 @@ class Tasks_Road_TownTracer extends Task {
 
         local stations = AIList();
         stations.AddList(this.matches);
+        stations.Valuate(Tile.IsBuildable);
+        stations.KeepValue(0);
+        stations.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
         stations.RemoveBelowValue(40);
 
         foreach(tile, accept in stations){
             this.signs.Build(tile, "" + accept);
+        }
+
+        local depots = AIList();
+        depots.AddList(this.matches);
+        depots.Valuate(Tile.IsBuildable);
+        depots.KeepValue(1);
+
+        foreach(tile, _ in depots){
+            this.signs.Build(tile, "DEPOT");
         }
 
         return false;
@@ -137,10 +149,29 @@ class Tasks_Road_TownTracer extends Task {
 
         if(this.CanFollow(tile, neighbor))
             this.Enqueue(neighbor);
+        
+        if(AIBridge.IsBridgeTile(neighbor)){
+            local end = AIBridge.GetOtherBridgeEnd(neighbor);
+            
+            this.explored.AddItem(neighbor, 0);
+            this.explored.AddItem(end, 0);
+
+            local vector = MapVector.Create(neighbor, end);
+            local length = vector.Length();
+
+            vector.Normalize();
+            local endpoint = vector.GetTileIndex(length + 1);
+    
+            if(Road.AreRoadTilesConnected(end, endpoint))
+                this.Enqueue(endpoint);
+        }
     }
 
     function CanFollow(tile, neighbor){
         if(!Road.AreRoadTilesConnected(tile, neighbor))
+            return false;
+        
+        if(AIBridge.IsBridgeTile(neighbor))
             return false;
         
         return Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3) > 8;

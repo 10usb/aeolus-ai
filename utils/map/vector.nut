@@ -39,10 +39,13 @@ function MapVector::Reverse(){
 	y = -y;
 	return this;
 }
+function MapVector::Length(){
+	return abs(x) > abs(y) ? abs(x) : abs(y);
+}
 function MapVector::ToString(){
 	local value = x + "x" + y;
 	if(origin!= null){
-		value+= origin.ToString();
+		value+= "@" + origin.ToString();
 	}
 	return value;
 }
