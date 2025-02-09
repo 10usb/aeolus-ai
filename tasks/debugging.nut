@@ -66,7 +66,14 @@ class Debugging extends Task {
         }
 
         switch(command){
-            case "exit": handler = DefaultHandler(this); break;
+            case "exit":
+                handler = DefaultHandler(this);
+                handler.PrintHelp();
+            break;
+            case "clear":
+                local signs = AISignList();
+                Lists.Valuate(signs, AISign.RemoveSign);
+            break;
             case "help": handler.PrintHelp(); break;
             default:
                 if(!handler.OnCommand(command, argument, location)){

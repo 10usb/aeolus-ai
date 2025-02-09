@@ -1,4 +1,6 @@
 class DebugTestHandler extends CommandHandler {
+    tracer = null;
+
     function PrintHelp(){
         Log.Info("Debugging commands:");
         Log.Info(" - !exit          To return to the default handler");
@@ -41,7 +43,7 @@ class DebugTestHandler extends CommandHandler {
 
         //AISign.BuildSign(location, "Center");
 
-        local task = Tasks_Road_TownTracer(town_id, cargo_id, 100);
-        this.GetParent().EnqueueTask(task);
+        this.tracer = Tasks_Road_TownTracer(town_id, cargo_id, 100);
+        this.GetParent().EnqueueTask(this.tracer);
     }
 }

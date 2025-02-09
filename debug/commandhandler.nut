@@ -10,6 +10,10 @@ class CommandHandler {
         this._parent = task;
     }
 
+    function EnqueueTask(task){
+        this._parent.EnqueueTask(task);
+    }
+
     function PrintHelp();
 
     function OnCommand(command, location);

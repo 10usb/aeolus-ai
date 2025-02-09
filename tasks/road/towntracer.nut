@@ -18,6 +18,7 @@ class Tasks_Road_TownTracer extends Task {
     queue = null;
     explored = null;
     matches = null;
+    selected = null;
     
     constructor(town_id, cargo_id, distance){
         this.town_id = town_id;
@@ -88,8 +89,28 @@ class Tasks_Road_TownTracer extends Task {
         stations.KeepValue(0);
         stations.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
         stations.RemoveBelowValue(40);
+        
 
-        foreach(tile, accept in stations){
+        local start = Lists.RandPriority(stations);
+        stations.RemoveItem(start);
+
+        this.selected = AIList();
+        this.selected.AddItem(start, 0);
+
+        while(stations.Count() > 0){
+            stations.Valuate(GetDistance, this.selected);
+            stations.Sort(List.SORT_BY_VALUE, true);
+            stations.RemoveBelowValue(8);
+
+            local next = stations.Begin();
+            stations.RemoveItem(next);
+
+            this.selected.AddItem(next, 0);
+        }
+
+        
+        this.selected.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
+        foreach(tile, accept in this.selected){
             this.signs.Build(tile, "" + accept);
         }
 
@@ -98,11 +119,29 @@ class Tasks_Road_TownTracer extends Task {
         depots.Valuate(Tile.IsBuildable);
         depots.KeepValue(1);
 
-        foreach(tile, _ in depots){
-            this.signs.Build(tile, "DEPOT");
+        // foreach(tile, _ in depots){
+        //     this.signs.Build(tile, "DEPOT");
+        // }
+
+        Log.Error("== Done2 ==");
+        return false;
+    }
+
+    function GetDistance(index, list){
+        local min = 10000;
+        
+        local x = Tile.GetX(index);
+        local y = Tile.GetY(index);
+
+        foreach(tile, dummy in list){
+            local dx = abs(Tile.GetX(tile) - x);
+            local dy = abs(Tile.GetY(tile) - y);
+
+            if(max(dx, dy) < min)
+                min = max(dx, dy);
         }
 
-        return false;
+        return min;
     }
 
     function Enqueue(tile){

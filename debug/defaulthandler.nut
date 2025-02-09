@@ -14,6 +14,7 @@ class DefaultHandler extends CommandHandler {
         Log.Info(" - !vector        Use vectors to build rail");
         Log.Info(" - !builder       Start the builder");
         Log.Info(" - !segments      Segments & vectors");
+        Log.Info(" - !constructor   Segments & vectors");
     }
     
     function OnCommand(command, argument, location){
