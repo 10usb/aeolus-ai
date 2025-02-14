@@ -1,8 +1,10 @@
 /**
-* The task of this tracer is follow the roads of a town to generate
-* a list of tiles that if a stattion is places accepts or produces
-* a given cargo. It's not bound to the roads the given town has authority
-* over instead all tiles that are within a given distance.
+* The task of this tracer is to follow the roads of a town to generate
+* a list of tiles that if a station is placed accepts or produces
+* a given cargo. 
+* 
+* It's not bound to the roads the given town has authority over instead 
+* all tiles that are within a given distance.
 */
 class Tasks_Road_TownTracer extends Task {
     static INIT      	= 0;
@@ -18,6 +20,7 @@ class Tasks_Road_TownTracer extends Task {
     queue = null;
     explored = null;
     matches = null;
+    empties = null;
     selected = null;
     
     constructor(town_id, cargo_id, distance){
@@ -49,16 +52,15 @@ class Tasks_Road_TownTracer extends Task {
 
         this.explored = AIList();
         this.matches = AIList();
+        this.empties = AIList();
 
         local core = AITileList();
         core.AddRectangle(Tile.GetTranslatedIndex(this.center, -2, -2), Tile.GetTranslatedIndex(this.center, 2, 2));
-
         core.Valuate(Road.IsRoadTile);
         core.KeepValue(1);
 
-        foreach(tile, _ in core){
+        foreach(tile, _ in core)
             this.Enqueue(tile);
-        }
 
         this.state = EXPLORE;
         return true;
@@ -81,49 +83,32 @@ class Tasks_Road_TownTracer extends Task {
     }
 
     function Finalize(){
-        Log.Error("== Done ==");
+        this.matches.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
 
-        local stations = AIList();
-        stations.AddList(this.matches);
-        stations.Valuate(Tile.IsBuildable);
-        stations.KeepValue(0);
-        stations.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-        stations.RemoveBelowValue(40);
-        
+        local limit = 5;
+        do {
+            local stations = AIList();
+            stations.AddList(this.matches);
+            stations.RemoveBelowValue(40);
+            
+            local start = Lists.RandPriority(stations);
+            stations.RemoveItem(start);
 
-        local start = Lists.RandPriority(stations);
-        stations.RemoveItem(start);
+            this.selected = AIList();
+            this.selected.AddItem(start, 0);
 
-        this.selected = AIList();
-        this.selected.AddItem(start, 0);
+            while(stations.Count() > 0){
+                stations.Valuate(GetDistance, this.selected);
+                stations.Sort(List.SORT_BY_VALUE, true);
+                stations.RemoveBelowValue(8);
 
-        while(stations.Count() > 0){
-            stations.Valuate(GetDistance, this.selected);
-            stations.Sort(List.SORT_BY_VALUE, true);
-            stations.RemoveBelowValue(8);
+                local next = stations.Begin();
+                stations.RemoveItem(next);
 
-            local next = stations.Begin();
-            stations.RemoveItem(next);
+                this.selected.AddItem(next, 0);
+            }
+        }while(--limit > 0 && this.selected.Count() < 1);
 
-            this.selected.AddItem(next, 0);
-        }
-
-        
-        this.selected.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-        foreach(tile, accept in this.selected){
-            this.signs.Build(tile, "" + accept);
-        }
-
-        local depots = AIList();
-        depots.AddList(this.matches);
-        depots.Valuate(Tile.IsBuildable);
-        depots.KeepValue(1);
-
-        // foreach(tile, _ in depots){
-        //     this.signs.Build(tile, "DEPOT");
-        // }
-
-        Log.Error("== Done2 ==");
         return false;
     }
 
@@ -150,7 +135,8 @@ class Tasks_Road_TownTracer extends Task {
     }
 
     function Step(){
-        if(!queue.len()) return false;
+        if(!queue.len())
+            return false;
 
         local tile =  queue[0];
         queue.remove(0);
@@ -158,9 +144,8 @@ class Tasks_Road_TownTracer extends Task {
         local flat = Tile.IsFlat(tile);
         if(flat){
             local tracks = Road.GetRoadTracks(tile);
-            if(tracks == Rail.RAILTRACK_NE_SW || tracks == Rail.RAILTRACK_NW_SE){
-                this.matches.AddItem(tile, Tile.GetCargoAcceptance(tile, this.cargo_id, 1, 1, 3));
-            }
+            if(tracks == Rail.RAILTRACK_NE_SW || tracks == Rail.RAILTRACK_NW_SE)
+                this.matches.AddItem(tile, 0);
         }
 
         CheckNeighbor(tile, 1, 0, flat);
@@ -182,9 +167,8 @@ class Tasks_Road_TownTracer extends Task {
         if(Tile.GetDistanceManhattanToTile(neighbor, this.center) > this.distance)
             return false;
 
-        if(flat && Tile.IsFlat(neighbor) && Tile.IsBuildable(neighbor)){
-            this.matches.AddItem(neighbor, Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3));
-        }
+        if(flat && Tile.IsFlat(neighbor) && Tile.IsBuildable(neighbor))
+            this.empties.AddItem(neighbor, Tile.GetCargoAcceptance(neighbor, this.cargo_id, 1, 1, 3));
 
         if(this.CanFollow(tile, neighbor))
             this.Enqueue(neighbor);

@@ -147,12 +147,16 @@ class DebugConstructorHandler extends CommandHandler {
             return false;
         }
 
+        local budget_id = Company.GetInvestmentBudget();
+        local funds_id = Company.GetInvestmentBudget();
+        local cargo_id = this.cargos[0];
+
         Log.Info("Town: " + Town.GetName(town_id));
-        Log.Info("Cargo: " + Cargo.GetName(this.cargos[0]));
+        Log.Info("Cargo: " + Cargo.GetName(cargo_id));
         Log.Info("Budget: " + this.budget);
         Log.Info("Max. Stations: " + this.max);
-
-        local task = Tasks_Road_TownTracer(town_id, this.cargos[0], 100);
+        
+        local task = Tasks_Road_BuildInnerCity(budget_id, funds_id, cargo_id, town_id, this.max);
         this.EnqueueTask(task);
 
         return true;
