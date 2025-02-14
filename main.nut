@@ -1,7 +1,5 @@
 require("includes.nut");
 
-import("queue.fibonacci_heap", "FibonacciHeap", 2);
-
 class Controller extends AIController {
 	scheduler = null;
 	loaded = false;

@@ -1,2 +1,0 @@
-class Thread extends Task {
-}

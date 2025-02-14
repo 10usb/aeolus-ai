@@ -1,4 +1,4 @@
-class AircraftReplacer extends Thread {
+class AircraftReplacer extends Task {
 	static INITIALIZE = 0;
 	static WAITING = 1;
 

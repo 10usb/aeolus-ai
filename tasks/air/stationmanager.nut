@@ -1,5 +1,5 @@
 
-class AirStationManager extends Thread {
+class AirStationManager extends Task {
 	static INITIALIZE		= 0;
 	static NEXT_CARGO		= 1;
 	static NEXT_ENGINE		= 2;

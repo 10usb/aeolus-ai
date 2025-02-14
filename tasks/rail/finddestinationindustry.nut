@@ -1,5 +1,5 @@
 
-class RailFindDestinationIndustry extends Thread {
+class RailFindDestinationIndustry extends Task {
 	opportunity_id = null;
 	state = 0;
 

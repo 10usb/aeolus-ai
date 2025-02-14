@@ -1,5 +1,5 @@
 
-class AirFindDestination extends Thread {
+class AirFindDestination extends Task {
 	opportunity_id = null;
 	state = 0;
 

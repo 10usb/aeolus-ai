@@ -1,7 +1,7 @@
 require("utils/tasks/scheduler.nut");
 require("utils/tasks/task.nut");
 require("utils/tasks/taskqueue.nut");
-require("utils/thread.nut");
+require("utils/tasks/thread.nut");
 
 require("utils/log.nut");
 require("utils/math.nut");

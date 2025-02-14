@@ -1,5 +1,5 @@
 
-class BuildOpportunities extends Thread {
+class BuildOpportunities extends Task {
 	constructor(){
 	}
 }

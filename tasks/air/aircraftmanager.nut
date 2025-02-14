@@ -1,5 +1,5 @@
 
-class AircraftManager extends Thread {
+class AircraftManager extends Task {
 }
 
 function AircraftManager::GetName(){

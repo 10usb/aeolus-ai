@@ -1,5 +1,5 @@
 
-class AirBuildOpportunity extends Thread {
+class AirBuildOpportunity extends Task {
 	static INITIALIZE			= 0;
 	static BUILD_SOURCE			= 1;
 	static BUILD_AIRPORT		= 2;
