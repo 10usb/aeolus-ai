@@ -4,10 +4,8 @@
  */
  class Tasks_Road_BuildInnerCity extends Task {
 	static INITIALIZE		= 0;
-	static PICK_STATIONS    = 1;
-    static BUILD_STATIONS   = 2;
-    static BUILD_DEPOTS     = 3;
-    static BUY_VEHICLES     = 4;
+    static PREP_VEHICLES    = 1;
+    static BUY_VEHICLES     = 2;
     static FINALIZE         = 5;
 
 	state = 0;
@@ -16,9 +14,10 @@
     cargo_id = null;
     town_id = null;
     max_stations = 0;
-    tracer = null;
 
-    signs = null;
+    engine_id = null;
+    builder = null;
+    queue = null;
     
 	constructor(budget_id, funds_id, cargo_id, town_id, max_stations){
         this.budget_id = budget_id;
@@ -37,59 +36,71 @@
     function Run(){
         switch(state){
             case INITIALIZE: return Initialize();
-            case PICK_STATIONS: return PickStations();
+            case PREP_VEHICLES: return PrepVehicles();
+            case BUY_VEHICLES: return BuyVehicles();
         }
 
         return false;
     }
 
     function Initialize(){
-        this.signs = Signs();
-
-        this.tracer = Tasks_Road_TownTracer(this.town_id, this.cargo_id, 100);
-        this.PushTask(this.tracer);
-
-        state = PICK_STATIONS;
-        return true;
-    }
-
-    function PickStations(){
-        if(this.tracer.selected.Count() < 2){
-            Log.Error("Failed to find enough station spots in " + Town.GetName(this.town_id));
-            // TODO mark town is not suited, and disfavor cargo and build preference
+        local engines = AIEngineList(AIVehicle.VT_ROAD);
+        engines.Valuate(Engine.GetCargoType)
+        engines.KeepValue(cargo_id);
+        if(engines.IsEmpty()){
+            Log.Warning("No road engine found for " + Cargo.GetName(cargo_id));
             return false;
         }
 
-        local spots = AIList();
-        spots.AddList(this.tracer.selected);
-        
-        if(spots.Count() > this.max_stations){
-            spots.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-            spots.Sort(List.SORT_BY_VALUE, true);
-            spots.RemoveBottom(spots.Count() - this.max_stations);
-        }
+        engines.Sort(AIList.SORT_BY_VALUE, false);
+        this.engine_id = engines.Begin();
 
-        foreach(tile, accept in spots){
-            BuildDriveThroughRoadStation(tile);
-        }
+        this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, this.max_stations);
+        this.PushTask(this.builder);
+        this.builder.Run();
 
-        // foreach(tile, _ in this.tracer.empties){
-        //     this.signs.Build(tile, "DEPOT");
-        // }
-
-        return false;
+        state = PREP_VEHICLES;
+        return true;
     }
 
-    function BuildDriveThroughRoadStation(tile) {
-        local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 1.2;
-        if(!Budget.Take(budget_id, cost)){
-            Budget.Request(budget_id, cost);
-            Log.Warning("Waiting for money STATION");
+    function PrepVehicles(){
+        queue = [];
+        foreach(station_tile, _ in this.builder.stations)
+            queue.push(station_tile);
+
+        state = BUY_VEHICLES;
+        return BuyVehicles();
+    }
+
+    function BuyVehicles(){
+        local station_tile = queue.pop();
+
+        local cost = Engine.GetPrice(this.engine_id) * 1.2;
+        if(!Budget.Take(this.budget_id, cost)){
+            Budget.Request(this.budget_id, cost);
+            Log.Warning("Waiting for money ENGINE");
             return this.Wait(3);
         }
 
-        Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
-        return Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(0, 1), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW)
-            || Road.BuildDriveThroughRoadStation(tile, tile + AIMap.GetTileIndex(1, 0), AIRoad.ROADVEHTYPE_BUS, AIBaseStation.STATION_NEW);
+        local depot_tile = this.builder.stations.GetValue(station_tile);
+        
+        Log.Info("Building vehicle");
+        local vehicle_id = Vehicle.BuildVehicle(depot_tile, this.engine_id);
+        AIOrder.AppendOrder(vehicle_id, station_tile, AIOrder.OF_NON_STOP_INTERMEDIATE|AIOrder.OF_FULL_LOAD);
+
+        local destinations = AIList();
+        destinations.AddList(this.builder.stations);
+        destinations.RemoveItem(station_tile);
+        destinations.Valuate(Lists.RandRangeItem, 0, 1000);
+        destinations.Sort(List.SORT_BY_VALUE, false);
+        destinations.KeepTop(2);
+
+        foreach(destination, _ in destinations)
+            AIOrder.AppendOrder(vehicle_id, destination, AIOrder.OF_NON_STOP_INTERMEDIATE);
+        
+        AIOrder.AppendOrder(vehicle_id, depot_tile, AIOrder.OF_GOTO_NEAREST_DEPOT|AIOrder.OF_NON_STOP_INTERMEDIATE);
+        AIVehicle.StartStopVehicle(vehicle_id);
+
+        return queue.len() > 0;
     }
  }

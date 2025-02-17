@@ -15,7 +15,6 @@ class Tasks_Road_TownTracer extends Task {
     town_id = null;
     cargo_id = null;
     distance = null;
-    signs = null;
     center = null;
     queue = null;
     explored = null;
@@ -46,7 +45,6 @@ class Tasks_Road_TownTracer extends Task {
     }
 
     function Init(){
-        this.signs = Signs();
         this.center = Town.GetLocation(this.town_id);
         this.queue = [];
 
