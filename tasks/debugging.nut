@@ -1,4 +1,4 @@
-class Debugging extends Task {
+class Tasks_Debugging extends Task {
     previous = null;
     handler = null;
 
@@ -39,12 +39,24 @@ class Debugging extends Task {
             local name = AISign.GetName(sign_id);
 
             if(name.slice(0, 1) == "!"){
-                try {
-                    this.Process(name, AISign.GetLocation(sign_id));
-                }catch(err){
-                    Log.Error(err);
-                    Log.Info("I'm still alive");
-                }
+                local location = AISign.GetLocation(sign_id);
+
+                local start = 1;
+                local offset = null;
+
+                do {
+                    offset = name.find(";", start);
+                    local end = offset == null ? name.len() : offset
+                    local command = name.slice(start, end);
+
+                    try {
+                        this.Process(command, location);
+                    }catch(err){
+                        Log.Error(err);
+                        Log.Info("I'm still alive");
+                    }
+                    start = end + 1;
+                }while(offset != null);
 
                 AISign.RemoveSign(sign_id);
                 previous = AISignList();
@@ -60,9 +72,7 @@ class Debugging extends Task {
         local offset = command.find("=");
         if(offset!= null){
             argument = command.slice(offset + 1);
-            command = command.slice(1, offset);
-        }else{
-            command = command.slice(1);
+            command = command.slice(0, offset);
         }
 
         switch(command){
