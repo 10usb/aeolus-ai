@@ -14,6 +14,11 @@ Tile.IsValidTile <- AIMap.IsValidTile;
 Tile.GetIndex <- AIMap.GetTileIndex;
 Tile.GetX <- AIMap.GetTileX;
 Tile.GetY <- AIMap.GetTileY;
+Tile.GetMaxDistance <- AIMap.DistanceMax;
+Tile.GetManhattanDistance <- AITile.GetDistanceManhattanToTile;
+Tile.GetSquareDistance <- AITile.GetDistanceManhattanToTile;
+
+
 
 function Tile::GetTranslatedIndex(index, x, y){
 	return AIMap.GetTileIndex(

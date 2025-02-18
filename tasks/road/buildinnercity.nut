@@ -55,7 +55,7 @@
         engines.Sort(AIList.SORT_BY_VALUE, false);
         this.engine_id = engines.Begin();
 
-        this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, this.max_stations);
+        this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, 2, this.max_stations);
         this.PushTask(this.builder);
         this.builder.Run();
 

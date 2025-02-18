@@ -101,13 +101,9 @@ require("tasks/rail/singletrack.nut");
 require("tasks/rail/vectoroptimizer.nut");
 
 // Road Tasks
-require("tasks/road/findinnercity.nut");
-require("tasks/road/innercity.nut");
-require("tasks/road/builddepot.nut");
 require("tasks/road/buildinnercity.nut");
 require("tasks/road/buildtownstations.nut");
-require("tasks/road/buildtownstation.nut");
-require("tasks/road/buildvehicle.nut");
+require("tasks/road/findinnercity.nut");
 require("tasks/road/pathbuilder.nut");
 require("tasks/road/towntracer.nut");
 

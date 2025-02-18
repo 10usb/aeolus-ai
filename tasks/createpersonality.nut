@@ -16,8 +16,6 @@ class CreatePersonality extends Task {
 		this.GetParent().EnqueueTask(FindOpportunities());
 		this.GetParent().EnqueueTask(RepayLoan());
 		this.GetParent().EnqueueTask(Tasks_Finance());
-
-		//this.GetParent().EnqueueTask(Road_InnerCity());
 		
 		return false;
 	}

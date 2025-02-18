@@ -85,6 +85,8 @@ class Tasks_Road_TownTracer extends Task {
 
         local limit = 5;
         do {
+            Log.Info("Attempt #" + limit);
+
             local stations = AIList();
             stations.AddList(this.matches);
             stations.RemoveBelowValue(40);
@@ -98,14 +100,17 @@ class Tasks_Road_TownTracer extends Task {
             while(stations.Count() > 0){
                 stations.Valuate(GetDistance, this.selected);
                 stations.Sort(List.SORT_BY_VALUE, true);
-                stations.RemoveBelowValue(8);
+                stations.RemoveBelowValue(7);
+
+                if(stations.Count() <= 0)
+                    break;
 
                 local next = stations.Begin();
                 stations.RemoveItem(next);
 
                 this.selected.AddItem(next, 0);
             }
-        }while(--limit > 0 && this.selected.Count() < 1);
+        }while(--limit > 0 && this.selected.Count() < 2);
 
         return false;
     }
