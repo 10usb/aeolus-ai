@@ -73,7 +73,7 @@ class Tasks_Road_TownTracer extends Task {
         while(limit--){
             if(!Step()){
                 this.state = FINALIZE;
-                return true;
+                return false;
             }
         }
 
@@ -81,55 +81,7 @@ class Tasks_Road_TownTracer extends Task {
     }
 
     function Finalize(){
-        this.matches.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-
-        local limit = 5;
-        do {
-            Log.Info("Attempt #" + limit);
-
-            local stations = AIList();
-            stations.AddList(this.matches);
-            stations.RemoveBelowValue(40);
-            
-            local start = Lists.RandPriority(stations);
-            stations.RemoveItem(start);
-
-            this.selected = AIList();
-            this.selected.AddItem(start, 0);
-
-            while(stations.Count() > 0){
-                stations.Valuate(GetDistance, this.selected);
-                stations.Sort(List.SORT_BY_VALUE, true);
-                stations.RemoveBelowValue(7);
-
-                if(stations.Count() <= 0)
-                    break;
-
-                local next = stations.Begin();
-                stations.RemoveItem(next);
-
-                this.selected.AddItem(next, 0);
-            }
-        }while(--limit > 0 && this.selected.Count() < 2);
-
         return false;
-    }
-
-    function GetDistance(index, list){
-        local min = 10000;
-        
-        local x = Tile.GetX(index);
-        local y = Tile.GetY(index);
-
-        foreach(tile, dummy in list){
-            local dx = abs(Tile.GetX(tile) - x);
-            local dy = abs(Tile.GetY(tile) - y);
-
-            if(max(dx, dy) < min)
-                min = max(dx, dy);
-        }
-
-        return min;
     }
 
     function Enqueue(tile){

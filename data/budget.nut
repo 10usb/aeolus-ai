@@ -88,7 +88,7 @@ function Budget::Take(budget_id, amount){
 /**
  * Adds money to the budget is available
  */
-function Budget::Request(budget_id, request){
+function Budget::Request(budget_id, amount){
 	// normalize input
 	amount = amount.tointeger();
 
