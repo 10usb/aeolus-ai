@@ -1,5 +1,6 @@
 class DebugTestHandler extends CommandHandler {
     tracer = null;
+    cargo_id = 0;
 
     function PrintHelp(){
         Log.Info("Debugging commands:");
@@ -13,6 +14,7 @@ class DebugTestHandler extends CommandHandler {
                 local ref = Reference.FromTile(location);
                 Log.Warning("Whoei: " + ref);
             break;
+            case "cargo": this.SetCargo(argument); break;
             case "town": this.BuildTown(location); break;
             default:
                 Log.Error("Unknown command");
@@ -30,6 +32,24 @@ class DebugTestHandler extends CommandHandler {
         Log.Info("ClosestTown: " + Tile.GetClosestTown(location));
         Log.Info("GetOwner: " + Tile.GetOwner(location));
     }
+    
+    function SetCargo(argument){
+        if(argument == "?"){
+            Log.Info("Cargo's:");
+
+            foreach(cargo_id, dummy in AICargoList()){
+                Log.Info(" - " + cargo_id + " => " + Cargo.GetName(cargo_id));
+            }
+        }else{
+            local cargo_id = argument.tointeger();
+            if(!Cargo.IsValidCargo(cargo_id)){
+                Log.Warning("Unknown cargo: " + cargo_id);
+            }else{
+                this.cargo_id = cargo_id;
+                Log.Info("Set " + Cargo.GetName(cargo_id) + " (" + cargo_id + ")");
+            }
+        }
+    }
 
     function BuildTown(location){
         local town_id = Tile.GetTownAuthority(location);
@@ -43,7 +63,7 @@ class DebugTestHandler extends CommandHandler {
 
         //AISign.BuildSign(location, "Center");
 
-        this.tracer = Tasks_Road_TownTracer(town_id, cargo_id, 100);
+        this.tracer = Tasks_Road_TownTracer(town_id, cargo_id, 100, true);
         this.GetParent().EnqueueTask(this.tracer);
     }
 }
