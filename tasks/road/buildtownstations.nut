@@ -4,11 +4,10 @@
  */
  class Tasks_Road_BuildTownStations extends Task {
 	static INITIALIZE		= 0;
-	static PICK_STATIONS    = 1;
-    static BUILD_STATIONS   = 2;
-    static PREP_DEPOTS      = 3;
-    static BUILD_DEPOTS     = 4;
-	static FINALIZE         = 5;
+    static BUILD_STATIONS   = 1;
+    static PREP_DEPOTS      = 2;
+    static BUILD_DEPOTS     = 3;
+	static FINALIZE         = 4;
 
 	state = 0;
 
@@ -16,9 +15,9 @@
     funds_id = null;
     cargo_id = null;
     town_id = null;
-    min = 0;
-    max = 0;
-    tracer = null;
+    spots = null;
+    empties = null;
+
     queue = null;
     stations = null;
     vehicleType = null;
@@ -26,13 +25,13 @@
 
     signs = null;
 
-	constructor(budget_id, funds_id, cargo_id, town_id, min, max){
+	constructor(budget_id, funds_id, cargo_id, town_id, spots, empties){
         this.budget_id = budget_id;
         this.funds_id = funds_id;
         this.cargo_id = cargo_id;
         this.town_id = town_id
-        this.min = min;
-        this.max = max;
+        this.spots = spots;
+        this.empties = empties;
 
 		state = INITIALIZE;
 	}
@@ -44,7 +43,6 @@
     function Run(){
         switch(state){
             case INITIALIZE: return Initialize();
-            case PICK_STATIONS: return PickStations();
             case BUILD_STATIONS: return BuildStations();
             case PREP_DEPOTS: return PrepDepots();
             case BUILD_DEPOTS: return BuildDepots();
@@ -56,36 +54,10 @@
     function Initialize(){
         this.signs = Signs();
 
-        this.tracer = Tasks_Road_TownTracer(this.town_id, this.cargo_id, 100);
-        this.PushTask(this.tracer);
-
         this.vehicleType =  Road.GetRoadVehicleTypeForCargo(this.cargo_id);
 
-        state = PICK_STATIONS;
-        return true;
-    }
-
-
-    function PickStations(){
-        if(this.tracer.selected.Count() < this.min){
-            Log.Error("Failed to find enough station spots in " + Town.GetName(this.town_id));
-            // TODO mark town is not suited, and disfavor cargo and build preference
-            return false;
-        }
-
-        local spots = AIList();
-        spots.AddList(this.tracer.selected);
-        
-        if(spots.Count() > this.max){
-            spots.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-            spots.Sort(List.SORT_BY_VALUE, true);
-            spots.RemoveBottom(spots.Count() - this.max);
-        }
-
-        Log.Info("Selected " + (this.tracer.selected.Count()) + " station location to build");
-        
         this.queue = [];
-        foreach(tile, accept in spots){
+        foreach(tile, accept in this.spots){
             this.queue.push(tile);
         }
 
@@ -125,7 +97,7 @@
         foreach(station_tile, _ in this.stations)
             queue.push(station_tile);
 
-        this.stations.Valuate(this.GetClosestEmpty, this.tracer.empties);
+        this.stations.Valuate(this.GetClosestEmpty, this.empties);
         this.depots = AIList();
 
         state = BUILD_DEPOTS;
@@ -161,6 +133,7 @@
             if(this.BuildDepot(depot_tile, front_tile))
                 continue;
             
+            this.signs.Build(depot_tile, "Depot");
             Log.Warning("Failed to build depot [" + Tile.GetX(depot_tile) + "x" + Tile.GetY(depot_tile) + "]");
             this.stations.SetValue(tile, 0);
         }

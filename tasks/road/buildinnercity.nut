@@ -1,11 +1,13 @@
 /**
  * This task tries build a bus or truck station in a town
  * with a reasonable distance to other stations of same type.
+ * 
  */
  class Tasks_Road_BuildInnerCity extends Task {
 	static INITIALIZE		= 0;
-    static PREP_VEHICLES    = 1;
-    static BUY_VEHICLES     = 2;
+	static PICK_STATIONS    = 2;
+    static PREP_VEHICLES    = 3;
+    static BUY_VEHICLES     = 4;
     static FINALIZE         = 5;
 
 	state = 0;
@@ -16,6 +18,7 @@
     max_stations = 0;
 
     engine_id = null;
+    tracer = null;
     builder = null;
     queue = null;
     
@@ -36,6 +39,7 @@
     function Run(){
         switch(state){
             case INITIALIZE: return Initialize();
+            case PICK_STATIONS: return PickStations();
             case PREP_VEHICLES: return PrepVehicles();
             case BUY_VEHICLES: return BuyVehicles();
         }
@@ -55,9 +59,34 @@
         engines.Sort(AIList.SORT_BY_VALUE, false);
         this.engine_id = engines.Begin();
 
-        this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, 2, this.max_stations);
+
+        this.tracer = Tasks_Road_TownTracer(this.town_id, this.cargo_id, 100);
+        this.PushTask(this.tracer);
+
+        state = PICK_STATIONS;
+        return true;
+    }
+
+    function PickStations(){
+        if(this.tracer.selected.Count() < 2){
+            Log.Error("Failed to find enough station spots in " + Town.GetName(this.town_id));
+            // TODO mark town is not suited, and disfavor cargo and build preference
+            return false;
+        }
+
+        local spots = AIList();
+        spots.AddList(this.tracer.selected);
+        
+        if(spots.Count() > this.max_stations){
+            spots.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
+            spots.Sort(List.SORT_BY_VALUE, true);
+            spots.RemoveBottom(spots.Count() - this.max_stations);
+        }
+
+        Log.Info("Selected " + (this.tracer.selected.Count()) + " station location to build");
+
+        this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, spots, this.tracer.empties);
         this.PushTask(this.builder);
-        this.builder.Run();
 
         state = PREP_VEHICLES;
         return true;

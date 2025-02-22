@@ -3,8 +3,8 @@
 * a list of tiles that if a station is placed accepts or produces
 * a given cargo. 
 * 
-* It's not bound to the roads the given town has authority over instead 
-* all tiles that are within a given distance.
+* It's not bound to the roads the given town has authority, instead all
+* tiles that are within a given acceptable distance
 */
 class Tasks_Road_TownTracer extends Task {
     static INIT      	= 0;
