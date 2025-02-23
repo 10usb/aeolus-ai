@@ -223,7 +223,7 @@ class Tasks_Road_TownTracer extends Task {
 
         if(this.debug) this.signs.Build(tile, acceptance);
 
-        if(acceptance < 5)
+        if(acceptance < 6)
             return;
 
         // When the road is flat

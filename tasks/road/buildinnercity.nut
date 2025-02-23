@@ -7,8 +7,9 @@
 	static INITIALIZE		= 0;
 	static PICK_STATIONS    = 2;
     static PREP_VEHICLES    = 3;
-    static BUY_VEHICLES     = 4;
-    static FINALIZE         = 5;
+    static SELECT_STATION   = 4;
+    static BUY_VEHICLES     = 5;
+    static FINALIZE         = 6;
 
 	state = 0;
     budget_id = null;
@@ -22,6 +23,8 @@
     selected = null;
     builder = null;
     queue = null;
+    owned = null;
+    current_station = null;
     
 	constructor(budget_id, funds_id, cargo_id, town_id, max_stations){
         this.budget_id = budget_id;
@@ -42,6 +45,7 @@
             case INITIALIZE: return Initialize();
             case PICK_STATIONS: return PickStations();
             case PREP_VEHICLES: return PrepVehicles();
+            case SELECT_STATION: return SelectStation();
             case BUY_VEHICLES: return BuyVehicles();
         }
 
@@ -70,25 +74,34 @@
 
     function PickStations(){
         this.tracer.matches.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
+        this.owned = AIList();
+        owned.AddList(this.tracer.stations);
+        owned.Valuate(Tile.GetOwner);
+        owned.KeepValue(AICompany.ResolveCompanyID(AICompany.COMPANY_SELF));
 
         local limit = 1;
         do {
             Log.Info("Attempt #" + limit);
 
+            local others = AIList();
+            others.AddList(owned);
+            
             local stations = AIList();
             stations.AddList(this.tracer.matches);
             stations.RemoveBelowValue(40);
 
             local start = Lists.RandPriority(stations);
             stations.RemoveItem(start);
+            
 
             this.selected = AIList();
             this.selected.AddItem(start, 0);
+            others.AddItem(start, 0);
 
             while(stations.Count() > 0){
-                stations.Valuate(GetDistance, this.selected);
+                stations.Valuate(GetDistance, others);
                 stations.Sort(List.SORT_BY_VALUE, true);
-                stations.RemoveBelowValue(7);
+                stations.RemoveBelowValue(8);
 
                 if(stations.Count() <= 0)
                     break;
@@ -96,6 +109,7 @@
                 local next = stations.Begin();
                 stations.RemoveItem(next);
                 this.selected.AddItem(next, 0);
+                others.AddItem(next, 0);
             }
         }while(limit++ < 5 && this.selected.Count() < 2);
 
@@ -109,8 +123,8 @@
         spots.AddList(this.selected);
         
         if(spots.Count() > this.max_stations){
-            spots.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
-            spots.Sort(List.SORT_BY_VALUE, true);
+            spots.Valuate(GetValue, this.cargo_id);
+            spots.Sort(List.SORT_BY_VALUE, false);
             spots.RemoveBottom(spots.Count() - this.max_stations);
         }
 
@@ -121,6 +135,10 @@
 
         state = PREP_VEHICLES;
         return true;
+    }
+
+    function GetValue(index, cargo_id){
+        return Tile.GetCargoAcceptance(index, cargo_id, 1, 1, 3) * Tile.GetCargoProduction(index, cargo_id, 1, 1, 3);
     }
 
     function GetDistance(index, list){
@@ -145,13 +163,18 @@
         foreach(station_tile, _ in this.builder.stations)
             queue.push(station_tile);
 
+        state = SELECT_STATION;
+        return SelectStation();
+    }
+
+    function SelectStation(){
+        this.current_station = queue.pop();
+
         state = BUY_VEHICLES;
         return BuyVehicles();
     }
 
     function BuyVehicles(){
-        local station_tile = queue.pop();
-
         local cost = Engine.GetPrice(this.engine_id) * 1.2;
         if(!Budget.Take(this.budget_id, cost)){
             Budget.Request(this.budget_id, cost);
@@ -159,15 +182,16 @@
             return this.Wait(3);
         }
 
-        local depot_tile = this.builder.stations.GetValue(station_tile);
+        local depot_tile = this.builder.stations.GetValue(this.current_station);
         
         Log.Info("Building vehicle");
         local vehicle_id = Vehicle.BuildVehicle(depot_tile, this.engine_id);
-        AIOrder.AppendOrder(vehicle_id, station_tile, AIOrder.OF_NON_STOP_INTERMEDIATE|AIOrder.OF_FULL_LOAD);
+        AIOrder.AppendOrder(vehicle_id, this.current_station, AIOrder.OF_NON_STOP_INTERMEDIATE|AIOrder.OF_FULL_LOAD);
 
         local destinations = AIList();
         destinations.AddList(this.builder.stations);
-        destinations.RemoveItem(station_tile);
+        destinations.AddList(owned);
+        destinations.RemoveItem(this.current_station);
         destinations.Valuate(Lists.RandRangeItem, 0, 1000);
         destinations.Sort(List.SORT_BY_VALUE, false);
         destinations.KeepTop(2);
@@ -178,6 +202,11 @@
         AIOrder.AppendOrder(vehicle_id, depot_tile, AIOrder.OF_GOTO_NEAREST_DEPOT|AIOrder.OF_NON_STOP_INTERMEDIATE);
         AIVehicle.StartStopVehicle(vehicle_id);
 
-        return queue.len() > 0;
+        if(queue.len() > 0){
+            state = SELECT_STATION;
+            return true;
+        }
+
+        return false;
     }
  }
