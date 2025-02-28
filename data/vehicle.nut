@@ -43,3 +43,12 @@ function Vehicle::GetEstimatedDaysTravel(vehicle_id, efficiency){
 function Vehicle::GetAgePercentage(vehicle_id){
 	return (AIVehicle.GetAge(vehicle_id) * 100.0 / AIVehicle.GetMaxAge(vehicle_id)).tointeger();
 }
+
+function Vehicle::GetTypes(){
+	return [
+		Vehicle.VT_RAIL,
+		Vehicle.VT_ROAD,
+		Vehicle.VT_WATER,
+		Vehicle.VT_AIR
+	];
+}

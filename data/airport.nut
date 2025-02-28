@@ -90,7 +90,7 @@ function Airport::IsFull(station_id){
 	vehicles.Valuate(Vehicle.GetVehicleType);
 	vehicles.KeepValue(Vehicle.VT_AIR);
 	vehicles.Valuate(Vehicle.GetEstimatedDaysTravel, 0.95);
-	local days = Lists.GetAvg(vehicles);
+	local days = Lists.GetAverage(vehicles);
 	local airportType = Airport.GetAirportType(Station.GetLocation(station_id));
 
 	if(vehicles.Count() < ceil(days.tofloat() / Airport.GetDaysBetweenAcceptPlane(airportType))){

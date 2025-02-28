@@ -56,7 +56,7 @@ function Lists::GetSum(list){
 	return total;
 }
 
-function Lists::GetAvg(list){
+function Lists::GetAverage(list){
 	local total = 0;
 	foreach(dummy, value in list){
 		total+= value;

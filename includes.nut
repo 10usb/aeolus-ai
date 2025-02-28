@@ -46,6 +46,8 @@ require("data/lists/airportlist.nut");
 require("data/lists/opportunitylist.nut");
 require("data/lists/translatedtilelist.nut");
 require("data/lists/personalitytraitlist.nut");
+require("data/lists/grouplist_name.nut");
+require("data/lists/vehiclelist_groupname.nut");
 
 // Rail
 require("rail/path/finder.nut");
@@ -106,5 +108,8 @@ require("tasks/road/buildtownstations.nut");
 require("tasks/road/findinnercity.nut");
 require("tasks/road/pathbuilder.nut");
 require("tasks/road/towntracer.nut");
+
+// Manager Tasks
+require("tasks/managers/vehiclemanager.nut");
 
 
