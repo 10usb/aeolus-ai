@@ -2,7 +2,9 @@ class DefaultHandler extends CommandHandler {
     debugging = null;
 
 	constructor(debugging){
+        ::CommandHandler.constructor();
         this.debugging = debugging;
+        this.Register("constructor", this.OnConstructor);
     }
 
     function PrintHelp(){
@@ -18,6 +20,10 @@ class DefaultHandler extends CommandHandler {
     }
     
     function OnCommand(command, argument, location){
+        if(::CommandHandler.OnCommand(command, argument, location)){
+            return true;
+        }
+
         switch(command){
             case "clear":
                 local signs = AISignList();
@@ -35,9 +41,6 @@ class DefaultHandler extends CommandHandler {
             case "segments":
                 this.debugging.SetHandler(SegmentHandler());
             break;
-            case "constructor":
-                this.debugging.SetHandler(DebugConstructorHandler());
-            break;
             case "test":
                 this.debugging.SetHandler(DebugTestHandler());
             break;
@@ -45,5 +48,9 @@ class DefaultHandler extends CommandHandler {
         }
 
         return true;
+    }
+
+    function OnConstructor(argument, location){
+        this.debugging.SetHandler(DebugConstructorHandler());
     }
 }

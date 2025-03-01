@@ -7,11 +7,24 @@ class DebugConstructorHandler extends CommandHandler {
     max = null;
 
 	constructor(){
+        ::CommandHandler.constructor();
+
         this.sources = [];
         this.destinations = [];
         this.cargos = [];
         this.budget = 100000;
         this.max = 100;
+
+        this.Register("builder", this.SetBuilder);
+        this.Register("cargo", this.AddCargo);
+        this.Register("source", this.AddSource);
+        this.Register("src", this.AddSource);
+        this.Register("destination", this.AddDestination);
+        this.Register("dst", this.AddDestination);
+        this.Register("money", this.SetBudget);
+        this.Register("max", this.SetMax);
+        this.Register("show", this.Show);
+        this.Register("go", this.Go);
     }
 
     function PrintHelp(){
@@ -29,37 +42,7 @@ class DebugConstructorHandler extends CommandHandler {
         Log.Info(" - !go            Start the builder with the current settings");
     }
     
-    function OnCommand(command, argument, location){
-        switch(command){
-            case "builder": this.SetBuilder(argument); break;
-            case "cargo": this.AddCargo(argument); break;
-            case "source":
-                local source = Reference.FromTile(location);
-                if(source!= null){
-                    Log.Info("Added source to: " + source);
-                    this.sources.push(source);
-                }
-            break;
-            case "destination":
-                local destination = Reference.FromTile(location);
-                if(destination!= null){
-                    Log.Info("Added destination to: " + destination);
-                    this.destinations.push(destination);
-                }
-            break;
-            case "budget": this.budget = argument.tointeger(); break;
-            case "max": max = argument.tointeger(); break;
-            case "show": this.Show(); break;
-            case "go": return !this.Go();
-            default:
-                Log.Error("Unknown command");
-                this.PrintHelp();
-        }
-
-        return true;
-    }
-    
-    function SetBuilder(argument){
+    function SetBuilder(argument, location){
         switch(argument){
             case "rc":
                 this.builder = argument;
@@ -77,7 +60,7 @@ class DebugConstructorHandler extends CommandHandler {
         return code;
     }
     
-    function AddCargo(argument){
+    function AddCargo(argument, location){
         if(argument == "?"){
             Log.Info("Cargo's:");
 
@@ -95,7 +78,31 @@ class DebugConstructorHandler extends CommandHandler {
         }
     }
 
-    function Show(){
+    function AddSource(argument, location){
+        local source = Reference.FromTile(location);
+        if(source!= null){
+            Log.Info("Added source to: " + source);
+            this.sources.push(source);
+        }
+    }
+
+    function AddDestination(argument, location){
+        local destination = Reference.FromTile(location);
+        if(destination!= null){
+            Log.Info("Added destination to: " + destination);
+            this.destinations.push(destination);
+        }
+    }
+
+    function SetBudget(argument, location){
+        this.budget = argument.tointeger();
+    }
+
+    function SetMax(argument, location){
+        this.max = argument.tointeger();
+    }
+
+    function Show(argument, location){
         Log.Warning("==========================");
         Log.Info("Cargo's:");
         foreach(cargo_id in this.cargos){
@@ -117,14 +124,14 @@ class DebugConstructorHandler extends CommandHandler {
         Log.Warning("==========================");
     }
 
-    function Go(){
+    function Go(argument, location){
         switch(this.builder){
-            case "rc": return this.BuildRoadInnerCity(); break;
+            case "rc": return !this.BuildRoadInnerCity(); break;
             default:
                 Log.Warning("Unknown builder: " + this.builder);
         }
 
-        return false;
+        return true;
     }
 
     function BuildRoadInnerCity(){

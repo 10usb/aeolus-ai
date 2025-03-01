@@ -51,10 +51,10 @@ class Aeolus extends AIInfo {
 			description = "Enable candy",
 			min_value = 0,
 			max_value = 3,
-			easy_value = 0,
-			medium_value = 0,
-			hard_value = 0,
-			custom_value = 0,
+			easy_value = 1,
+			medium_value = 1,
+			hard_value = 1,
+			custom_value = 1,
 			flags = CONFIG_INGAME
 		});
 		AddLabels("debug", {

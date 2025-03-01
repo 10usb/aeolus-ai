@@ -50,7 +50,8 @@ class Tasks_Debugging extends Task {
                     local command = name.slice(start, end);
 
                     try {
-                        this.Process(command, location);
+                        if(!this.Process(command, location))
+                            break;
                     }catch(err){
                         Log.Error(err);
                         Log.Info("I'm still alive");
@@ -89,13 +90,16 @@ class Tasks_Debugging extends Task {
                 if(!handler.OnCommand(command, argument, location)){
                     handler = DefaultHandler(this);
                     handler.PrintHelp();
+                    return false;
                 }
             break;
         }
+
+        return true;
     }
 
     function SetHandler(handler){
-        Log.Info("Setting gandler");
+        Log.Info("Setting handler");
         this.handler = handler;
         this.handler.SetParent(this.GetParent());
         this.handler.PrintHelp();

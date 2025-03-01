@@ -19,7 +19,7 @@ function Controller::Start(){
 		scheduler.EnqueueTask(WakeUp());
 	}
 	
-	//if(Controller.GetSetting("debug") > 0)
+	if(Controller.GetSetting("debug") > 0)
 		scheduler.EnqueueTask(Tasks_Debugging());
 
 	// Main loop and it should never end...
