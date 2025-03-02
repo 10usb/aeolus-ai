@@ -27,6 +27,7 @@ class Tasks_Debugging extends Task {
         old.AddList(previous);
         old.RemoveList(list);
         if(old.Count() > 0){
+            Log.Warning("Removing old signs from list")
             previous.RemoveList(old);
         }
 
@@ -38,31 +39,32 @@ class Tasks_Debugging extends Task {
         foreach(sign_id, dummy in diff){
             local name = AISign.GetName(sign_id);
 
-            if(name.slice(0, 1) == "!"){
-                local location = AISign.GetLocation(sign_id);
+            if(name.slice(0, 1) != "!")
+                continue;
+            
+            local location = AISign.GetLocation(sign_id);
 
-                local start = 1;
-                local offset = null;
+            local start = 1;
+            local offset = null;
 
-                do {
-                    offset = name.find(";", start);
-                    local end = offset == null ? name.len() : offset
-                    local command = name.slice(start, end);
+            do {
+                offset = name.find(";", start);
+                local end = offset == null ? name.len() : offset
+                local command = name.slice(start, end);
 
-                    try {
-                        if(!this.Process(command, location))
-                            break;
-                    }catch(err){
-                        Log.Error(err);
-                        Log.Info("I'm still alive");
-                    }
-                    start = end + 1;
-                }while(offset != null);
+                try {
+                    if(!this.Process(command, location))
+                        break;
+                }catch(err){
+                    Log.Error(err);
+                    Log.Info("I'm still alive");
+                }
+                start = end + 1;
+            }while(offset != null);
 
-                AISign.RemoveSign(sign_id);
-                previous = AISignList();
-                break;
-            }
+            AISign.RemoveSign(sign_id);
+            previous = AISignList();
+            break;
         }
 
         return this.Sleep(10);

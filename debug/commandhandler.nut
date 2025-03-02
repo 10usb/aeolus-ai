@@ -43,7 +43,7 @@ class CommandHandler {
         if(matches.len() <= 0){
             Log.Error("Unknown command");
             this.PrintHelp();
-            return false;
+            return true;
         }
         
         if(matches.len() == 1){
@@ -56,6 +56,6 @@ class CommandHandler {
             Log.Info(" - !" + match.name);
         }
 
-        return false;
+        return true;
     }
 }

@@ -52,3 +52,17 @@ function Vehicle::GetTypes(){
 		Vehicle.VT_AIR
 	];
 }
+
+function Vehicle::ToTransportType(vehicle_type){
+	switch(vehicle_type) {
+		case Vehicle.VT_RAIL: return Tile.TRANSPORT_RAIL;
+		case Vehicle.VT_ROAD: return Tile.TRANSPORT_ROAD;
+		case Vehicle.VT_WATER: return Tile.TRANSPORT_WATER;
+		case Vehicle.VT_AIR: return Tile.TRANSPORT_AIR;
+	};
+	return Tile.TRANSPORT_INVALID
+}
+
+function Vehicle::GetCargoCapacity(cargo_id, vehicle_id){
+	return  Vehicle.GetCapacity(vehicle_id, cargo_id);
+}

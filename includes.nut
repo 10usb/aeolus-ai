@@ -111,5 +111,6 @@ require("tasks/road/towntracer.nut");
 
 // Manager Tasks
 require("tasks/managers/vehiclemanager.nut");
+require("tasks/managers/vehiclereplacer.nut");
 
 

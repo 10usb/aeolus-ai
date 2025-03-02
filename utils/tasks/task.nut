@@ -83,6 +83,7 @@ function Task::IsWaiting(){
 
 function Task::WaitAmount(){
 	if(_child != null) return _child.WaitAmount();
+	if(_date == null) return 0;
 	return _date.till - AIDate.GetCurrentDate();
 }
 
