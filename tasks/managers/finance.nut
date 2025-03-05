@@ -1,5 +1,5 @@
 
-class Tasks_Finance extends Task {
+class Tasks_Managers_Finance extends Task {
 	function GetName(){
 		return "Tasks_Finance";
 	}

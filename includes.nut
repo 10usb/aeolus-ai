@@ -77,7 +77,6 @@ require("tasks/printinfo.nut");
 require("tasks/createpersonality.nut");
 require("tasks/wakeup.nut");
 require("tasks/repayloan.nut");
-require("tasks/finance.nut");
 require("tasks/findopportunities.nut");
 require("tasks/findopportunities/passengerplanes.nut");
 
@@ -111,6 +110,7 @@ require("tasks/road/pathbuilder.nut");
 require("tasks/road/towntracer.nut");
 
 // Manager Tasks
+require("tasks/managers/finance.nut");
 require("tasks/managers/vehiclemanager.nut");
 require("tasks/managers/vehiclereplacer.nut");
 

@@ -5,7 +5,8 @@ class WakeUp extends Task {
 	
 	function Run(){
 		this.GetParent().EnqueueTask(RepayLoan());
-		this.GetParent().EnqueueTask(Tasks_Finance());
+		this.GetParent().EnqueueTask(Tasks_Managers_Finance());
+		this.GetParent().EnqueueTask(Tasks_VehicleManager());
         return false;
 	}
 }
