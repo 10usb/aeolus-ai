@@ -30,10 +30,6 @@ function Finance::GetAvailableMoney(){
 	local available = AICompany.GetMaxLoanAmount() - AICompany.GetLoanAmount();
 	available+= AICompany.GetBankBalance(AICompany.COMPANY_SELF);
 	available-= (Finance.GetMonthlyExpenses() * 1.5).tointeger();
-
-	local budgets = Budget.GetList();
-	budgets.Valuate(Budget.GetAmount);
-	available-= Lists.GetSum(budgets);
 	return available;
 }
 
@@ -59,4 +55,17 @@ function Finance::Repay(){
 
 	AICompany.SetMinimumLoanAmount(Math.max(0, AICompany.GetLoanAmount() - amount));
 	return true;
+}
+
+
+function Finance::FormatMoney(money){
+	money = money.tointeger();
+	local text = "";
+
+	while(money > 1000){
+		text = "." + ("00" + (money % 1000)).slice(-3) + text;
+		money/=1000;
+	}
+
+	return "$ " + money + text;
 }

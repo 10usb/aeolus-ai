@@ -11,7 +11,7 @@ class CreatePersonality extends Task {
 		
 		// Find something todo
 		local budget_id = Company.GetInvestmentBudget();
-		Budget.Add(budget_id, Finance.GetAvailableMoney() * 0.9);
+		Budget.AllocateAmount(budget_id, Budget.GetAvailableMoney() * 0.9);
 
 		this.GetParent().EnqueueTask(FindOpportunities());
 		this.GetParent().EnqueueTask(RepayLoan());

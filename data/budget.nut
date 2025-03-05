@@ -1,40 +1,49 @@
 class Budget {
-	static accounting = { instance = null };
+	static stats = { total = 0 };
 }
 
-function Budget::GetCount(){
-	if(Storage.ValueExists("budgets")) return Storage.GetValue("budgets").len();
-	return 0;
+/**
+ Get the amount of money available not allocated to any budget
+ */
+function Budget::GetAvailableMoney(){
+	return Finance.GetAvailableMoney() - Budget.stats.total;
 }
 
-function Budget::GetList(){
-	local list = AIList();
-	if(Storage.ValueExists("budgets")){
-		foreach(budget_id, dummy in Storage.GetValue("budgets")){
-			list.AddItem(budget_id, 0);
-		}
-	}
-	return list;
-}
-
+/**
+ To check if a budget id is valid
+ */
 function Budget::IsValidBudget(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+	local budgets = Storage.GetOrCreateValue("budgets", {});
 	if(!budgets.rawin(budget_id)) return 0;
 	return 1;
 }
-
-function Budget::RemoveBudget(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+/**
+ Get the name of the budget
+ */
+function Budget::GetName(budget_id){
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
 
 	local budget = budgets.rawget(budget_id);
-	AILog.Info("Budget closed at " + budget.amount + " / " + budget.total + " (" + (budget.amount * 100 / budget.total) + "%)");
-
-	budgets.rawdelete(budget_id);
+	return budget.name;
 }
 
-function Budget::Create(amount, name){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
+/**
+ Get the amount of money in the budget
+ */
+function Budget::GetBudgetAmount(budget_id){
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	local budget = budgets.rawget(budget_id);
+	return budget.credit - budget.debit;
+}
+
+/**
+ To create a new budget
+ */
+function Budget::CreateBudget(name){
+	local budgets = Storage.GetOrCreateValue("budgets", {});
 
 	local id = Storage.ValueExists("budget.increment") ? Storage.GetValue("budget.increment") : Storage.SetValue("budget.increment", 1);
 	Storage.SetValue("budget.increment", id + 1);
@@ -42,80 +51,93 @@ function Budget::Create(amount, name){
 	budgets.rawset(id, {
 		id = id,
 		name = name,
-		amount = amount.tointeger(),
-		total = amount.tointeger(),
+		credit = 0,
+		debit = 0,
 		created = AIDate.GetCurrentDate()
 	});
 	return id;
 }
 
-function Budget::GetAmount(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-	return budgets.rawget(budget_id).amount;
-}
-
-function Budget::Add(budget_id, amount){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+/**
+ Delete the budget and return the amount
+ */
+function Budget::DeleteBudget(budget_id){
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id))
+		return false;
 
 	local budget = budgets.rawget(budget_id);
-	budget.amount+= amount.tointeger();
-	budget.total+= amount.tointeger();
+	Budget.stats.total-= budget.credit - budget.debit;
+
+	budgets.rawdelete(budget_id);
+	return true;
 }
 
 /**
- * Takes the amount from the budget if we are not in a
- * virtual dept.
+ Allocate an amount of money to a budget, this can not exceed 
+ the amount freely available
  */
-function Budget::Take(budget_id, amount){
+function Budget::AllocateAmount(budget_id, amount){
 	// normalize input
 	amount = amount.tointeger();
 
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	if(amount > Budget.GetAvailableMoney())
+		return false;
 
 	local budget = budgets.rawget(budget_id);
-	if(amount > budget.amount) return false;
+	budget.credit+= amount;
+	Budget.stats.total+= amount;
 
-	local available = Finance.GetAvailableMoney() + budget.amount;
-	if(available < amount) return false;
+	// Normalize the values
+	budget.credit-= budget.debit;
+	budget.debit = 0;
+	return true;
+}
 
-	budget.amount-= amount;
+/**
+ Withdraw an amount from the budget and make it available for spending
+ */
+function Budget::Withdraw(budget_id, amount){
+	// normalize input
+	amount = amount.tointeger();
+
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	local budget = budgets.rawget(budget_id);
+	if(amount > (budget.credit - budget.debit))
+		return false;
+
+	local available = Finance.GetAvailableMoney();
+	if(available < amount)
+		return false;
+
+	budget.debit+= amount;
+	Budget.stats.total-= amount;
 	return Finance.GetMoney(amount);
 }
 
 /**
- * Adds money to the budget is available
+ Return available money back into the budget, should be used
+ when not all of the withdrawn money is used.
  */
-function Budget::Request(budget_id, amount){
+ function Budget::Return(budget_id, amount){
 	// normalize input
 	amount = amount.tointeger();
 
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	if(amount > AICompany.GetBankBalance(AICompany.COMPANY_SELF))
+		return false;
 
 	local budget = budgets.rawget(budget_id);
-	local needed = amount - budget.amount;
-
-	local available = Finance.GetAvailableMoney();
-	if(available < 1) return;
-
-	if(available < needed)
-		needed = available;
-
-	budget.amount+= needed;
-}
-
-/**
- * Return the remaining amount of money after an estimated cost was taken
- */
-function Budget::Return(budget_id, amount){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-
-	local budget = budgets.rawget(budget_id);
-	budget.amount+= amount.tointeger();
+	budget.debit-= amount;
+	Budget.stats.total+= amount;
+	return true;
 }
 
 /**
@@ -125,9 +147,9 @@ function Budget::Transfer(source_id, destination_id, amount){
 	// normalize input
 	amount = amount.tointeger();
 
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(source_id)) throw("Budget source not exists");
-	if(!budgets.rawin(destination_id)) throw("Budget destination not exists");
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(source_id)) throw("Budget source does not exist");
+	if(!budgets.rawin(destination_id)) throw("Budget destination does not exist");
 
 	local source = budgets.rawget(source_id);
 	local destination = budgets.rawget(destination_id);
@@ -135,36 +157,36 @@ function Budget::Transfer(source_id, destination_id, amount){
 	// Make sure the soure has enough
 	if(amount > source.amount) return false;
 
-	source.amount-= amount;
-	destination.amount+= amount;
-	destination.total+= amount;
+	source.debit+= amount;
+	destination.credit+= amount;
 	return true;
 }
 
 /**
- @deprecated
+ * Adds only the needed amount to the budget if available
+ * @deprecated
  */
-function Budget::Start(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
+function Budget::Request(budget_id, amount){
+	// normalize input
+	amount = amount.tointeger();
 
-	if(Budget.accounting.instance != null){
-		throw("Can't start tracking costs when not stopped");
-	}
-	Budget.accounting.instance = AIAccounting();
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	local budget = budgets.rawget(budget_id);
+	local needed = amount - (budget.credit - budget.debit);
+
+	if(needed < Budget.GetAvailableMoney())
+		return false;
+
+	budget.credit+= needed;
+	Budget.stats.total+= needed;
+	return true;
 }
 
 /**
- @deprecated
+ * Takes the amount from the budget if we are not in a virtual dept.
  */
-function Budget::Stop(budget_id){
-	local budgets = Storage.ValueExists("budgets") ? Storage.GetValue("budgets") : Storage.SetValue("budgets", {});
-	if(!budgets.rawin(budget_id)) throw("Budget not exists");
-
-	local budget = budgets.rawget(budget_id);
-	if(Budget.accounting.instance != null){
-		budget.used-= Budget.accounting.instance.GetCosts();
-		Budget.accounting.instance = null;
-	}
-	//AILog.Info("Budget " + budget.used + " / " + budget.amount + " (" + (budget.used * 100 / budget.amount) + "%)");
+function Budget::Take(budget_id, amount){
+	return Budget.Withdraw(budget_id, amount);
 }

@@ -11,6 +11,14 @@ function Storage::GetValue(key){
 	throw("Unknown storage key \"" + key + "\"");
 }
 
+function Storage::GetOrCreateValue(key, value){
+	if(Storage.values.rawin(key))
+		return Storage.values.rawget(key);
+		
+	Storage.values.rawset(key, value);
+	return value;
+}
+
 function Storage::SetValue(key, value){
 	Storage.values.rawset(key, value);
 	return value;

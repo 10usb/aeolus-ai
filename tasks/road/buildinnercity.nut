@@ -176,10 +176,12 @@
 
     function BuyVehicles(){
         local cost = Engine.GetPrice(this.engine_id) * 1.2;
-        if(!Budget.Take(this.budget_id, cost)){
-            Budget.Request(this.budget_id, cost);
-            Log.Warning("Waiting for money ENGINE");
-            return this.Wait(3);
+        if(Budget.GetBudgetAmount(this.budget_id) < cost){
+            Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");
+            return this.Wait(30);
+        }else if(!Budget.Withdraw(this.budget_id, cost)){
+            Log.Warning("Failed to withdraw money for engine need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+            return this.Wait(3);            
         }
 
         local depot_tile = this.builder.stations.GetValue(this.current_station);

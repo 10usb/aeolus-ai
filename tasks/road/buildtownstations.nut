@@ -72,10 +72,12 @@
             local tile = this.queue.pop();
 
             local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_BUS_STOP) * 1.2;
-            if(!Budget.Take(budget_id, cost)){
-                Budget.Request(budget_id, cost);
-                Log.Warning("Waiting for money STATION");
-                return this.Wait(3);
+            if(Budget.GetBudgetAmount(this.budget_id) < cost){
+                Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");
+                return this.Wait(30);
+            }else if(!Budget.Withdraw(this.budget_id, cost)){
+                Log.Warning("Failed to withdraw money for station need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+                return this.Wait(3);            
             }
 
             Road.SetCurrentRoadType(Road.ROADTYPE_ROAD);
@@ -107,10 +109,13 @@
     function BuildDepots(){
         while(this.queue.len() > 0){
             local cost = Road.GetBuildCost(Road.ROADTYPE_ROAD, Road.BT_DEPOT) * 1.2;
-            if(!Budget.Take(budget_id, cost)){
-                Budget.Request(budget_id, cost);
-                Log.Warning("Waiting for money DEPOT");
-                return this.Wait(3);
+
+            if(Budget.GetBudgetAmount(this.budget_id) < cost){
+                Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");
+                return this.Wait(30);
+            }else if(!Budget.Withdraw(this.budget_id, cost)){
+                Log.Warning("Failed to withdraw money for depot need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+                return this.Wait(3);            
             }
 
             local tile = this.queue.pop();

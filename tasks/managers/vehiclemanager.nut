@@ -56,7 +56,7 @@ class Tasks_VehicleManager extends Task {
         if(average < 500){
             // Even though our avarage is below 50% there might be a vehicle
             // above 95% of age, these need to be replace no matter what.
-            vehicles.RemoveBelow(950);
+            vehicles.RemoveBelowValue(950);
 
             if(vehicles.IsEmpty())
                 return this.Wait(30);

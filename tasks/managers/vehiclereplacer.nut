@@ -9,6 +9,7 @@ class Tasks_VehicleReplacer extends Task {
     vehicle_id = null;
     engine_id = null;
     depot_tile = null;
+    budget_id = null;
     
     constructor(){
         state = PERFORM_CHECK;
@@ -77,10 +78,14 @@ class Tasks_VehicleReplacer extends Task {
 
         // - Create replacement and copy orders
         local cost = Engine.GetPrice(this.engine_id) * 1.2;
-        if(!Budget.Take(Company.GetInvestmentBudget(), cost)){
-            Budget.Request(Company.GetInvestmentBudget(), cost);
-            Log.Warning("Waiting for money ENGINE");
-            return this.Wait(3);
+        this.budget_id = Company.GetInvestmentBudget();
+
+        if(Budget.GetBudgetAmount(this.budget_id) < cost){
+            Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");
+            return this.Wait(30);
+        }else if(!Budget.Withdraw(this.budget_id, cost)){
+            Log.Warning("Failed to withdraw money for engine");
+            return this.Wait(3);            
         }
 
         local new_vehicle_id = Vehicle.BuildVehicle(this.depot_tile, this.engine_id);

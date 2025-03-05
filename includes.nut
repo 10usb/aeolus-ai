@@ -43,6 +43,7 @@ require("data/wagon.nut");
 
 // List of data types
 require("data/lists/airportlist.nut");
+require("data/lists/budgetlist.nut");
 require("data/lists/opportunitylist.nut");
 require("data/lists/translatedtilelist.nut");
 require("data/lists/personalitytraitlist.nut");

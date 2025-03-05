@@ -5,22 +5,24 @@ class Tasks_Finance extends Task {
 	}
 	
 	function Run(){
-		local money = Finance.GetAvailableMoney();
-		Log.Info("Available money " + money);
+		local money = Budget.GetAvailableMoney();
+		Log.Info("Available money " + Finance.FormatMoney(money));
 
 		money/=4;
 
 		local budget_id = Company.GetInvestmentBudget();
 		if(money > 0){
-			Budget.Add(budget_id, money);
-			Log.Info("Added " + money + " to investment budget at " + Budget.GetAmount(budget_id));
+			Budget.AllocateAmount(budget_id, money);
+			Log.Info("Added " + Finance.FormatMoney(money) + " to investment budget at " + Finance.FormatMoney(Budget.GetBudgetAmount(budget_id)));
 		}else{
-			Log.Info("Current investment budget at " + Budget.GetAmount(budget_id));
+			Log.Info("Current investment budget at " + Finance.FormatMoney(Budget.GetBudgetAmount(budget_id)));
 		}
 
 		local budgets = Storage.ValueExists("budgets");
 		foreach(budget_id, budget in Storage.GetValue("budgets")){
-			Log.Info(" - " + budget_id + ": " + budget.amount + " (" + budget.name + ")");
+			local amount = budget.credit - budget.debit;
+			local percent = budget.debit * 1000 / budget.credit / 10.0;
+			Log.Info(" - " + budget_id + ": " + Finance.FormatMoney(amount) + " [" + percent + "%] (" + budget.name + ")");
 		}
 
 
