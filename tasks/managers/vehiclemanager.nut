@@ -45,11 +45,13 @@ class Tasks_VehicleManager extends Task {
 
         temp.Valuate(GetSavings, total);
         local savings = Lists.GetSum(temp);
+        
+		Storage.SetValue("global.vehicle_replacement_savings", savings);
 
         local percentage = savings * 1000 / total;
 
-        Log.Info("+ Average vehicle age: " + (average / 10.0) + "%");
-        Log.Info("+ Savings needed: $ " + savings + " (" + (percentage / 10.0) + "%)");
+        Log.Info("[+] Average vehicle age: " + (average / 10.0) + "%");
+        Log.Info("[+] Savings needed: " + Finance.FormatMoney(savings) + " (" + (percentage / 10.0) + "%)");
         
         vehicles.RemoveList(to_be_replaced);
 
@@ -78,7 +80,7 @@ class Tasks_VehicleManager extends Task {
         AIGroup.MoveVehicle(group_id, vehicle_id);
 
         if(replacer == null){
-            replacer = Tasks_VehicleReplacer();
+            replacer = Tasks_VehicleReplacer(Company.GetReplacementBudget());
             this.GetParent().EnqueueTask(replacer);
         }else{
             replacer.WakeUp();

@@ -81,11 +81,22 @@ function Company::GetTownPreference(){
 }
 
 function Company::GetInvestmentBudget(){
-	local budget_id = Storage.ValueExists("company.investment") ? Storage.GetValue("company.investment") : Storage.SetValue("company.investment", 0)
+	local budget_id = Storage.GetOrCreateValue("company.investment", 0);
 	
 	if(!Budget.IsValidBudget(budget_id)){
-		budget_id = Budget.CreateBudget("Company Investment");
+		budget_id = Budget.CreateBudget("Investment");
 		Storage.SetValue("company.investment", budget_id);
+	}
+
+	return budget_id;
+}
+
+function Company::GetReplacementBudget(){
+	local budget_id = Storage.GetOrCreateValue("company.vehicle_replacement", 0);
+	
+	if(!Budget.IsValidBudget(budget_id)){
+		budget_id = Budget.CreateBudget("Vehicle Replacement");
+		Storage.SetValue("company.vehicle_replacement", budget_id);
 	}
 
 	return budget_id;

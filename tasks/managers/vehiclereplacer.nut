@@ -11,7 +11,9 @@ class Tasks_VehicleReplacer extends Task {
     depot_tile = null;
     budget_id = null;
     
-    constructor(){
+    constructor(budget_id){
+        this.budget_id = budget_id;
+
         state = PERFORM_CHECK;
     }
 
@@ -71,14 +73,13 @@ class Tasks_VehicleReplacer extends Task {
         // - Find depot closest/connected to first order
         local depots = AIDepotList(Vehicle.ToTransportType(Vehicle.GetVehicleType(this.vehicle_id)));
         depots.Valuate(Tile.GetManhattanDistance, AIOrder.GetOrderDestination(this.vehicle_id, 0));
-        depots.Sort(List.SORT_BY_VALUE, false);
+        depots.Sort(List.SORT_BY_VALUE, true);
         
         // TODO except for AIR test if depot and destination are connected by road, rail or water
         this.depot_tile = depots.Begin();
 
         // - Create replacement and copy orders
         local cost = Engine.GetPrice(this.engine_id) * 1.2;
-        this.budget_id = Company.GetInvestmentBudget();
 
         if(Budget.GetBudgetAmount(this.budget_id) < cost){
             Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");

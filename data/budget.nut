@@ -121,10 +121,10 @@ function Budget::Withdraw(budget_id, amount){
 }
 
 /**
- Return available money back into the budget, should be used
+ Refund available money back into the budget, should be used
  when not all of the withdrawn money is used.
  */
- function Budget::Return(budget_id, amount){
+ function Budget::Refund(budget_id, amount){
 	// normalize input
 	amount = amount.tointeger();
 
