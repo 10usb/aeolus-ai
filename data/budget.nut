@@ -98,6 +98,30 @@ function Budget::AllocateAmount(budget_id, amount){
 }
 
 /**
+ Allocate an amount of money to a budget, this can not exceed 
+ the amount freely available
+ */
+function Budget::RemoveAmount(budget_id, amount){
+	// normalize input
+	amount = amount.tointeger();
+
+	local budgets = Storage.GetOrCreateValue("budgets", {});
+	if(!budgets.rawin(budget_id)) throw("Budget does not exist");
+
+	local budget = budgets.rawget(budget_id);
+	if(amount > (budget.credit - budget.debit))
+		return false;
+
+	budget.debit+= amount;
+	Budget.stats.total-= amount;
+	
+	// Normalize the values
+	budget.credit-= budget.debit;
+	budget.debit = 0;
+	return true;
+}
+
+/**
  Withdraw an amount from the budget and make it available for spending
  */
 function Budget::Withdraw(budget_id, amount){

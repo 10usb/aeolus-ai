@@ -8,6 +8,19 @@ class Tasks_Managers_Finance extends Task {
 		local money = Budget.GetAvailableMoney();
 		Log.Info("Available money " + Finance.FormatMoney(money));
 
+		if(money < 0){
+			local investment_budget_id = Company.GetInvestmentBudget();
+			local needed = -money;
+			if(needed > Budget.GetBudgetAmount(investment_budget_id))
+				needed = Budget.GetBudgetAmount(investment_budget_id);
+			
+			if(needed > Finance.GetAvailableMoney())
+				needed = Finance.GetAvailableMoney();
+			
+			Budget.RemoveAmount(investment_budget_id, needed);
+			Log.Info("Withdrawn " + Finance.FormatMoney(needed) + " from investment budget, now at " + Finance.FormatMoney(Budget.GetBudgetAmount(investment_budget_id)));
+		}
+
 		if(money > 0)
 			this.DistributeMoney(money);
 
@@ -53,7 +66,12 @@ class Tasks_Managers_Finance extends Task {
 
 		// Any free money can be set aside to investe in new projects
 		local investment_budget_id = Company.GetInvestmentBudget();
-		Budget.AllocateAmount(investment_budget_id, money);
-		Log.Info("Added " + Finance.FormatMoney(money) + " to investment budget at " + Finance.FormatMoney(Budget.GetBudgetAmount(investment_budget_id)));
+		local available = (Finance.GetAvailableMoney() * 0.9).tointeger();
+		available-= Budget.GetBudgetAmount(investment_budget_id);
+		
+		if(available > 0){
+			Budget.AllocateAmount(investment_budget_id, money);
+			Log.Info("Added " + Finance.FormatMoney(money) + " to investment budget at " + Finance.FormatMoney(Budget.GetBudgetAmount(investment_budget_id)));
+		}
 	}
 }

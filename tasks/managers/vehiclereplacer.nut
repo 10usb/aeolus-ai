@@ -56,6 +56,7 @@ class Tasks_VehicleReplacer extends Task {
         local cargos = AICargoList();
         cargos.Valuate(Vehicle.GetCargoCapacity, this.vehicle_id);
         cargos.RemoveValue(0);
+        cargos.Sort(AIList.SORT_BY_VALUE, false);
 
         Log.Warning("Cargo capacity");
         foreach(cargo_id, value in cargos){
@@ -86,10 +87,17 @@ class Tasks_VehicleReplacer extends Task {
             return this.Wait(30);
         }else if(!Budget.Withdraw(this.budget_id, cost)){
             Log.Warning("Failed to withdraw money for engine");
-            return this.Wait(3);            
+            return this.Wait(3);
         }
 
         local new_vehicle_id = Vehicle.BuildVehicle(this.depot_tile, this.engine_id);
+        if (!Vehicle.IsValidVehicle(new_vehicle_id)){
+            Log.Warning("Failed to build vehicle");
+            return this.Wait(3);
+        }
+
+        Vehicle.RefitVehicle(new_vehicle_id, cargos.Begin());
+
         AIOrder.CopyOrders(new_vehicle_id, this.vehicle_id);
         Vehicle.StartStopVehicle(new_vehicle_id);
 
@@ -97,8 +105,11 @@ class Tasks_VehicleReplacer extends Task {
         local groups = GroupList_Name("to-be-selled");
         groups.Valuate(AIGroup.GetVehicleType);
         groups.KeepValue(Vehicle.GetVehicleType(this.vehicle_id));
-        if(groups.Count() <= 0)
-            throw "Failed to get group";
+        if(groups.Count() <= 0){
+            Log.Error("Failed to find group");
+            this.state = PERFORM_CHECK;
+            return true;
+        }
 
         local group_id = groups.Begin();
 
