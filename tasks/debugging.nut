@@ -106,7 +106,7 @@ class Tasks_Debugging extends Task {
     function SetHandler(handler){
         Log.Info("Setting handler");
         this.handler = handler;
-        this.handler.SetParent(this.GetParent());
+        this.handler.SetParent(this);
         this.handler.PrintHelp();
     }
 }

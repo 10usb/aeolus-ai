@@ -30,7 +30,7 @@ class BuilderHandler extends CommandHandler {
             types.KeepValue(1);
             local railType = types.Begin();
 
-            this.GetParent().EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4, railType));
+            this.EnqueueTask(RailSingleTrack(this.source_id, this.destination_id, 4, railType));
         }
         return true;
     }

@@ -68,7 +68,7 @@ class FinderHandler extends CommandHandler {
             builder.Append(path);
             if(this.build){
                 Log.Info("Building path");
-                this.GetParent().EnqueueTask(builder);
+                this.EnqueueTask(builder);
             }
 
             return false;

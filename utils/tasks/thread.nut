@@ -4,37 +4,48 @@
 class Thread {
 	stack = null;
     active = null;
+    scheduler = null;
 
-    constructor(task){
+    constructor(scheduler, task){
         this.stack = [];
-        this.active = task;
+        this.scheduler = scheduler;
+        this.active = task.SetThread(this);
     }
 
 	function GetName(){
-        this.active.GetName();
+        return this.active.GetName();
     }
 
     function Execute(){
-        if(this.active == null)
-            return false;
-
-        local task = this.tasks.top();
-        
         if(this.active.Run())
             return true;
         
-        if(this.tasks.len() <= 0){
-            this.active = null;
+        if(this.stack.len() <= 0)
             return false;
-        }
 
-        active = this.tasks.pop();
+        this.active = this.stack.pop();
         return true;
     }
     
     function Push(task){
-        this.tasks.push(task);
+        this.stack.push(this.active);
+        this.active = task;
         return task;
+    }
+    
+    function Remove(task){
+        local index = 0;
+        while(index < this.stack.len()){
+            if(this.stack[index] == task)
+                break;
+
+            index++;
+        }
+
+        if(this.stack[index] != task)
+            return;
+
+        this.stack.remove(index);
     }
 
     function IsSleepy(){
@@ -42,14 +53,18 @@ class Thread {
     }
 
     function SleepAmount(){
-        this.active.SleepAmount();
+        return this.active.SleepAmount();
     }
 
     function IsWaiting(){
-        this.active.IsWaiting();
+        return this.active.IsWaiting();
     }
 
     function WaitAmount(){
-        this.active.WaitAmount();
+        return this.active.WaitAmount();
+    }
+
+    function WakeUp(){
+        return this.active.WakeUp();
     }
 }

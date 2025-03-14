@@ -50,21 +50,21 @@ class VectorHandler extends CommandHandler {
             local queue = TaskQueue();
             queue.EnqueueTask(this.vectors);
             queue.EnqueueTask(PrintInfo("Path vectorized"));
-            this.GetParent().EnqueueTask(queue);
+            this.EnqueueTask(queue);
         }else if(command == "!optimize"){
             local optimizer = RailVectorOptimizer(this.vectors.GetRoot());
 
             local queue = TaskQueue();
             queue.EnqueueTask(optimizer);
             queue.EnqueueTask(PrintInfo("Vectors optimized"));
-            this.GetParent().EnqueueTask(queue);
+            this.EnqueueTask(queue);
         }else if(command == "!build"){
             local types = AIRailTypeList();
             types.Valuate(Rail.IsRailTypeAvailable);
             types.KeepValue(1);
             local railType = types.Begin();
 
-            this.GetParent().EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true, 0));
+            this.EnqueueTask(RailSegmentBuilder(railType, this.vectors.GetRoot(), true, 0));
         }
 
         return true;

@@ -190,7 +190,7 @@
             local builder = Tasks_RoadPathBuilder(Road.ROADTYPE_ROAD);
             builder.Append(path);
 
-            this.GetParent().EnqueueTask(builder);
+            this.EnqueueTask(builder);
         }
         
         state = BUILD_STATIONS;

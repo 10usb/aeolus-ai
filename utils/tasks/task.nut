@@ -1,99 +1,94 @@
 class Task {
-	_parent = null;
+	_thread = null;
 	_ticks = 0;
 	_sleep = 0;
 	_date  = null;
-	_child = null;
-	_result = true;
+
 	function Run();
 	function GetName();
-}
 
-function Task::Execute(){
-	if(_child == null) return Run();
-
-	if(!_child.Execute())
-		_child = null;
-	
-	return _result;
-}
-
-function Task::PushTask(task, result = true){
-	_child = task;
-	_result = result;
-	return task;
-}
-
-function Task::GetParent(){
-	return _parent;
-}
-
-function Task::Sleep(ticks){
-	_ticks = Controller.GetTick();
-	_sleep = ticks;
-	return true;
-}
-
-function Task::IsSleepy(){
-	if(_child != null) return _child.IsSleepy();
-	if(Controller.GetTick() < _ticks){
-		return false;
-	}
-	if(Controller.GetTick() >= (_ticks + _sleep)){
-		return false;
-	}
-	return true;
-}
-
-function Task::SleepAmount(){
-	if(_child != null) return _child.SleepAmount();
-	return (_ticks + _sleep) - Controller.GetTick();
-}
-
-function Task::Wait(days){
-	_date  = {
-		start = AIDate.GetCurrentDate(),
-		till = AIDate.GetCurrentDate() + days
-	};
-	return true;
-}
-
-function Task::WaitUntil(date){
-	_date  = {
-		start = AIDate.GetCurrentDate(),
-		till = date
-	};
-	return true;
-}
-
-function Task::IsWaiting(){
-	if(_child != null) return _child.IsWaiting();
-	if(_date == null) return false;
-
-	if(AIDate.GetCurrentDate() < _date.start){
-		return false;
+	function SetThread(thread){
+		this._thread = thread;
+		return this;
 	}
 
-	if(AIDate.GetCurrentDate() > _date.till){
-		return false;
+	function PushTask(task, result = true){
+		this._thread.Push(task);
+		if(!result)
+			this._thread.Remove(this);
+		return task;
 	}
 
-	return true;
-}
+	function EnqueueTask(task){
+		_thread.scheduler.EnqueueTask(task);
+	}
 
-function Task::WaitAmount(){
-	if(_child != null) return _child.WaitAmount();
-	if(_date == null) return 0;
-	return _date.till - AIDate.GetCurrentDate();
-}
+	function GetParent(){
+		return this;
+	}
 
-function Task::WakeUp(){
-	if(_child != null) return _child.WakeUp();
-	if(_sleep > 0 || _date != null){
-		_ticks = 0;
-		_sleep = 0;
-		_date = null;
+	function Sleep(ticks){
+		_ticks = Controller.GetTick();
+		_sleep = ticks;
 		return true;
 	}
-	return false;
+
+	function IsSleepy(){
+		if(Controller.GetTick() < _ticks){
+			return false;
+		}
+		if(Controller.GetTick() >= (_ticks + _sleep)){
+			return false;
+		}
+		return true;
+	}
+
+	function SleepAmount(){
+		return (_ticks + _sleep) - Controller.GetTick();
+	}
+
+	function Wait(days){
+		_date  = {
+			start = AIDate.GetCurrentDate(),
+			till = AIDate.GetCurrentDate() + days
+		};
+		return true;
+	}
+
+	function WaitUntil(date){
+		_date  = {
+			start = AIDate.GetCurrentDate(),
+			till = date
+		};
+		return true;
+	}
+
+	function IsWaiting(){
+		if(_date == null) return false;
+
+		if(AIDate.GetCurrentDate() < _date.start){
+			return false;
+		}
+
+		if(AIDate.GetCurrentDate() > _date.till){
+			return false;
+		}
+
+		return true;
+	}
+
+	function WaitAmount(){
+		if(_date == null) return 0;
+		return _date.till - AIDate.GetCurrentDate();
+	}
+
+	function WakeUp(){
+		if(_sleep > 0 || _date != null){
+			_ticks = 0;
+			_sleep = 0;
+			_date = null;
+			return true;
+		}
+		return false;
+	}
 }

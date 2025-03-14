@@ -64,6 +64,6 @@ class DebugTestHandler extends CommandHandler {
         //AISign.BuildSign(location, "Center");
 
         this.tracer = Tasks_Road_TownTracer(town_id, cargo_id, 100, true);
-        this.GetParent().EnqueueTask(this.tracer);
+        this.EnqueueTask(this.tracer);
     }
 }

@@ -81,7 +81,7 @@ class Tasks_VehicleManager extends Task {
 
         if(replacer == null){
             replacer = Tasks_VehicleReplacer(Company.GetReplacementBudget());
-            this.GetParent().EnqueueTask(replacer);
+            this.EnqueueTask(replacer);
         }else{
             replacer.WakeUp();
         }

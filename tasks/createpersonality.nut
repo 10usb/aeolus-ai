@@ -13,10 +13,10 @@ class CreatePersonality extends Task {
 		local budget_id = Company.GetInvestmentBudget();
 		Budget.AllocateAmount(budget_id, Budget.GetAvailableMoney() * 0.9);
 
-		this.GetParent().EnqueueTask(FindOpportunities());
-		this.GetParent().EnqueueTask(RepayLoan());
-		this.GetParent().EnqueueTask(Tasks_Managers_Finance());
-		this.GetParent().EnqueueTask(Tasks_VehicleManager());
+		this.EnqueueTask(FindOpportunities());
+		this.EnqueueTask(RepayLoan());
+		this.EnqueueTask(Tasks_Managers_Finance());
+		this.EnqueueTask(Tasks_VehicleManager());
 		
 		return false;
 	}
