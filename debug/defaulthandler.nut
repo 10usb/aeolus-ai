@@ -5,6 +5,11 @@ class DefaultHandler extends CommandHandler {
         ::CommandHandler.constructor();
         this.debugging = debugging;
         this.Register("constructor", this.OnConstructor);
+        this.Register("finder", this.OnFinder);
+        this.Register("vector", this.OnVector);
+        this.Register("builder", this.OnBuilder);
+        this.Register("segments", this.OnSegments);
+        this.Register("test", this.OnTest);
     }
 
     function PrintHelp(){
@@ -18,39 +23,28 @@ class DefaultHandler extends CommandHandler {
         Log.Info(" - !segments      Segments & vectors");
         Log.Info(" - !constructor   Segments & vectors");
     }
-    
-    function OnCommand(command, argument, location){
-        if(::CommandHandler.OnCommand(command, argument, location)){
-            return true;
-        }
-
-        switch(command){
-            case "clear":
-                local signs = AISignList();
-                Lists.Valuate(signs, AISign.RemoveSign);
-            break;
-            case "finder":
-                this.debugging.SetHandler(FinderHandler());
-            break;
-            case "vector":
-                this.debugging.SetHandler(VectorHandler());
-            break;
-            case "builder":
-                this.debugging.SetHandler(BuilderHandler());
-            break;
-            case "segments":
-                this.debugging.SetHandler(SegmentHandler());
-            break;
-            case "test":
-                this.debugging.SetHandler(DebugTestHandler());
-            break;
-            default: return false;
-        }
-
-        return true;
-    }
 
     function OnConstructor(argument, location){
         this.debugging.SetHandler(DebugConstructorHandler());
+    }
+
+    function OnFinder(argument, location){
+        this.debugging.SetHandler(FinderHandler());
+    }
+
+    function OnVector(argument, location){
+        this.debugging.SetHandler(VectorHandler());
+    }
+
+    function OnBuilder(argument, location){
+        this.debugging.SetHandler(BuilderHandler());
+    }
+
+    function OnSegments(argument, location){
+        this.debugging.SetHandler(SegmentHandler());
+    }
+
+    function OnTest(argument, location){
+        this.debugging.SetHandler(DebugTestHandler());
     }
 }

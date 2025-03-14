@@ -41,7 +41,7 @@ class CommandHandler {
         }
 
         if(matches.len() <= 0){
-            Log.Error("Unknown command");
+            Log.Error("Unknown command '" + command + "'");
             this.PrintHelp();
             return true;
         }

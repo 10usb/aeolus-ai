@@ -45,6 +45,7 @@ class DebugConstructorHandler extends CommandHandler {
     function SetBuilder(argument, location){
         switch(argument){
             case "rc":
+            case "ric":
                 this.builder = argument;
                 Log.Info("Set builder: " + this.GetBuilderName(argument));
             break;
@@ -55,7 +56,8 @@ class DebugConstructorHandler extends CommandHandler {
 
     function GetBuilderName(code){
         switch(code){
-            case "rc": return "Road Inner City";
+            case "rc": return "City (Road)";
+            case "ric": return "Inter City (Road)";
         }
         return code;
     }
@@ -127,6 +129,7 @@ class DebugConstructorHandler extends CommandHandler {
     function Go(argument, location){
         switch(this.builder){
             case "rc": return !this.BuildRoadInnerCity(); break;
+            case "ric": return !this.BuildRoadInterCity(); break;
             default:
                 Log.Warning("Unknown builder: " + this.builder);
         }
@@ -164,6 +167,40 @@ class DebugConstructorHandler extends CommandHandler {
         Log.Info("Max. Stations: " + this.max);
         
         local task = Tasks_Road_BuildInnerCity(budget_id, funds_id, cargo_id, town_id, this.max);
+        this.EnqueueTask(task);
+
+        return true;
+    }
+
+    function BuildRoadInterCity(){
+        local town_ids = [];
+
+        foreach(reference in this.sources){
+            if(reference.type == Reference.TOWN)
+                town_ids.push(reference.id);
+        }
+
+        if(town_ids.len() < 2){
+            Log.Warning("Not enough towns selected");
+            return false;
+        }
+
+        if(this.cargos.len()<=0){
+            Log.Warning("No cargo selected");
+            return false;
+        }
+
+        local budget_id = Company.GetInvestmentBudget();
+        local cargo_id = this.cargos[0];
+
+        Log.Info("Towns:");
+        foreach(town_id in town_ids)
+            Log.Info("- " + Town.GetName(town_id));
+        Log.Info("Cargo: " + Cargo.GetName(cargo_id));
+        Log.Info("Budget: " + this.budget);
+        Log.Info("Max. Stations: " + this.max);
+        
+        local task = Tasks_Road_BuildInterCity(budget_id, cargo_id, town_ids, this.max);
         this.EnqueueTask(task);
 
         return true;

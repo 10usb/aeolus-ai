@@ -10,6 +10,7 @@ class RoadPathFinder {
     success     = null;
     radius      = null;
     exclusions  = null;
+    virtual     = null;
     railType    = null;
     debug       = false;
     next        = null;
@@ -23,6 +24,7 @@ class RoadPathFinder {
         this.startpoints = {};
         this.endpoints   = AIList();
         this.exclusions  = AIList();
+        this.virtual     = AIList();
 	}
 }
 
@@ -57,6 +59,10 @@ function RoadPathFinder::AddExclusion(index, start){
         this.startpoints.rawget(start).exclusions.AddItem(index, 0);
         if(debug) this.signs.Build(index, "EXCLUDED");
     }
+}
+
+function RoadPathFinder::AddVirtual(tiles){
+    this.virtual.AddList(tiles);
 }
 
 function RoadPathFinder::Init(){
@@ -109,7 +115,7 @@ function RoadPathFinder::BeginStep(){
 
 function RoadPathFinder::Step(){
 	if(this.queue.Count() <= 0) return false;
-	
+    
     // Poll queue
 	local node = this.next;
     this.next = null;
@@ -153,6 +159,9 @@ function RoadPathFinder::Step(){
         // Get penalty value
         local penalty = Road.IsRoadTile(index) ? -5 : 0;
 
+        if(this.virtual.HasItem(index))
+            penalty-= 10;
+
         // While the game setting might allow ramps, I don't like it.
         if(tilted){
             if(ramp){
@@ -161,7 +170,7 @@ function RoadPathFinder::Step(){
                     continue;
             }else if(Tile.GetComplementSlope(direction) != node.towards){
                 continue;
-            }else if(!Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index)){
+            }else if(node.forerunner == null || !Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index)){
                 continue;
             }
 

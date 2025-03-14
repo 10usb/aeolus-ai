@@ -77,6 +77,9 @@ class Tasks_Debugging extends Task {
             argument = command.slice(offset + 1);
             command = command.slice(0, offset);
         }
+        
+        if(command == "")
+            return true;
 
         switch(command){
             case "exit":

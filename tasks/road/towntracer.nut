@@ -238,4 +238,82 @@ class Tasks_Road_TownTracer extends Task {
 
         this.queue.push(tile);
     }
+
+    function GetSpots(acceptance, limit, min, max){
+        this.matches.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
+        local owned = AIList();
+        owned.AddList(this.stations);
+        owned.Valuate(Tile.GetOwner);
+        owned.KeepValue(AICompany.ResolveCompanyID(AICompany.COMPANY_SELF));
+
+        local attempt = 1;
+        local selected;
+        do {
+            if(attempt > 1)
+                Log.Info("Attempt #" + attempt);
+
+            local others = AIList();
+            others.AddList(owned);
+            
+            local stations = AIList();
+            stations.AddList(this.matches);
+            stations.RemoveBelowValue(acceptance);
+
+            local start = Lists.RandPriority(stations);
+            stations.RemoveItem(start);
+
+            selected = AIList();
+            selected.AddItem(start, 0);
+            others.AddItem(start, 0);
+
+            while(stations.Count() > 0){
+                stations.Valuate(GetDistance, others);
+                stations.Sort(List.SORT_BY_VALUE, true);
+                stations.RemoveBelowValue(8);
+
+                if(stations.Count() <= 0)
+                    break;
+
+                local next = stations.Begin();
+                stations.RemoveItem(next);
+                selected.AddItem(next, 0);
+                others.AddItem(next, 0);
+            }
+        }while(attempt++ < limit && selected.Count() < min);
+
+        if(selected.Count() < min)
+            return false;
+
+        local spots = AIList();
+        spots.AddList(selected);
+        
+        if(spots.Count() > max){
+            spots.Valuate(GetValue, this.cargo_id);
+            spots.Sort(List.SORT_BY_VALUE, false);
+            spots.RemoveBottom(spots.Count() - max);
+        }
+
+        return spots;
+    }
+
+    static function GetValue(index, cargo_id){
+        return Tile.GetCargoAcceptance(index, cargo_id, 1, 1, 3) * Tile.GetCargoProduction(index, cargo_id, 1, 1, 3);
+    }
+
+    static function GetDistance(index, list){
+        local min = 10000;
+        
+        local x = Tile.GetX(index);
+        local y = Tile.GetY(index);
+
+        foreach(tile, dummy in list){
+            local dx = abs(Tile.GetX(tile) - x);
+            local dy = abs(Tile.GetY(tile) - y);
+
+            if(max(dx, dy) < min)
+                min = max(dx, dy);
+        }
+
+        return min;
+    }
 }

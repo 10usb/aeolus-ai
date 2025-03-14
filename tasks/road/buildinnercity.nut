@@ -20,7 +20,6 @@
 
     engine_id = null;
     tracer = null;
-    selected = null;
     builder = null;
     queue = null;
     owned = null;
@@ -73,89 +72,25 @@
     }
 
     function PickStations(){
-        this.tracer.matches.Valuate(Tile.GetCargoAcceptance, this.cargo_id, 1, 1, 3);
         this.owned = AIList();
         owned.AddList(this.tracer.stations);
         owned.Valuate(Tile.GetOwner);
         owned.KeepValue(AICompany.ResolveCompanyID(AICompany.COMPANY_SELF));
 
-        local limit = 1;
-        do {
-            Log.Info("Attempt #" + limit);
-
-            local others = AIList();
-            others.AddList(owned);
-            
-            local stations = AIList();
-            stations.AddList(this.tracer.matches);
-            stations.RemoveBelowValue(40);
-
-            local start = Lists.RandPriority(stations);
-            stations.RemoveItem(start);
-            
-
-            this.selected = AIList();
-            this.selected.AddItem(start, 0);
-            others.AddItem(start, 0);
-
-            while(stations.Count() > 0){
-                stations.Valuate(GetDistance, others);
-                stations.Sort(List.SORT_BY_VALUE, true);
-                stations.RemoveBelowValue(8);
-
-                if(stations.Count() <= 0)
-                    break;
-
-                local next = stations.Begin();
-                stations.RemoveItem(next);
-                this.selected.AddItem(next, 0);
-                others.AddItem(next, 0);
-            }
-        }while(limit++ < 5 && this.selected.Count() < 2);
-
-        if(this.selected.Count() < 2){
-            Log.Error("Failed to find enough station spots in " + Town.GetName(this.town_id));
+        local spots = this.tracer.GetSpots(40, 5, 2, this.max_stations);
+        if(spots == false){
+            Log.Error("Failed to find enough stations spots in " + Town.GetName(this.town_id));
             // TODO mark town is not suited, and disfavor cargo and build preference
             return false;
         }
 
-        local spots = AIList();
-        spots.AddList(this.selected);
-        
-        if(spots.Count() > this.max_stations){
-            spots.Valuate(GetValue, this.cargo_id);
-            spots.Sort(List.SORT_BY_VALUE, false);
-            spots.RemoveBottom(spots.Count() - this.max_stations);
-        }
-
-        Log.Info("Selected " + (this.selected.Count()) + " station location to build");
+        Log.Info("Selected " + (spots.Count()) + " station locations to build");
 
         this.builder = Tasks_Road_BuildTownStations(this.budget_id, this.funds_id, this.cargo_id, this.town_id, spots, this.tracer.empties);
         this.PushTask(this.builder);
 
         state = PREP_VEHICLES;
         return true;
-    }
-
-    function GetValue(index, cargo_id){
-        return Tile.GetCargoAcceptance(index, cargo_id, 1, 1, 3) * Tile.GetCargoProduction(index, cargo_id, 1, 1, 3);
-    }
-
-    function GetDistance(index, list){
-        local min = 10000;
-        
-        local x = Tile.GetX(index);
-        local y = Tile.GetY(index);
-
-        foreach(tile, dummy in list){
-            local dx = abs(Tile.GetX(tile) - x);
-            local dy = abs(Tile.GetY(tile) - y);
-
-            if(max(dx, dy) < min)
-                min = max(dx, dy);
-        }
-
-        return min;
     }
 
     function PrepVehicles(){

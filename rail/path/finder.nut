@@ -16,7 +16,7 @@ class RailPathFinder {
 
 	constructor(){
 		this.signs       = Signs();
-        this.queue       = RailPathQueue();
+        this.queue       = AIPriorityQueue();
         this.nodes       = {};
         this.startpoints = {};
         this.endpoints   = AIList();
@@ -75,7 +75,7 @@ function RailPathFinder::Init(){
         node.towards = Tile.GetDirection(index, point.towards);
         node.start = point;
         this.nodes.rawset(index, node);
-        this.queue.Add(node);
+        this.queue.Insert(node, node.value + node.extra);
         
         local radius = this.GetDistance(index); 
         if(this.radius == null || radius < this.radius){
@@ -101,7 +101,7 @@ function RailPathFinder::Step(){
 	if(this.queue.Count() <= 0) return false;
 	
     // Poll queue
-	local node = this.queue.Poll();
+	local node = this.queue.Pop();
     local tilted = Tile.GetSlope(node.index) != Tile.SLOPE_FLAT;
     
     // Test candidates
@@ -217,7 +217,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
             current.bridge = false;
             current.start = forerunner.start;
 
-            this.queue.Add(current);
+            this.queue.Insert(current, current.value + current.extra);
             if(this.debug) this.signs.Build(current.index, "" + current.value);
 
             return current;
@@ -232,7 +232,7 @@ function RailPathFinder::Enqueue(index, forerunner, cost){
         node.start = forerunner.start;
 
         this.nodes.rawset(node.index, node);
-        this.queue.Add(node);
+        this.queue.Insert(node, node.value + node.extra);
         if(this.debug) this.signs.Build(node.index, "" + node.value);
         return node;
     }
