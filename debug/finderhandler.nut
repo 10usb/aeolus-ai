@@ -64,7 +64,7 @@ class FinderHandler extends CommandHandler {
             // types.KeepValue(1);
             // local railType = types.Begin();
 
-            local builder = Tasks_RoadPathBuilder(Road.ROADTYPE_ROAD);
+            local builder = Tasks_RoadPathBuilder(Company.GetInvestmentBudget(), Road.ROADTYPE_ROAD);
             builder.Append(path);
             if(this.build){
                 Log.Info("Building path");

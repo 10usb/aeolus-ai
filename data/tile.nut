@@ -82,6 +82,17 @@ function Tile::GetSlopeName(slope){
 	throw("Unknown Slope");
 }
 
+function Tile::IsSlopeRamp(slope){
+	switch(slope){
+		case Tile.SLOPE_NE:
+		case Tile.SLOPE_NW:
+		case Tile.SLOPE_SW:
+		case Tile.SLOPE_SE:
+			return 0;
+	}
+	return 1;
+}
+
 function Tile::GetSlopeTileIndex(index, slope){
     local x = AIMap.GetTileX(index);
     local y = AIMap.GetTileY(index);

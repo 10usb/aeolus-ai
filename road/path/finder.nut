@@ -125,7 +125,7 @@ function RoadPathFinder::Step(){
     local slope   = Tile.GetSlope(node.index);
     local tilted  = slope != Tile.SLOPE_FLAT;
     // If the current tile doesn't go up/down from it's origin it would create a ramp
-    local ramp    = tilted && slope != node.towards && Tile.GetComplementSlope(slope) != node.towards;
+    local ramp    = Tile.IsSlopeRamp(slope);
     local hasRoad = Road.HasRoadType(node.index, Road.ROADTYPE_ROAD);
     
     if(this.explore && this.GetDistance2(node.index) > 10){
@@ -161,20 +161,21 @@ function RoadPathFinder::Step(){
 
         if(this.virtual.HasItem(index))
             penalty-= 10;
-
-        // While the game setting might allow ramps, I don't like it.
+        
         if(tilted){
-            if(ramp){
-                // Eventhough it must have a ramp if it exist we're not going to be stupid
-                if(!Road.AreRoadTilesConnected(node.index, index))
-                    continue;
-            }else if(Tile.GetComplementSlope(direction) != node.towards){
-                continue;
-            }else if(node.forerunner == null || !Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index)){
-                continue;
-            }
-
             penalty+= 30;
+
+            if(node.forerunner == null || !Road.CanBuildConnectedRoadPartsHere(node.index, node.forerunner.index, index))
+                continue;
+
+            // While the game setting might allow ramps, I don't like it.
+            if(!Road.AreRoadTilesConnected(node.index, index)){
+                if(ramp)
+                    penalty+= 30;
+
+                if(Tile.IsSlopeRamp(Tile.GetSlope(index)))
+                    penalty+= 30;
+            }
         }
 
         local complement = !this.explore && Tile.GetComplementSlope(direction) == node.towards;
@@ -326,7 +327,7 @@ function RoadPathFinder::Enqueue(index, forerunner, cost, penalty, complement, v
         node.start = forerunner.start;
 
         this.nodes.rawset(node.index, node);
-        if(complement && penalty <=0){
+        if(complement && penalty <= 0){
             if(node.extra < forerunner.extra){
                 if(this.next==null || !this.next.bridge)
                     this.next = node;

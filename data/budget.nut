@@ -42,7 +42,7 @@ function Budget::GetBudgetAmount(budget_id){
 /**
  To create a new budget
  */
-function Budget::CreateBudget(name){
+function Budget::CreateBudget(name, expire = AIDate.DATE_INVALID){
 	local budgets = Storage.GetOrCreateValue("budgets", {});
 
 	local id = Storage.ValueExists("budget.increment") ? Storage.GetValue("budget.increment") : Storage.SetValue("budget.increment", 1);
@@ -53,7 +53,8 @@ function Budget::CreateBudget(name){
 		name = name,
 		credit = 0,
 		debit = 0,
-		created = AIDate.GetCurrentDate()
+		created = AIDate.GetCurrentDate(),
+		expire = expire
 	});
 	return id;
 }
@@ -70,6 +71,8 @@ function Budget::DeleteBudget(budget_id){
 	Budget.stats.total-= budget.credit - budget.debit;
 
 	budgets.rawdelete(budget_id);
+
+	Log.Warning("Delete budget  returning" + Finance.FormatMoney(budget.credit - budget.debit));
 	return true;
 }
 
@@ -94,6 +97,8 @@ function Budget::AllocateAmount(budget_id, amount){
 	// Normalize the values
 	budget.credit-= budget.debit;
 	budget.debit = 0;
+
+	Log.Warning("[+] allocate " + Finance.FormatMoney(amount) + " to " + budget.name + ", now at " + Finance.FormatMoney(budget.credit - budget.debit));
 	return true;
 }
 
@@ -118,6 +123,8 @@ function Budget::RemoveAmount(budget_id, amount){
 	// Normalize the values
 	budget.credit-= budget.debit;
 	budget.debit = 0;
+
+	Log.Warning("[-] remove " + Finance.FormatMoney(amount) + " from " + budget.name + ", now at " + Finance.FormatMoney(budget.credit - budget.debit));
 	return true;
 }
 
@@ -141,6 +148,8 @@ function Budget::Withdraw(budget_id, amount){
 
 	budget.debit+= amount;
 	Budget.stats.total-= amount;
+
+	Log.Warning("[-] withdraw " + Finance.FormatMoney(amount) + " from " + budget.name + ", now at " + Finance.FormatMoney(budget.credit - budget.debit));
 	return Finance.GetMoney(amount);
 }
 
@@ -161,6 +170,8 @@ function Budget::Withdraw(budget_id, amount){
 	local budget = budgets.rawget(budget_id);
 	budget.debit-= amount;
 	Budget.stats.total+= amount;
+
+	Log.Warning("[+] refund " + Finance.FormatMoney(amount) + " to " + budget.name + ", now at " + Finance.FormatMoney(budget.credit - budget.debit));
 	return true;
 }
 
@@ -183,6 +194,8 @@ function Budget::Transfer(source_id, destination_id, amount){
 
 	source.debit+= amount;
 	destination.credit+= amount;
+
+	Log.Warning("[-+] " + Finance.FormatMoney(amount) + " from " + source.name + " to " + destination.name + ", now at " + Finance.FormatMoney(destination.credit - destination.debit));
 	return true;
 }
 
@@ -205,6 +218,8 @@ function Budget::Request(budget_id, amount){
 
 	budget.credit+= needed;
 	Budget.stats.total+= needed;
+
+	Log.Warning("Request " + Finance.FormatMoney(needed) + " to " + budget.name + ", now at " + Finance.FormatMoney(budget.credit - budget.debit));
 	return true;
 }
 

@@ -34,9 +34,11 @@
     tracers = null;
     spots = null;
     paths = null;
+    builders = null;
+    current_station = 0;
+    depots = null;
 
     virtual = null;
-
     finder = null;
     
 	constructor(budget_id, cargo_id, town_ids, max_stations){
@@ -48,6 +50,7 @@
         this.tracers = {};
         this.spots = {};
         this.paths = {};
+        this.builders = {};
         this.virtual = AIList();
 
 		state = INITIALIZE;
@@ -65,6 +68,10 @@
             case FIND_STEP: return FindStep();
             case BUILD_PATH: return BuildPath();
             case BUILD_STATIONS: return BuildStations();
+
+            case PREP_VEHICLES: return PrepVehicles();
+            case SELECT_STATION: return SelectStation();
+            case BUY_VEHICLES: return BuyVehicles();
         }
 
         return false;
@@ -187,10 +194,10 @@
             if(path.len() <= 0)
                 continue;
 
-            local builder = Tasks_RoadPathBuilder(Road.ROADTYPE_ROAD);
+            local builder = Tasks_RoadPathBuilder(this.budget_id, Road.ROADTYPE_ROAD);
             builder.Append(path);
 
-            this.EnqueueTask(builder);
+            this.PushTask(builder);
         }
         
         state = BUILD_STATIONS;
@@ -198,6 +205,81 @@
     }
 
     function BuildStations(){
+        foreach(town_id, tracer in this.tracers){
+            local builder = Tasks_Road_BuildTownStations(this.budget_id, this.budget_id, this.cargo_id, town_id, this.spots[town_id], tracer.empties);
+            this.PushTask(builder);
+
+            this.builders[town_id] <- builder;
+        }
+
+        state = PREP_VEHICLES;
+        return true;
+    }
+
+    function PrepVehicles(){
+        queue = [];
+
+        this.depots = AIList();
+        foreach(town_id, builder in this.builders){
+            foreach(station_tile, _ in builder.stations)
+                queue.push(station_tile);
+            
+            this.depots.AddList(builder.depots);
+        }
+
+        state = SELECT_STATION;
+        return SelectStation();
+    }
+
+    function SelectStation(){
+        this.current_station = queue.pop();
+
+        state = BUY_VEHICLES;
+        return BuyVehicles();
+    }
+
+    function BuyVehicles(){
+        local cost = Engine.GetPrice(this.engine_id) * 1.2;
+        if(Budget.GetBudgetAmount(this.budget_id) < cost){
+            Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient");
+            return this.Wait(30);
+        }else if(!Budget.Withdraw(this.budget_id, cost)){
+            Log.Warning("Failed to withdraw money for engine need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+            return this.Wait(3);            
+        }
+
+        this.depots.Valuate(Tile.GetManhattanDistance, this.current_station);
+        this.depots.Sort(List.SORT_BY_VALUE, true);
+        local depot_tile = this.depots.Begin();
+        
+        Log.Info("Building vehicle");
+        local vehicle_id = Vehicle.BuildVehicle(depot_tile, this.engine_id);
+        AIOrder.AppendOrder(vehicle_id, this.current_station, AIOrder.OF_NON_STOP_INTERMEDIATE|AIOrder.OF_FULL_LOAD);
+
+        local destinations = AIList();
+        foreach(town_id, builder in this.builders)
+            destinations.AddList(builder.stations);
+        //destinations.AddList(owned);
+        destinations.RemoveItem(this.current_station);
+
+        destinations.Valuate(Tile.GetClosestTown);
+        destinations.RemoveValue(Tile.GetClosestTown(this.current_station));
+
+        destinations.Valuate(Lists.RandRangeItem, 0, 1000);
+        destinations.Sort(List.SORT_BY_VALUE, false);
+        destinations.KeepTop(1);
+
+        foreach(destination, _ in destinations)
+            AIOrder.AppendOrder(vehicle_id, destination, AIOrder.OF_NON_STOP_INTERMEDIATE);
+        
+        AIOrder.AppendOrder(vehicle_id, depot_tile, AIOrder.OF_GOTO_NEAREST_DEPOT|AIOrder.OF_NON_STOP_INTERMEDIATE);
+        AIVehicle.StartStopVehicle(vehicle_id);
+
+        if(queue.len() > 0){
+            state = SELECT_STATION;
+            return true;
+        }
+
         return false;
     }
  }
