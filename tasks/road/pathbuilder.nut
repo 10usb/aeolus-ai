@@ -11,12 +11,13 @@ class Tasks_RoadPathBuilder extends Task {
     signs = null;
     budget_id = 0;
     roadType = null;
+    error = 0;
 
 	constructor(budget_id, roadType){
         this.budget_id = budget_id;
         this.roadType = roadType;
         this.path = [];
-        this.offset = 2;
+        this.offset = 1;
         this.signs = Signs();
 
         Log.Info("Good morning Benny here we go!")
@@ -61,57 +62,67 @@ class Tasks_RoadPathBuilder extends Task {
             return this.Wait(3);
         }
 
-        if(this.offset + 1 >= this.path.len()) {
-            local from = this.path[this.offset - 1];
-            local index = this.path[this.offset];
-            Road.BuildRoad(from, index);
-            this.signs.Clean();
-            return false;
-        }
-
         Road.SetCurrentRoadType(this.roadType);
-        for(local count = 0; count < 10 && this.offset + 1 < this.path.len(); count++){
+        for(local count = 0; count < 10 && this.offset < this.path.len(); count++){
             local from = this.path[this.offset - 1];
             local index = this.path[this.offset];
-            local to = this.path[this.offset + 1];
 
-            local distance = Tile.GetDistanceManhattanToTile(index, to);
+            if(this.offset + 1 < this.path.len()){
+                local to = this.path[this.offset + 1];
 
-            if(distance > 1 && !AIBridge.IsBridgeTile(index)){
-                local bridges = AIBridgeList_Length(distance + 1);
-                foreach(bridge_id, _ in bridges){
-                    cost = AIBridge.GetPrice(bridge_id, distance) * 1.2;
+                local distance = Tile.GetDistanceManhattanToTile(index, to);
 
-                    if(Budget.GetBudgetAmount(this.budget_id) < cost){
-                        Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient, need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
-                        return this.Wait(30);
-                    }else if(!Budget.Withdraw(this.budget_id, cost)){
-                        Log.Warning("Failed to withdraw money for bridge, need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
-                        return this.Wait(3);
+                if(distance > 1 && !AIBridge.IsBridgeTile(index)){
+                    local bridges = AIBridgeList_Length(distance + 1);
+                    foreach(bridge_id, _ in bridges){
+                        cost = AIBridge.GetPrice(bridge_id, distance) * 1.2;
+
+                        if(Budget.GetBudgetAmount(this.budget_id) < cost){
+                            Log.Warning("Budget '" + Budget.GetName(this.budget_id) + "' not sufficient, need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+                            return this.Wait(30);
+                        }else if(!Budget.Withdraw(this.budget_id, cost)){
+                            Log.Warning("Failed to withdraw money for bridge, need " + Finance.FormatMoney(cost) + " available "+ Finance.FormatMoney(Budget.GetBudgetAmount(this.budget_id)));
+                            return this.Wait(3);
+                        }
+
+                        Log.Info(AIBridge.GetName(bridge_id, Vehicle.VT_ROAD) + ": " + AIBridge.GetMinLength(bridge_id) + "-" + AIBridge.GetMaxLength(bridge_id));
+                        if(AIBridge.BuildBridge(Vehicle.VT_ROAD, bridge_id, index, to))
+                            break;
                     }
-
-                    Log.Info(AIBridge.GetName(bridge_id, Vehicle.VT_ROAD) + ": " + AIBridge.GetMinLength(bridge_id) + "-" + AIBridge.GetMaxLength(bridge_id));
-                    if(AIBridge.BuildBridge(Vehicle.VT_ROAD, bridge_id, index, to))
-                        break;
                 }
             }
 
-            if(!Road.AreRoadTilesConnected(from, index)){
-                if(!Road.BuildRoad(from, index)){
-                    cost = Road.GetBuildCost(this.roadType, Road.BT_ROAD) * 2;
-
-                    if(Tile.IsFarmTile(from) || Tile.IsFarmTile(from))
-                        cost+= Tile.GetBuildCost(Tile.BT_CLEAR_FIELDS) * 2;
-
-                    if(AICompany.GetBankBalance(AICompany.COMPANY_SELF) < cost)
-                        return true;
-                }
+            if(Road.AreRoadTilesConnected(from, index)){
+                this.offset++;
+                continue;
             }
+
+
+            if(!Road.BuildRoad(from, index)){
+                cost = Road.GetBuildCost(this.roadType, Road.BT_ROAD) * 2;
+
+                if(Tile.IsFarmTile(from) || Tile.IsFarmTile(from))
+                    cost+= Tile.GetBuildCost(Tile.BT_CLEAR_FIELDS) * 2;
+
+                if(AICompany.GetBankBalance(AICompany.COMPANY_SELF) < cost)
+                    return true;
+            }
+
+            // Retry up to 5 times
+            if(this.error < 5 && !Road.AreRoadTilesConnected(from, index)){
+                this.error++;
+                continue;
+            }
+
+            this.error = 0;
             this.offset++;
         }
 
         //Log.Info("PathBuilder: " + this.offset + " < " + this.path.len());
-        if(this.offset + 1 < this.path.len()) return true;
-        return this.Sleep(100);
+        if(this.offset < this.path.len())
+            return this.error > 0 ? this.Sleep(100) : true;
+
+        this.signs.Clean();
+        return false;
     }
 }

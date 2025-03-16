@@ -67,7 +67,8 @@ function RoadPathFinder::AddVirtual(tiles){
 
 function RoadPathFinder::Init(){
     // When no end point's then nothing todo
-    if(this.endpoints.Count() <=0) return;
+    if(this.endpoints.Count() <= 0 || this.startpoints.len() <= 0)
+        return;
 
     this.distance = AIList();
     this.distance.AddList(this.endpoints);
@@ -110,6 +111,7 @@ function RoadPathFinder::Init(){
 }
 
 function RoadPathFinder::BeginStep(){
+	if(this.queue.Count() <= 0) return false;
     Rail.SetCurrentRailType(this.railType);
 }
 
